@@ -240,7 +240,7 @@ function convertCurrency(which) {
 		console.log('rhsSilver '+rhsSilver);
 		console.log('result '+result);
 
-		$('#amount-box'+whichOpposite).val(result);
+		$('#amount-box'+whichOpposite).val(result.toFixed(2));
 	}
 }
 
