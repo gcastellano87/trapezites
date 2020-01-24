@@ -50,6 +50,12 @@ $(document).on('click','.optionList a', function() {
 	flush(which);
 	populate(which);
 	changeName(which);
+
+	// trigger default conversion with 10
+	if ( allOptionsSelected() ) {
+		$('#amount-box1').val(10);
+		convertCurrency(1);
+	}
 });
 
 $(document).on('keyup', '.amount-box', function() {
@@ -196,11 +202,16 @@ function changeName(which) {
 	let coin = getCorrectCoin(which);
 
 	let name = '';
+	// name = name + (coin['isDenominationSelected'] ? coin['selectedDenomination'] : 'currency');
+	// name = name + ' in ';
+	// name = name + (coin['isLocationSelected'] ? coin['selectedLocation'] : 'location');
+	// name = name + ' during ';
+	// name = name + (coin['isPeriodSelected'] ? coin['selectedPeriod'] : 'period');
+	name = name + (coin['isLocationSelected'] ? coin['selectedLocation'] : 'location');
+	name = name + ' ';
 	name = name + (coin['isDenominationSelected'] ? coin['selectedDenomination'] : 'currency');
 	name = name + ' in ';
-	name = name + (coin['isLocationSelected'] ? coin['selectedLocation'] : 'location');
-	name = name + ' during ';
-	name = name + (coin['isPeriodSelected'] ? coin['selectedPeriod'] : 'period');
+	name = name + (coin['isPeriodSelected'] ? coin['selectedPeriod'] : 'period');	
 
 	$('#name'+which).text( name );
 }
@@ -220,8 +231,7 @@ function convertCurrency(which) {
 	let lhs = getCorrectCoin(which);
 	let rhs = getCorrectCoin(whichOpposite);
 	
-	if (!lhs['isLocationSelected'] || !lhs['isDenominationSelected'] || !lhs['isPeriodSelected'] ||
-		!rhs['isLocationSelected'] || !rhs['isDenominationSelected'] || !rhs['isPeriodSelected'] )
+	if ( !allOptionsSelected() )
 	{
 		$('#errorBox').text("You must provide denomination, location, and period for both currencies to convert.");
 	}
@@ -242,6 +252,11 @@ function convertCurrency(which) {
 
 		$('#amount-box'+whichOpposite).val(result.toFixed(2));
 	}
+}
+
+function allOptionsSelected() {
+	return coin1['isLocationSelected'] && coin1['isDenominationSelected'] && coin1['isPeriodSelected'] &&
+		coin2['isLocationSelected'] && coin2['isDenominationSelected'] && coin2['isPeriodSelected'];
 }
 
 function getValueInSilver(coin) {

@@ -77,11 +77,24 @@
   background-color: #91BBF5;
 }
 
+#translation-section {
+  width: auto;
+  display: inline-block;
+  margin: 0px 5px;
+}
+
 .names {
   display: inline-block;
 }
 
 #errorBox {
   color: red;
+}
+
+#statement {
+  padding: 0px;
+  margin: auto;
+  width: 100px;
+  display: block;
 }
 
