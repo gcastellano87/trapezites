@@ -22,6 +22,10 @@ var coin2 = {
 					"selectedPeriod" : ''
 				};
 
+window.onload = function () {
+	imgMapFunc ('region-map', 'region-img');
+}
+
 document.addEventListener("DOMContentLoaded", function() {
 	console.log('reading json');
 	// http://myjson.com/k8xmq
@@ -31,6 +35,7 @@ document.addEventListener("DOMContentLoaded", function() {
 		coinInfo = json.entries;
 		// currCoins = coinInfo;
 		console.log('coinInfo is ready');
+
 		populate(1);
 		populate(2);
 		changeName(1);
@@ -38,9 +43,10 @@ document.addEventListener("DOMContentLoaded", function() {
 	});
 });
 
-$(document).on('click','.optionList a', function() {
+$(document).on('click','.optionList a', function(e) {
+	e.preventDefault();
 	console.log('selected ' + this);
-	
+
 	let wasSelectedBefore = $(this).hasClass('selected');
 	$(this).toggleClass('selected');
 	let which = this.getAttribute('which');
@@ -281,3 +287,99 @@ function getCorrectCoin(which) {
 		throw "Error getting the correct coin";
 	}
 }
+
+//TODO: I'm assuming all dates in BC
+function preparePeriods() {
+	// get sets of periods
+	let startDates = new Set();
+	let endDates = new Set();
+	for (let item of coinInfo) {
+		let startDate = item['start date'];
+		let endDate = item['end date'];
+		startDates.add(startDate);
+		endDates.add(endDate);
+	}
+
+	//get min and max dates
+	let min = '9999 AD';
+	for (let item of startDates) {
+		if (compareYears(item, min) < 0) {
+			min = item;
+		}
+	}
+	let max = '9999 BC';
+	for (let item of startDates) {
+		if (compareYears(item, max) > 0) {
+			max = item;
+		}
+	}
+	min = Math.ceil(parseInt(min)/50)*50;
+	max = Math.ceil(parseInt(max)/50)*50;
+
+	//get set of periods
+	
+}
+
+//y1 and y2 are strings in format 'X BC' or 'X AD'
+//returns -1 if y1 < y2
+//returns  1 if y1 > y2
+//returns  0 if equal
+function compareYears(y1, y2) {
+	if (y1 == y2) {
+		return 0;
+	}
+	else {
+		let suf1 = y1.slice(-2);
+		let suf2 = y2.slice(-2);
+		if (suf1 == 'BC' && suf2 == 'AD') {
+			return -1;
+		}
+		else if (suf1 == 'AD' && suf2 == 'BC') {
+			return 1;
+		}
+		else if (suf1 == 'BC' && suf2 == 'BC') {
+			let num1 = parseInt(y1);
+			let num2 = parseInt(y2);
+			return num1 > num2 ? -1 : 1;
+		}
+		else { //both AD
+			let num1 = parseInt(y1);
+			let num2 = parseInt(y2);
+			return num1 < num2 ? -1 : 1;
+		}
+	}
+}
+
+// resize areas in image map 
+function imgMapFunc (mapId, imgId) {
+	console.log('imgMapFunc '+mapId+" "+imgId);
+    var ImageMap = function (map, img) {
+	    var n,
+	        areas = map.getElementsByTagName('area'),
+	        len = areas.length,
+	        coords = [],
+	        previousWidth = 909;
+	    for (n = 0; n < len; n++) {
+	        coords[n] = areas[n].coords.split(',');
+	    }
+	    this.resize = function () {
+	    	console.log('resize');
+	        var n, m, clen,
+	            x = img.offsetWidth / previousWidth;
+	        for (n = 0; n < len; n++) {
+	            clen = coords[n].length;
+	            for (m = 0; m < clen; m++) {
+	                coords[n][m] *= x;
+	            }
+	            areas[n].coords = coords[n].join(',');
+	        }
+	        previousWidth = document.body.clientWidth;
+	        return true;
+	    }
+	    window.onresize = this.resize;
+	}
+    imageMap = new ImageMap(document.getElementById(mapId), document.getElementById(imgId));
+    imageMap.resize();
+    return;
+}
+

@@ -98,3 +98,17 @@
   display: block;
 }
 
+/*.clickable-map{
+  width: 400px;
+  width: 100%;
+}*/
+
+#block1-1 {
+  width: auto;
+  height: auto;
+}
+
+#region-img {
+  max-width: 400px;
+  width: 100%;
+}
