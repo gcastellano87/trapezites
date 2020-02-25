@@ -11,4 +11,7 @@ steps:
     password: 
       from_secret: sgv287_eid_password    
     target: /mnt/home/sgv287/public_html/ancient-currencies
-    source: *
+    strip_components: 1
+    source: 
+      - public/**
+    rm: true
