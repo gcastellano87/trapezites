@@ -13,5 +13,5 @@ steps:
     target: /mnt/home/sgv287/public_html/ancient-currencies
     strip_components: 1
     source: 
-      - public/**
+      - ancient-currencies/**
     rm: true
