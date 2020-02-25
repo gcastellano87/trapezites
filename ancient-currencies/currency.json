@@ -1,0 +1,149 @@
+{
+  "entries": [
+    {
+      "denomination": "Aeginetan Obol",
+      "material": "Silver",
+      "start date": "600 BC",
+      "end date": "320 BC",
+      "region": "Greece/The Aegean",
+      "location": "Aegina",
+      "weight in grams": "1.04",
+      "value in grams of silver": "1.04",
+      "lat-long": "37.7409397, 23.430141",
+      "pleiades id": "https://pleiades.stoa.org/places/579844"
+    },
+    {
+      "denomination": "Aeginetan Drachm",
+      "material": "Silver",
+      "start date": "600 BC",
+      "end date": "320 BC",
+      "region": "Greece/The Aegean",
+      "location": "Aegina",
+      "weight in grams": "6.23",
+      "value in grams of silver": "6.23",
+      "lat-long": "37.7409397, 23.430141",
+      "pleiades id": "https://pleiades.stoa.org/places/579844"
+    },
+    {
+      "denomination": "Aeginetan Didrachm",
+      "material": "Silver",
+      "start date": "600 BC",
+      "end date": "320 BC",
+      "region": "Greece/The Aegean",
+      "location": "Aegina",
+      "weight in grams": "12.46",
+      "value in grams of silver": "12.46",
+      "lat-long": "37.7409397, 23.430141",
+      "pleiades id": "https://pleiades.stoa.org/places/579844"
+    },
+    {
+      "denomination": "Attic Tetartemorion",
+      "material": "Silver",
+      "start date": "550 BC",
+      "end date": "300 BC",
+      "region": "Greece/The Aegean",
+      "location": "Athens",
+      "weight in grams": "0.18",
+      "value in grams of silver": "0.18",
+      "lat-long": "37.9728191495, 23.7237438519",
+      "pleiades id": "https://pleiades.stoa.org/places/579885"
+    },
+    {
+      "denomination": "Attic Hemiobol",
+      "material": "Silver",
+      "start date": "550 BC",
+      "end date": "300 BC",
+      "region": "Greece/The Aegean",
+      "location": "Athens",
+      "weight in grams": "0.36",
+      "value in grams of silver": "0.36",
+      "lat-long": "37.9728191495, 23.7237438519",
+      "pleiades id": "https://pleiades.stoa.org/places/579885"
+    },
+    {
+      "denomination": "Attic Obol",
+      "material": "Silver",
+      "start date": "550 BC",
+      "end date": "300 BC",
+      "region": "Greece/The Aegean",
+      "location": "Athens",
+      "weight in grams": "0.72",
+      "value in grams of silver": "0.72",
+      "lat-long": "37.9728191495, 23.7237438519",
+      "pleiades id": "https://pleiades.stoa.org/places/579885"
+    },
+    {
+      "denomination": "Attic Drachm",
+      "material": "Silver",
+      "start date": "550 BC",
+      "end date": "300 BC",
+      "region": "Greece/The Aegean",
+      "location": "Athens",
+      "weight in grams": "4.35",
+      "value in grams of silver": "4.35",
+      "lat-long": "37.9728191495, 23.7237438519",
+      "pleiades id": "https://pleiades.stoa.org/places/579885"
+    },
+    {
+      "denomination": "Attic Didrachm",
+      "material": "Silver",
+      "start date": "550 BC",
+      "end date": "300 BC",
+      "region": "Greece/The Aegean",
+      "location": "Athens",
+      "weight in grams": "8.7",
+      "value in grams of silver": "8.7",
+      "lat-long": "37.9728191495, 23.7237438519",
+      "pleiades id": "https://pleiades.stoa.org/places/579885"
+    },
+    {
+      "denomination": "Attic Tetradrachm",
+      "material": "Silver",
+      "start date": "500 BC",
+      "end date": "300 BC",
+      "region": "Greece/The Aegean",
+      "location": "Athens",
+      "weight in grams": "17.4",
+      "value in grams of silver": "17.4",
+      "lat-long": "37.9728191495, 23.7237438519",
+      "pleiades id": "https://pleiades.stoa.org/places/579885"
+    },
+    {
+      "denomination": "Mexican Peso",
+      "material": "Silver",
+      "start date": "500 BC",
+      "end date": "300 BC",
+      "region": "Latin America",
+      "location": "Monterrey",
+      "weight in grams": "17.4",
+      "value in grams of silver": "17.4",
+      "lat-long": "37.9728191495, 23.7237438519",
+      "pleiades id": "https://pleiades.stoa.org/places/579885"
+    },
+    {
+      "denomination": "Fake Coin 1",
+      "material": "Silver",
+      "start date": "10 BC",
+      "end date": "30 BC",
+      "region": "Eastern Europe",
+      "location": "Krakow",
+      "weight in grams": "17.4",
+      "value in grams of silver": "17.4",
+      "lat-long": "37.9728191495, 23.7237438519",
+      "pleiades id": "https://pleiades.stoa.org/places/579885"
+    },
+    {
+      "denomination": "Fake Coin 2",
+      "material": "Silver",
+      "start date": "10 BC",
+      "end date": "30 BC",
+      "region": "Imaginary region",
+      "location": "really really long long long word",
+      "weight in grams": "17.4",
+      "value in grams of silver": "17.4",
+      "lat-long": "37.9728191495, 23.7237438519",
+      "pleiades id": "https://pleiades.stoa.org/places/579885"
+    }
+  ],
+  "total_entries": 12
+}
