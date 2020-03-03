@@ -1,5 +1,5 @@
 <?php
-$file = fopen("table.csv","r") or die("file does not exist");
+$file = fopen("table2.csv","r") or die("file does not exist");
 $count = 0;
 $json_array = array();
 $response = array();
@@ -34,10 +34,13 @@ while(! feof($file))
     $count++;
 }
 fclose($file);
-$calendars = array_values(array_unique($calendar));
-$years = array_values(array_unique($years));
+// $calendars = array_values(array_unique($calendar));
+// $years = array_values(array_unique($years));
 sort($years);
 $total_entries = count($json_array);
+
+echo $json_array;
+
 $response['entries'] = $json_array;
 // $response['all_calendars'] = array_values(array_diff($calendars, array('')));
 $response['total_entries'] = $total_entries;
@@ -75,6 +78,7 @@ $response['total_entries'] = $total_entries;
 // fclose($file_2);
 // $response['calendars_info'] = $json_array_2;
 // print_r($json_array_2);
+
 $fp = fopen('currency.json', 'w');
 // fwrite($fp, json_encode($response, JSON_HEX_QUOT | JSON_HEX_TAG));
 fwrite($fp, json_encode($response));

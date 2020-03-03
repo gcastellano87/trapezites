@@ -1,7 +1,7 @@
 var coinInfo;
 
-// TODO change to a single state instead of two
-var coin1 = {
+var state = {
+				"coin1" : {
 					"isRegionSelected" : false,
 					"isLocationSelected" : false,
 					"isDenominationSelected" : false,
@@ -10,9 +10,8 @@ var coin1 = {
 					"selectedLocation" : '',
 					"selectedDenomination" : '',
 					"selectedPeriod" : ''
-				};
-
-var coin2 = {
+				},
+				"coin2" : {
 					"isRegionSelected" : false,
 					"isLocationSelected" : false,
 					"isDenominationSelected" : false,
@@ -21,36 +20,41 @@ var coin2 = {
 					"selectedLocation" : '',
 					"selectedDenomination" : '',
 					"selectedPeriod" : ''
-				};
+				}
+			};
 
-// resize for map areas
+/*--- resize for map areas ---*/
 window.onload = function () {
 	imgMapFunc ('region-map', 'region-img');
 }
 
-// set up initial state
+/*--- set up initial state ---*/
 document.addEventListener("DOMContentLoaded", function() {
 	console.log('reading json...');
 	// http://myjson.com/k8xmq
-	$.getJSON("https://api.myjson.com/bins/k8xmq", (json)=>{
+	// $.getJSON("https://spreadsheets.google.com/feeds/cells/1AFmyU-Domc8QLXnEz-TlET-qD1rl8n0Aaxfh6_ui-DQ/1/od6/public/values?alt=json", (json)=>{
+	// 	console.log(json);
+	// });
+	$.getJSON("https://api.myjson.com/bins/15gpmk", (json)=>{
 		// console.log(json);
 		coinInfo = json.entries;
 		// currCoins = coinInfo;
 		console.log('coinInfo is ready');
 
-		populate(1);
-		populate(2);
-		changeName(1);
-		changeName(2);
+		update(1);
+		// populate(1);
+		// populate(2);
+		// changeName(1);
+		// changeName(2);
 	});
 });
 
-// optionlist events
+/*--- optionlist events ---*/
 $(document).on('click','.optionList a', function(e) {
 	e.preventDefault();
 	// console.log('selected ' + this);
 
-	let wasSelectedBefore = $(this).hasClass('selected');
+	// let wasSelectedBefore = $(this).hasClass('selected');
 	$(this).toggleClass('selected');
 	let which = this.getAttribute('which');
 	let label = this.getAttribute('label');
@@ -60,20 +64,43 @@ $(document).on('click','.optionList a', function(e) {
 	update(which);
 });
 
-// clickable map events
+/*--- clickable map events ---*/
 $(document).on('click','.clickable-map area', function(e) {
 	e.preventDefault();
-	console.log('clicked the map!!!');
 
+	//gather necessary data
 	let wasSelectedBefore = $(this).hasClass('selected');
-	$(this).toggleClass('selected');
 	let which = this.getAttribute('which');
 	let value = this.getAttribute('value');
 	let label = 'region';
-	console.log('selected '+which+" "+label+" "+value);
-	$('.currency'+which+' .region input').val( value );
-	toggleSelected(which, label, value);
 
+	//update the sign that is displayed
+	$('.currency'+which+' .region input').val( value );
+
+	//handle program logic
+	if (state['coin'+which]['isRegionSelected']) {
+		if (wasSelectedBefore) {
+			//region was selected and this object as well
+			// must deselect both
+			$(this).toggleClass('selected');
+			toggleSelected(which, label, '');
+		} else {
+			//region was selected but not this object
+			// must clear the selected class from all objects,
+			// add it to this object and select this region
+			clearMapAreas();
+			$(this).toggleClass('selected');
+			toggleSelected(which, label, '');
+			toggleSelected(which, label, value);
+		}
+	} else {
+		//neither region nor object were selected
+		// must select both
+		$(this).toggleClass('selected');
+		toggleSelected(which, label, value);
+	}
+
+	//update options displayed
 	update(which);
 });
 $(document).on('mouseover','.clickable-map area', function(e) {
@@ -85,55 +112,30 @@ $(document).on('mouseover','.clickable-map area', function(e) {
 $(document).on('mouseout','.clickable-map area', function(e) {
 	e.preventDefault();
 	let which = this.getAttribute('which');
-	let text = '';
-	if (which == '1') {
-		text = coin1['selectedRegion'];
-	} else if (which == '2') {
-		text = coin2['selectedRegion'];
-	} else {
-		throw "Error getting the correct coin";
-	}
+	let text = state['coin'+which]['selectedRegion'];
 	$('.currency'+which+' .region input').val( text );
 });
 
-// $('.clickable-map area').hover(
-// 	function() {
-// 		console.log('hover getting called')
-// 		e.preventDefault();
-// 		let which = this.getAttribute('which');
-// 		let value = this.getAttribute('value');
-// 		$('.currency'+which+' .region input').val( value );
-// 	}, function() {}
-// );
-
-// $('.clickable-map area').mouseover(function() {
-//     console.log('hover getting called')
-// 	e.preventDefault();
-// 	let which = this.getAttribute('which');
-// 	let value = this.getAttribute('value');
-// 	$('.currency'+which+' .region input').val( value );
-// }).mouseout(function(){
-// 	console.log('out getting called')      
-// });
-
+/*--- conversion ammount textbox event ---*/
 $(document).on('keyup', '.amount-box', function() {
 	let which = this.getAttribute('which');
 	convertCurrency(which);
 });
 
+/*--- functions that updated what is displayed ---*/
 function update(which) {
 	flush(which);
 	populate(which);
 	changeName(which);
 
-	if ( allTopOptionsSelected() ) {
+	if ( allCoinOptionsSelected(1) ) {
 		console.log('allTopOptionsSelected');
 		//display commodities
 		//display menu for second currency
 	} else {
 		//hide commodities
 		//possibly hide bottom menu
-		if (!anyBottomOptionsSelected()) {
+		if (!anyCoinOptionsSelected(2)) {
 		}
 	}
 
@@ -146,9 +148,11 @@ function update(which) {
 
 function populate(which) {
 
-	let coin = getCorrectCoin(which);
+	// let coin = getCorrectCoin(which);
+	let coin = state['coin'+which];
 
-	console.log('appending regions');
+	// console.log('appending regions');
+
 	let regions = new Set();
 	let locations = new Set();
 	let denominations = new Set();
@@ -158,7 +162,7 @@ function populate(which) {
 		let itemRegion = item['region'];
 		let itemLocation = item['location'];
 		let itemDenomination = item['denomination'];
-		let itemPeriod = item['start date'];
+		let itemPeriod = item['start_date'];
 
 		if ( (!coin['isRegionSelected']       || itemRegion == coin['selectedRegion']) &&
 			 (!coin['isLocationSelected']     || itemLocation == coin['selectedLocation']) &&
@@ -212,7 +216,7 @@ function flush(which) {
 	$('#amount-box1').val("");
 	$('#amount-box2').val("");
 
-	console.log('flushing!');
+	// console.log('flushing!');
 
 	// $('.currency'+which+' .region .optionList').children().each(function(i) {
 	//     if (!$(this).hasClass('selected')) {
@@ -240,9 +244,66 @@ function flush(which) {
 	});
 }
 
+function changeName(which) {
+	// let coin = getCorrectCoin(which);
+	let coin = state['coin'+which];
+
+	let name = '';
+	// name = name + (coin['isDenominationSelected'] ? coin['selectedDenomination'] : 'currency');
+	// name = name + ' in ';
+	// name = name + (coin['isLocationSelected'] ? coin['selectedLocation'] : 'location');
+	// name = name + ' during ';
+	// name = name + (coin['isPeriodSelected'] ? coin['selectedPeriod'] : 'period');
+	name = name + (coin['isLocationSelected'] ? coin['selectedLocation'] : 'location');
+	name = name + ' ';
+	name = name + (coin['isDenominationSelected'] ? coin['selectedDenomination'] : 'currency');
+	name = name + ' in ';
+	name = name + (coin['isPeriodSelected'] ? coin['selectedPeriod'] : 'period');	
+
+	$('#name'+which).text( name );
+}
+
+// Converts from the currency which to the other one
+function convertCurrency(which) {
+	// console.log('converting!!!');
+
+	let amountS = $('#amount-box'+which).val();
+
+	let whichOpposite = which == '1' ? '2' : '1';
+
+	// let lhs = getCorrectCoin(which);
+	// let rhs = getCorrectCoin(whichOpposite);
+	let lhs = state['coin'+which];
+	let rhs = state['coin'+whichOpposite];
+	
+	if ( !allOptionsSelected() )
+	{
+		$('#errorBox').text("You must provide denomination, location, and period for both currencies to convert.");
+	}
+	else if ( isNaN(amountS) ) {
+		$('#errorBox').text("Provide a valid number.");
+	}
+	else {
+		$('#errorBox').text("");
+		let amount = +amountS;
+		let lhsSilver = getValueInSilver(lhs);
+		let rhsSilver = getValueInSilver(rhs);
+		let result = (amount * lhsSilver) / rhsSilver;
+
+		console.log('amount '+amount);
+		console.log('lhsSilver '+lhsSilver);
+		console.log('rhsSilver '+rhsSilver);
+		console.log('result '+result);
+
+		$('#amount-box'+whichOpposite).val(result.toFixed(2));
+	}
+}
+
+/*--- functions that update program logic ---*/
 function toggleSelected(which, label, value) {
 	
-	let coin = getCorrectCoin(which);
+	// let coin = getCorrectCoin(which);
+	let coin = state['coin'+which]
 
 	if (label == 'region') {
 		if (!coin['isRegionSelected']) {
@@ -281,78 +342,34 @@ function toggleSelected(which, label, value) {
 	}
 }
 
-function changeName(which) {
-	let coin = getCorrectCoin(which);
-
-	let name = '';
-	// name = name + (coin['isDenominationSelected'] ? coin['selectedDenomination'] : 'currency');
-	// name = name + ' in ';
-	// name = name + (coin['isLocationSelected'] ? coin['selectedLocation'] : 'location');
-	// name = name + ' during ';
-	// name = name + (coin['isPeriodSelected'] ? coin['selectedPeriod'] : 'period');
-	name = name + (coin['isLocationSelected'] ? coin['selectedLocation'] : 'location');
-	name = name + ' ';
-	name = name + (coin['isDenominationSelected'] ? coin['selectedDenomination'] : 'currency');
-	name = name + ' in ';
-	name = name + (coin['isPeriodSelected'] ? coin['selectedPeriod'] : 'period');	
-
-	$('#name'+which).text( name );
-}
-
+// TODO: for searching in optionList functionality
 function filterFunction() {
 	console.log('filtering');
 }
 
-/* Converts from the currency which to the other one */
-function convertCurrency(which) {
-	console.log('converting!!!');
+// function allTopOptionsSelected() {
+// 	return coin1['isLocationSelected'] && 
+// 		   coin1['isDenominationSelected'] && 
+// 		   coin1['isPeriodSelected'];
+// }
 
-	let amountS = $('#amount-box'+which).val();
-
-	let whichOpposite = which == '1' ? '2' : '1';
-
-	let lhs = getCorrectCoin(which);
-	let rhs = getCorrectCoin(whichOpposite);
-	
-	if ( !allOptionsSelected() )
-	{
-		$('#errorBox').text("You must provide denomination, location, and period for both currencies to convert.");
-	}
-	else if ( isNaN(amountS) ) {
-		$('#errorBox').text("Provide a valid number.");
-	}
-	else {
-		$('#errorBox').text("");
-		let amount = +amountS;
-		let lhsSilver = getValueInSilver(lhs);
-		let rhsSilver = getValueInSilver(rhs);
-		let result = (amount * lhsSilver) / rhsSilver;
-
-		console.log('amount '+amount);
-		console.log('lhsSilver '+lhsSilver);
-		console.log('rhsSilver '+rhsSilver);
-		console.log('result '+result);
-
-		$('#amount-box'+whichOpposite).val(result.toFixed(2));
-	}
+function allCoinOptionsSelected(which) {
+	let coin = state['coin'+which];
+	return coin['isLocationSelected'] && 
+		   coin['isDenominationSelected'] && 
+		   coin['isPeriodSelected'];
 }
 
-function allTopOptionsSelected() {
-	return coin1['isLocationSelected'] && 
-		   coin1['isDenominationSelected'] && 
-		   coin1['isPeriodSelected'];
-}
-
-function anyBottomOptionsSelected() {
-	return coin2['isLocationSelected'] || 
-		   coin2['isDenominationSelected'] || 
-		   coin2['isPeriodSelected'] ||
-		   coin2['isRegionSelected'];
+function anyCoinOptionsSelected(which) {
+	let coin = state['coin'+which];
+	return coin['isLocationSelected'] || 
+		   coin['isDenominationSelected'] || 
+		   coin['isPeriodSelected'] ||
+		   coin['isRegionSelected'];
 }
 
 function allOptionsSelected() {
-	return coin1['isLocationSelected'] && coin1['isDenominationSelected'] && coin1['isPeriodSelected'] &&
-		coin2['isLocationSelected'] && coin2['isDenominationSelected'] && coin2['isPeriodSelected'];
+	return allCoinOptionsSelected(1) && allCoinOptionsSelected(2);
 }
 
 function getValueInSilver(coin) {
@@ -368,15 +385,15 @@ function getValueInSilver(coin) {
 	return 0;
 }
 
-function getCorrectCoin(which) {
-	if (which == '1') {
-		return coin1;
-	} else if (which == '2') {
-		return coin2;
-	} else {
-		throw "Error getting the correct coin";
-	}
-}
+// function getCorrectCoin(which) {
+// 	if (which == '1') {
+// 		return coin1;
+// 	} else if (which == '2') {
+// 		return coin2;
+// 	} else {
+// 		throw "Error getting the correct coin";
+// 	}
+// }
 
 //TODO: I'm assuming all dates in BC
 function preparePeriods() {
@@ -440,7 +457,13 @@ function compareYears(y1, y2) {
 	}
 }
 
-// resize areas in image map 
+function clearMapAreas () {
+	$('.clickable-map area').each(function() {
+		$(this).removeClass('selected');
+	});
+}
+
+/*-- resize areas in image map --*/
 function imgMapFunc (mapId, imgId) {
 	console.log('imgMapFunc '+mapId+" "+imgId);
     var ImageMap = function (map, img) {
