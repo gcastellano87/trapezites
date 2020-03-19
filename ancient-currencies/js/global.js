@@ -1,4 +1,6 @@
 var coinInfo;
+var commInfo;
+var periods;
 
 var state = {
 				"coin1" : {
@@ -37,9 +39,17 @@ document.addEventListener("DOMContentLoaded", function() {
 	// });
 	$.getJSON("https://api.myjson.com/bins/15gpmk", (json)=>{
 		// console.log(json);
-		coinInfo = json.entries;
-		// currCoins = coinInfo;
-		console.log('coinInfo is ready');
+		let entries = splitEntries(json.entries);
+		console.log(entries);
+
+		coinInfo = entries['currencies'];
+		commInfo = entries['commodities'];
+
+		console.log('coinInfo and commInfo ready');
+		// console.log(coinInfo);
+
+		periods = preparePeriods();
+		console.log('periods ready');
 
 		update(1);
 		// populate(1);
@@ -156,13 +166,13 @@ function populate(which) {
 	let regions = new Set();
 	let locations = new Set();
 	let denominations = new Set();
-	let periods = new Set();
+	// let periods = new Set();
 	for (let item of coinInfo) {
 
 		let itemRegion = item['region'];
 		let itemLocation = item['location'];
 		let itemDenomination = item['denomination'];
-		let itemPeriod = item['start_date'];
+		// let itemPeriod = item['start_date'];
 
 		if ( (!coin['isRegionSelected']       || itemRegion == coin['selectedRegion']) &&
 			 (!coin['isLocationSelected']     || itemLocation == coin['selectedLocation']) &&
@@ -172,7 +182,7 @@ function populate(which) {
 			regions.add(itemRegion);
 			locations.add(itemLocation);
 			denominations.add(itemDenomination);
-			periods.add(itemPeriod);
+			// periods.add(itemPeriod);
 		}
 	}
 
@@ -204,7 +214,8 @@ function populate(which) {
 	if (!coin['isPeriodSelected']) {
 		// console.log(periods);
 		for (let item of periods) {
-			let tempHtml = $('<a href="#" which="'+which+'" label="start date">'+ item +'</a>');
+			let str = item[0]+' to '+item[1];
+			let tempHtml = $('<a href="#" which="'+which+'" label="period">'+ str +'</a>');
 			$(tempHtml).appendTo('.currency'+which+' .period .optionList');
 		}
 	}
@@ -385,46 +396,77 @@ function getValueInSilver(coin) {
 	return 0;
 }
 
-// function getCorrectCoin(which) {
-// 	if (which == '1') {
-// 		return coin1;
-// 	} else if (which == '2') {
-// 		return coin2;
-// 	} else {
-// 		throw "Error getting the correct coin";
-// 	}
-// }
+function splitEntries(entries) {
+	let result = {
+		"currencies" : [],
+		"commodities" : []
+	};
+	for (let i in entries) {
+		let obj = entries[i];
+		if (obj['commodity or service'] == 'x') {
+			result['commodities'].push(obj);
+		} else {
+			result['currencies'].push(obj);
+		}
+	}
+	return result;
+}
 
 //TODO: I'm assuming all dates in BC
 function preparePeriods() {
-	// get sets of periods
-	let startDates = new Set();
-	let endDates = new Set();
-	for (let item of coinInfo) {
-		let startDate = item['start date'];
-		let endDate = item['end date'];
-		startDates.add(startDate);
-		endDates.add(endDate);
-	}
-
-	//get min and max dates
-	let min = '9999 AD';
-	for (let item of startDates) {
-		if (compareYears(item, min) < 0) {
-			min = item;
-		}
-	}
-	let max = '9999 BC';
-	for (let item of startDates) {
-		if (compareYears(item, max) > 0) {
-			max = item;
-		}
-	}
-	min = Math.ceil(parseInt(min)/50)*50;
-	max = Math.ceil(parseInt(max)/50)*50;
-
-	//get set of periods
+	// console.log('in preparePeriods');
 	
+	// find min and max dates
+	let min = '9999 AD';
+	let max = '9999 BC';
+
+	for (let item of coinInfo) {
+		// let startDate = item['start_date'];
+		// let endDate = item['end_date'];
+		// startDates.add(startDate);
+		// endDates.add(endDate);
+		if (compareYears(item['start_date'], min) < 0) {
+			min = item['start_date'];
+		}
+		if (compareYears(item['end_date'], max) > 0) {
+			max = item['end_date'];
+		}
+	}
+	// console.log('min '+min);
+	// console.log('max '+max);
+
+	//round up or down
+	let minSplit = min.split(' ',2);
+	let maxSplit = max.split(' ',2);
+	let minNum = Math.ceil(parseInt(minSplit[0])/25)*25;
+	let maxNum = Math.ceil(parseInt(maxSplit[0])/25)*25;
+	let minLabel = minSplit[1];
+	let maxLabel = maxSplit[1];
+	min = minNum+' '+minLabel;
+	max = maxNum+' '+maxLabel;
+	// console.log('rounded min '+min);
+	// console.log('rounded max '+max);
+
+	// generate periods in between min and max
+	let result = [];
+	while (compareYears(min, max) == -1){
+		// let periodStart = min;
+		let periodEnd;
+		if (minLabel == 'BC') {
+			periodEnd = minNum - 24;
+			result.push([min, periodEnd+' '+minLabel]);
+			minNum = minNum - 25;
+			if (minNum == 0) {
+				minLabel = 'AD';
+			}
+		} else {
+			periodEnd = minNum + 24;
+			result.push([min, periodEnd+' '+minLabel]);
+			minNum = minNum + 25;
+		}
+		min = minNum+' '+minLabel;
+	}
+	return result;
 }
 
 //y1 and y2 are strings in format 'X BC' or 'X AD'
@@ -432,6 +474,7 @@ function preparePeriods() {
 //returns  1 if y1 > y2
 //returns  0 if equal
 function compareYears(y1, y2) {
+	// console.log('comparing years '+y1+' '+y2);
 	if (y1 == y2) {
 		return 0;
 	}
@@ -445,6 +488,7 @@ function compareYears(y1, y2) {
 			return 1;
 		}
 		else if (suf1 == 'BC' && suf2 == 'BC') {
+			// console.log('both BC');
 			let num1 = parseInt(y1);
 			let num2 = parseInt(y2);
 			return num1 > num2 ? -1 : 1;
