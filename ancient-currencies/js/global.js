@@ -11,7 +11,7 @@ var state = {
 					"selectedRegion" : '',
 					"selectedLocation" : '',
 					"selectedDenomination" : '',
-					"selectedPeriod" : ''
+					"selectedPeriod" : []
 				},
 				"coin2" : {
 					"isRegionSelected" : false,
@@ -21,7 +21,7 @@ var state = {
 					"selectedRegion" : '',
 					"selectedLocation" : '',
 					"selectedDenomination" : '',
-					"selectedPeriod" : ''
+					"selectedPeriod" : -1
 				}
 			};
 
@@ -68,8 +68,13 @@ $(document).on('click','.optionList a', function(e) {
 	$(this).toggleClass('selected');
 	let which = this.getAttribute('which');
 	let label = this.getAttribute('label');
-	console.log('selected ' + name);
-	toggleSelected(which, label, this.textContent);
+	console.log('selected ' + label);
+	if (label == 'period') {
+		let pid = this.getAttribute('pid');
+		toggleSelected(which, label, pid);
+	} else {
+		toggleSelected(which, label, this.textContent);
+	}
 
 	update(which);
 });
@@ -172,12 +177,13 @@ function populate(which) {
 		let itemRegion = item['region'];
 		let itemLocation = item['location'];
 		let itemDenomination = item['denomination'];
-		// let itemPeriod = item['start_date'];
+		let itemStartDate = item['start_date'];
+		let itemEndDate = item['end_date'];
 
 		if ( (!coin['isRegionSelected']       || itemRegion == coin['selectedRegion']) &&
 			 (!coin['isLocationSelected']     || itemLocation == coin['selectedLocation']) &&
 			 (!coin['isDenominationSelected'] || itemDenomination == coin['selectedDenomination']) &&
-			 (!coin['isPeriodSelected'] 	  || itemPeriod == coin['selectedPeriod']) ) 
+			 (!coin['isPeriodSelected'] 	  || isCoinInsidePeriod(itemStartDate, itemEndDate, coin['selectedPeriod'])) ) 
 		{
 			regions.add(itemRegion);
 			locations.add(itemLocation);
@@ -213,9 +219,10 @@ function populate(which) {
 
 	if (!coin['isPeriodSelected']) {
 		// console.log(periods);
-		for (let item of periods) {
+		for (let i=0; i<periods.length; i++) {
+			let item = periods[i];
 			let str = item[0]+' to '+item[1];
-			let tempHtml = $('<a href="#" which="'+which+'" label="period">'+ str +'</a>');
+			let tempHtml = $('<a href="#" which="'+which+'" label="period" pid="'+i+'">'+ str +'</a>');
 			$(tempHtml).appendTo('.currency'+which+' .period .optionList');
 		}
 	}
@@ -268,8 +275,10 @@ function changeName(which) {
 	name = name + (coin['isLocationSelected'] ? coin['selectedLocation'] : 'location');
 	name = name + ' ';
 	name = name + (coin['isDenominationSelected'] ? coin['selectedDenomination'] : 'currency');
-	name = name + ' in ';
-	name = name + (coin['isPeriodSelected'] ? coin['selectedPeriod'] : 'period');	
+	name = name + ' between ';
+	name = name + (coin['isPeriodSelected'] ? periods[coin['selectedPeriod']][0] : 'year');
+	name = name + ' and ';
+	name = name + (coin['isPeriodSelected'] ? periods[coin['selectedPeriod']][1] : 'year');
 
 	$('#name'+which).text( name );
 }
@@ -340,13 +349,13 @@ function toggleSelected(which, label, value) {
 			coin['isDenominationSelected'] = false;
 			coin['selectedDenomination'] = '';
 		}
-	} else if (label == 'start date') {
+	} else if (label == 'period') {
 		if (!coin['isPeriodSelected']) {
 			coin['isPeriodSelected'] = true;
 			coin['selectedPeriod'] = value;
 		} else {
 			coin['isPeriodSelected'] = false;
-			coin['selectedPeriod'] = '';
+			coin['selectedPeriod'] = -1;
 		}
 	} else {
 		throw "Error in toggleSelected()";
@@ -396,6 +405,24 @@ function getValueInSilver(coin) {
 	return 0;
 }
 
+function isCoinInsidePeriod(startDate, endDate, pid) {
+	let selectedPeriod = periods[pid];
+	console.log('in isCoinInsidePeriod');
+	console.log('checking coin '+startDate+' '+endDate+' in '+selectedPeriod);
+	let periodStart = selectedPeriod[0];
+	let periodEnd = selectedPeriod[1];
+	let startDateInside = compareYears(periodStart, startDate) < 1 &&
+						  compareYears(periodEnd, startDate) > -1;
+	let endDateInside = compareYears(periodStart, endDate) < 1 &&
+						compareYears(periodEnd, endDate) > -1;
+	let periodInside = compareYears(periodStart, startDate) < 1 &&
+					   compareYears(periodEnd, endDate) > -1;
+	console.log('startDateInside ' + startDateInside);
+	console.log('endDateInside ' + endDateInside);
+	console.log('periodInside ' + periodInside);
+	return startDateInside || endDateInside || periodInside;
+}
+
 function splitEntries(entries) {
 	let result = {
 		"currencies" : [],
@@ -412,7 +439,6 @@ function splitEntries(entries) {
 	return result;
 }
 
-//TODO: I'm assuming all dates in BC
 function preparePeriods() {
 	// console.log('in preparePeriods');
 	
@@ -448,6 +474,7 @@ function preparePeriods() {
 	// console.log('rounded max '+max);
 
 	// generate periods in between min and max
+	// TODO: generating periods with no coins in existence
 	let result = [];
 	while (compareYears(min, max) == -1){
 		// let periodStart = min;
