@@ -30,7 +30,7 @@
 .block {
   background-color: #f6f6f6;
   width: 180px;
-  height: 220px;
+  height: 371px; 
   border: 1px solid #ddd;
   margin: 5px;
   vertical-align: top;
@@ -98,10 +98,16 @@
   display: block;
 }
 
-/*.clickable-map{
-  width: 400px;
-  width: 100%;
-}*/
+.clickable-map{
+  position: relative;
+}
+
+/*TODO: hide this on mobile*/
+.clickable-map .map-label {
+  position: absolute;
+  bottom: 0px;
+  width: 200px;
+}
 
 .region {
   width: auto;

@@ -122,13 +122,13 @@ $(document).on('mouseover','.clickable-map area', function(e) {
 	e.preventDefault();
 	let which = this.getAttribute('which');
 	let value = this.getAttribute('value');
-	$('.currency'+which+' .region input').val( value );
+	$('.currency'+which+' .map-label').val( value );
 });
 $(document).on('mouseout','.clickable-map area', function(e) {
 	e.preventDefault();
 	let which = this.getAttribute('which');
 	let text = state['coin'+which]['selectedRegion'];
-	$('.currency'+which+' .region input').val( text );
+	$('.currency'+which+' .map-label').val( text );
 });
 
 /*--- conversion ammount textbox event ---*/
