@@ -11,7 +11,9 @@ var state = {
 					"selectedRegion" : '',
 					"selectedLocation" : '',
 					"selectedDenomination" : '',
-					"selectedPeriod" : []
+					"selectedPeriod" : -1,
+					"selectedPeriodYear" : [],
+					"selectedPeriodSuf" : []
 				},
 				"coin2" : {
 					"isRegionSelected" : false,
@@ -21,7 +23,9 @@ var state = {
 					"selectedRegion" : '',
 					"selectedLocation" : '',
 					"selectedDenomination" : '',
-					"selectedPeriod" : -1
+					"selectedPeriod" : -1,
+					"selectedPeriodYear" : [],
+					"selectedPeriodSuf" : []
 				}
 			};
 
@@ -39,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	// });
 	$.getJSON("https://api.myjson.com/bins/15gpmk", (json)=>{
 		// console.log(json);
-		let entries = splitEntries(json.entries);
+		let entries = prepareEntries(json.entries);
 		console.log(entries);
 
 		coinInfo = entries['currencies'];
@@ -50,6 +54,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 		periods = preparePeriods();
 		console.log('periods ready');
+		console.log(periods);
 
 		update(1);
 		// populate(1);
@@ -127,7 +132,8 @@ $(document).on('mouseover','.clickable-map area', function(e) {
 $(document).on('mouseout','.clickable-map area', function(e) {
 	e.preventDefault();
 	let which = this.getAttribute('which');
-	let text = state['coin'+which]['selectedRegion'];
+	// let text = state['coin'+which]['selectedRegion'];
+	let text = '';
 	$('.currency'+which+' .map-label').val( text );
 });
 
@@ -163,6 +169,8 @@ function update(which) {
 
 function populate(which) {
 
+	//TODO: DO NOT APPEND EMPTY STUFF!
+
 	// let coin = getCorrectCoin(which);
 	let coin = state['coin'+which];
 
@@ -177,13 +185,17 @@ function populate(which) {
 		let itemRegion = item['region'];
 		let itemLocation = item['location'];
 		let itemDenomination = item['denomination'];
-		let itemStartDate = item['start_date'];
-		let itemEndDate = item['end_date'];
+		let itemStartDateYear = item['start_date_year'];
+		let itemStartDateSuf = item['start_date_suf'];
+		let itemEndDateYear = item['end_date_year'];
+		let itemEndDateSuf = item['end_date_suf'];
 
 		if ( (!coin['isRegionSelected']       || itemRegion == coin['selectedRegion']) &&
 			 (!coin['isLocationSelected']     || itemLocation == coin['selectedLocation']) &&
 			 (!coin['isDenominationSelected'] || itemDenomination == coin['selectedDenomination']) &&
-			 (!coin['isPeriodSelected'] 	  || isCoinInsidePeriod(itemStartDate, itemEndDate, coin['selectedPeriod'])) ) 
+			 (!coin['isPeriodSelected'] 	  || isCoinInsidePeriod(itemStartDateYear, itemEndDateSuf, 
+			 														itemEndDateYear, itemEndDateSuf, 
+			 														coin['selectedPeriod'])) ) 
 		{
 			regions.add(itemRegion);
 			locations.add(itemLocation);
@@ -405,25 +417,30 @@ function getValueInSilver(coin) {
 	return 0;
 }
 
-function isCoinInsidePeriod(startDate, endDate, pid) {
+function isCoinInsidePeriod(startDateYear, startDateSuf, endDateYear, endDateSuf, pid) {
 	let selectedPeriod = periods[pid];
-	console.log('in isCoinInsidePeriod');
-	console.log('checking coin '+startDate+' '+endDate+' in '+selectedPeriod);
+	// console.log('in isCoinInsidePeriod for pid:'+pid);
+	// console.log('checking coin '+startDate+' '+endDate+' in '+selectedPeriod);
 	let periodStart = selectedPeriod[0];
 	let periodEnd = selectedPeriod[1];
-	let startDateInside = compareYears(periodStart, startDate) < 1 &&
-						  compareYears(periodEnd, startDate) > -1;
-	let endDateInside = compareYears(periodStart, endDate) < 1 &&
-						compareYears(periodEnd, endDate) > -1;
-	let periodInside = compareYears(periodStart, startDate) < 1 &&
-					   compareYears(periodEnd, endDate) > -1;
-	console.log('startDateInside ' + startDateInside);
-	console.log('endDateInside ' + endDateInside);
-	console.log('periodInside ' + periodInside);
+	let periodStartYear = parseInt(periodStart);
+	let periodStartSuf = periodStart.slice(-2);
+	let periodEndYear = parseInt(periodEnd);
+	let periodEndSuf = periodEnd.slice(-2);
+
+	let startDateInside = compareYears(periodStartYear,periodStartSuf, startDateYear,startDateSuf) < 1 &&
+						  compareYears(periodEndYear,periodEndSuf, startDateYear,startDateSuf) > -1;
+	let endDateInside = compareYears(periodStartYear,periodStartSuf, endDateYear,endDateSuf) < 1 &&
+						compareYears(periodEndYear,periodEndSuf, endDateYear,endDateSuf) > -1;
+	let periodInside = compareYears(periodStartYear,periodStartSuf, startDateYear,startDateSuf) < 1 &&
+					   compareYears(periodEndYear,periodEndSuf, endDateYear,endDateSuf) > -1;
+	// console.log('startDateInside ' + startDateInside);
+	// console.log('endDateInside ' + endDateInside);
+	// console.log('periodInside ' + periodInside);
 	return startDateInside || endDateInside || periodInside;
 }
 
-function splitEntries(entries) {
+function prepareEntries(entries) {
 	let result = {
 		"currencies" : [],
 		"commodities" : []
@@ -431,8 +448,16 @@ function splitEntries(entries) {
 	for (let i in entries) {
 		let obj = entries[i];
 		if (obj['commodity or service'] == 'x') {
+			obj['start_date_year'] = parseInt(obj['start_date']);
+			obj['start_date_suf'] = obj['start_date'].slice(-2);
+			obj['end_date_year'] = parseInt(obj['end_date']);
+			obj['end_date_suf'] = obj['end_date'].slice(-2);
 			result['commodities'].push(obj);
 		} else {
+			obj['start_date_year'] = parseInt(obj['start_date']);
+			obj['start_date_suf'] = obj['start_date'].slice(-2);
+			obj['end_date_year'] = parseInt(obj['end_date']);
+			obj['end_date_suf'] = obj['end_date'].slice(-2);
 			result['currencies'].push(obj);
 		}
 	}
@@ -443,55 +468,66 @@ function preparePeriods() {
 	// console.log('in preparePeriods');
 	
 	// find min and max dates
-	let min = '9999 AD';
-	let max = '9999 BC';
+	let minYear = 9999;
+	let minSuf = 'AD';
+	let maxYear = 9999;
+	let maxSuf = 'BC';
 
 	for (let item of coinInfo) {
 		// let startDate = item['start_date'];
 		// let endDate = item['end_date'];
 		// startDates.add(startDate);
 		// endDates.add(endDate);
-		if (compareYears(item['start_date'], min) < 0) {
-			min = item['start_date'];
+		if (compareYears(item['start_date_year'],item['start_date_suf'], 
+						 minYear, minSuf) < 0) {
+			minYear = item['start_date_year'];
+			minSuf = item['start_date_suf'];
 		}
-		if (compareYears(item['end_date'], max) > 0) {
-			max = item['end_date'];
+		if (compareYears(item['end_date_year'],item['end_date_suf'], 
+						 maxYear, minSuf) > 0) {
+			maxYear = item['end_date_year'];
+			maxSuf = item['end_date_suf'];
 		}
 	}
+	let min = minYear+' '+minSuf;
+	let max = maxYear+' '+maxSuf;
+
 	// console.log('min '+min);
 	// console.log('max '+max);
 
 	//round up or down
-	let minSplit = min.split(' ',2);
-	let maxSplit = max.split(' ',2);
-	let minNum = Math.ceil(parseInt(minSplit[0])/25)*25;
-	let maxNum = Math.ceil(parseInt(maxSplit[0])/25)*25;
-	let minLabel = minSplit[1];
-	let maxLabel = maxSplit[1];
-	min = minNum+' '+minLabel;
-	max = maxNum+' '+maxLabel;
+	// let minSplit = min.split(' ',2);
+	// let maxSplit = max.split(' ',2);
+	// let minYear = Math.ceil(parseInt(minSplit[0])/25)*25;
+	// let maxYear = Math.ceil(parseInt(maxSplit[0])/25)*25;
+	// let minSuf = minSplit[1];
+	// let maxSuf = maxSplit[1];
+	minYear = Math.ceil(parseInt(minYear)/25)*25;
+	maxYear = Math.ceil(parseInt(maxYear)/25)*25;
+	min = minYear+' '+minSuf;
+	max = maxYear+' '+maxSuf;
 	// console.log('rounded min '+min);
 	// console.log('rounded max '+max);
 
 	// generate periods in between min and max
 	// TODO: generating periods with no coins in existence
 	let result = [];
-	while (compareYears(min, max) == -1){
+	while (compareYears(minYear, minSuf, maxYear, maxSuf) == -1){
 		// let periodStart = min;
 		let periodEnd;
-		if (minLabel == 'BC') {
-			periodEnd = minNum - 24;
-			result.push([min, periodEnd+' '+minLabel]);
-			minNum = minNum - 25;
-			if (minNum == 0) {
-				minLabel = 'AD';
+		if (minSuf == 'BC') {
+			periodEnd = minYear - 24;
+			result.push([min, periodEnd+' '+minSuf]);
+			minYear = minYear - 25;
+			if (minYear == 0) {
+				minSuf = 'AD';
 			}
 		} else {
-			periodEnd = minNum + 24;
-			result.push([min, periodEnd+' '+minLabel]);
-			minNum = minNum + 25;
+			periodEnd = minYear + 24;
+			result.push([min, periodEnd+' '+minSuf]);
+			minYear = minYear + 25;
 		}
-		min = minNum+' '+minLabel;
+		min = minYear+' '+minSuf;
 	}
 	return result;
 }
@@ -500,14 +536,12 @@ function preparePeriods() {
 //returns -1 if y1 < y2
 //returns  1 if y1 > y2
 //returns  0 if equal
-function compareYears(y1, y2) {
-	// console.log('comparing years '+y1+' '+y2);
-	if (y1 == y2) {
+function compareYears(num1,suf1,num2,suf2) {
+	// console.log('comparing years '+num1+' '+suf1+' '+num2+' '+suf2);
+	if (num1 == num2 && suf1 == suf2) {
 		return 0;
 	}
 	else {
-		let suf1 = y1.slice(-2);
-		let suf2 = y2.slice(-2);
 		if (suf1 == 'BC' && suf2 == 'AD') {
 			return -1;
 		}
@@ -516,13 +550,9 @@ function compareYears(y1, y2) {
 		}
 		else if (suf1 == 'BC' && suf2 == 'BC') {
 			// console.log('both BC');
-			let num1 = parseInt(y1);
-			let num2 = parseInt(y2);
 			return num1 > num2 ? -1 : 1;
 		}
 		else { //both AD
-			let num1 = parseInt(y1);
-			let num2 = parseInt(y2);
 			return num1 < num2 ? -1 : 1;
 		}
 	}
