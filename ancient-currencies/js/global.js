@@ -94,8 +94,11 @@ $(document).on('click','.clickable-map area', function(e) {
 	let value = this.getAttribute('value');
 	let label = 'region';
 
+	// console.log(wasSelectedBefore+' '+which+' '+value+' '+label);
+	// console.log(state['coin'+which]['isRegionSelected']);
+
 	//update the sign that is displayed
-	$('.currency'+which+' .region input').val( value );
+	$('.currency'+which+' .region > input').val( value );
 
 	//handle program logic
 	if (state['coin'+which]['isRegionSelected']) {
@@ -104,10 +107,12 @@ $(document).on('click','.clickable-map area', function(e) {
 			// must deselect both
 			$(this).toggleClass('selected');
 			toggleSelected(which, label, '');
+			$('.currency'+which+' .region > input').val( '' );
 		} else {
 			//region was selected but not this object
 			// must clear the selected class from all objects,
 			// add it to this object and select this region
+			// console.log('here');
 			clearMapAreas();
 			$(this).toggleClass('selected');
 			toggleSelected(which, label, '');
@@ -169,8 +174,6 @@ function update(which) {
 
 function populate(which) {
 
-	//TODO: DO NOT APPEND EMPTY STUFF!
-
 	// let coin = getCorrectCoin(which);
 	let coin = state['coin'+which];
 
@@ -215,6 +218,9 @@ function populate(which) {
 	if (!coin['isLocationSelected']) {
 		// console.log(locations);
 		for (let item of locations) {
+			if (item == '') {
+				item = '--Unknown--';
+			}
 			let tempHtml = $('<a href="#" which="'+which+'" label="location">'+ item +'</a>');
 			// $(tempHtml).appendTo('#currency'+which+'-location .optionList');
 			$(tempHtml).appendTo('.currency'+which+' .location .optionList');
@@ -224,6 +230,9 @@ function populate(which) {
 	if (!coin['isDenominationSelected']) {
 		// console.log(denominations);
 		for (let item of denominations) {
+			if (item == '') {
+				item = '--Unknown--';
+			}
 			let tempHtml = $('<a href="#" which="'+which+'" label="denomination">'+ item +'</a>');
 			$(tempHtml).appendTo('.currency'+which+' .denomination .optionList');
 		}
