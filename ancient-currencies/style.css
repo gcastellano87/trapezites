@@ -122,3 +122,8 @@
 .block input {
   width: 100%;
 }
+
+.comp-currencies,
+.comp-comodities {
+  display: none;
+}

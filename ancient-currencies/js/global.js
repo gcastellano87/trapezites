@@ -156,10 +156,16 @@ function update(which) {
 
 	if ( allCoinOptionsSelected(1) ) {
 		console.log('allTopOptionsSelected');
-		//display commodities
+		//display comparable stuff
+		$('.comp-currencies').show();
+		$('.comp-comodities').show();
+
 		//display menu for second currency
 	} else {
-		//hide commodities
+		//hide comparable stuff
+		$('.comp-currencies').hide();
+		$('.comp-comodities').hide();
+
 		//possibly hide bottom menu
 		if (!anyCoinOptionsSelected(2)) {
 		}
