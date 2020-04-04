@@ -41,27 +41,55 @@ document.addEventListener("DOMContentLoaded", function() {
 	// $.getJSON("https://spreadsheets.google.com/feeds/cells/1AFmyU-Domc8QLXnEz-TlET-qD1rl8n0Aaxfh6_ui-DQ/1/od6/public/values?alt=json", (json)=>{
 	// 	console.log(json);
 	// });
-	$.getJSON("https://api.myjson.com/bins/15gpmk", (json)=>{
-		// console.log(json);
-		let entries = prepareEntries(json.entries);
-		console.log(entries);
 
-		coinInfo = entries['currencies'];
-		commInfo = entries['commodities'];
+	let req = new XMLHttpRequest();
 
-		console.log('coinInfo and commInfo ready');
-		// console.log(coinInfo);
+	req.onreadystatechange = () => {
+		if (req.readyState == XMLHttpRequest.DONE) {
+			console.log(req.responseText);
+			let json = JSON.parse(req.responseText);
+			let entries = prepareEntries( json.entries );
+			console.log(entries);
 
-		periods = preparePeriods();
-		console.log('periods ready');
-		console.log(periods);
+			coinInfo = entries['currencies'];
+			commInfo = entries['commodities'];
 
-		update(1);
-		// populate(1);
-		// populate(2);
-		// changeName(1);
-		// changeName(2);
-	});
+			console.log('coinInfo and commInfo ready');
+			// console.log(coinInfo);
+
+			periods = preparePeriods();
+			console.log('periods ready');
+			console.log(periods);
+
+			update(1);
+		}
+	};
+
+	req.open("GET", "https://api.jsonbin.io/b/5e88006885182d79b0632c49/1", true);
+	req.setRequestHeader("secret-key", "$2b$10$d5ndnThMEyDiTKVk8G9MFuSOQfEJqvsFNYrHov86R.wuyP6bZhCEa");
+	req.send();
+
+	// $.getJSON("https://api.myjson.com/bins/15gpmk", (json)=>{
+	// 	// console.log(json);
+	// 	let entries = prepareEntries(json.entries);
+	// 	console.log(entries);
+
+	// 	coinInfo = entries['currencies'];
+	// 	commInfo = entries['commodities'];
+
+	// 	console.log('coinInfo and commInfo ready');
+	// 	// console.log(coinInfo);
+
+	// 	periods = preparePeriods();
+	// 	console.log('periods ready');
+	// 	console.log(periods);
+
+	// 	update(1);
+	// 	// populate(1);
+	// 	// populate(2);
+	// 	// changeName(1);
+	// 	// changeName(2);
+	// });
 });
 
 /*--- optionlist events ---*/
@@ -183,6 +211,7 @@ function populate(which) {
 	// let coin = getCorrectCoin(which);
 	let coin = state['coin'+which];
 
+	let periodCounts = new Array(periods.length).fill(0);
 	// console.log('appending regions');
 
 	let regions = new Set();
@@ -199,17 +228,27 @@ function populate(which) {
 		let itemEndDateYear = item['end_date_year'];
 		let itemEndDateSuf = item['end_date_suf'];
 
-		if ( (!coin['isRegionSelected']       || itemRegion == coin['selectedRegion']) &&
-			 (!coin['isLocationSelected']     || itemLocation == coin['selectedLocation']) &&
-			 (!coin['isDenominationSelected'] || itemDenomination == coin['selectedDenomination']) &&
-			 (!coin['isPeriodSelected'] 	  || isCoinInsidePeriod(itemStartDateYear, itemEndDateSuf, 
-			 														itemEndDateYear, itemEndDateSuf, 
-			 														coin['selectedPeriod'])) ) 
+		if ( 
+			(!coin['isRegionSelected']       || itemRegion == coin['selectedRegion']) &&
+			(!coin['isLocationSelected']     || itemLocation == coin['selectedLocation']) &&
+			(!coin['isDenominationSelected'] || itemDenomination == coin['selectedDenomination']) &&
+			(!coin['isPeriodSelected'] 	  || isCoinInsidePeriod(itemStartDateYear, itemEndDateSuf, 
+			 													itemEndDateYear, itemEndDateSuf, 
+			 													coin['selectedPeriod']))
+		   )
 		{
+			if(!coin['isPeriodSelected']){
+				for (let i=0; i<periods.length; i++) {
+					let coinInsidePeriod = isCoinInsidePeriod(itemStartDateYear, itemEndDateSuf, 
+							 						  itemEndDateYear, itemEndDateSuf, i);
+					if (coinInsidePeriod) {
+						periodCounts[i] += 1;
+					}
+				}
+			}
 			regions.add(itemRegion);
 			locations.add(itemLocation);
 			denominations.add(itemDenomination);
-			// periods.add(itemPeriod);
 		}
 	}
 
@@ -247,10 +286,12 @@ function populate(which) {
 	if (!coin['isPeriodSelected']) {
 		// console.log(periods);
 		for (let i=0; i<periods.length; i++) {
-			let item = periods[i];
-			let str = item[0]+' to '+item[1];
-			let tempHtml = $('<a href="#" which="'+which+'" label="period" pid="'+i+'">'+ str +'</a>');
-			$(tempHtml).appendTo('.currency'+which+' .period .optionList');
+			if (periodCounts[i] > 0) {
+				let item = periods[i];
+				let str = item[0]+' to '+item[1];
+				let tempHtml = $('<a href="#" which="'+which+'" label="period" pid="'+i+'">'+ str +'</a>');
+				$(tempHtml).appendTo('.currency'+which+' .period .optionList');
+			}
 		}
 	}
 }
