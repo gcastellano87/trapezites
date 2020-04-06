@@ -184,26 +184,24 @@ function update(which) {
 
 	if ( allCoinOptionsSelected(1) ) {
 		console.log('allTopOptionsSelected');
-		//display comparable stuff
-		$('.comp-currencies').show();
-		$('.comp-comodities').show();
+		//display comparable stuff for 10
+		$('#amount-box1').val(10);
+		displayComparableCurrencies();
+		displayComparableCommodities();
 
 		//display menu for second currency
 	} else {
 		//hide comparable stuff
+		$('.comp-currencies table tr').not(':first').remove();
 		$('.comp-currencies').hide();
+		$('.comp-comodities table tr').not(':first').remove();
 		$('.comp-comodities').hide();
 
 		//possibly hide bottom menu
 		if (!anyCoinOptionsSelected(2)) {
 		}
 	}
-
-	// trigger default conversion with 10
-	if ( allOptionsSelected() ) {
-		$('#amount-box1').val(10);
-		convertCurrency(1);
-	}
+	
 }
 
 function populate(which) {
@@ -351,6 +349,53 @@ function changeName(which) {
 	$('#name'+which).text( name );
 }
 
+function displayComparableCurrencies() {
+	console.log('in displayComparableCurrencies');
+	$('.comp-currencies').show();
+
+	// console.log(state['coin1']);
+
+	for (let item of coinInfo) {
+
+		let itemStartDateYear = item['start_date_year'];
+		let itemStartDateSuf = item['start_date_suf'];
+		let itemEndDateYear = item['end_date_year'];
+		let itemEndDateSuf = item['end_date_suf'];
+
+		if (isCoinInsidePeriod(itemStartDateYear, itemEndDateSuf, 
+ 												  itemEndDateYear, itemEndDateSuf, 
+ 												  state['coin1']['selectedPeriod'])) 
+		{
+			let itemRegion = item['region'];
+			let itemLocation = item['location'];
+			let itemDenomination = item['denomination'];
+
+			let periodS = item['start_date']+' to '+item['end_date'];
+
+			let amountS = $('#amount-box'+1).val();
+			let amount = +amountS;
+			let lhsSilver = getValueInSilver(state['coin1']);
+			let rhsSilver = +item['value in grams of silver'];
+			let result = (amount * lhsSilver) / rhsSilver;
+
+
+			let tempHtml = '<tr>';
+			tempHtml +=    '	<td>+</td>';
+			tempHtml +=    '	<td>'+result+'</td>';
+			tempHtml +=    '	<td>'+itemDenomination+'</td>';
+			tempHtml +=    '	<td>'+itemRegion+'</td>';
+			tempHtml +=    '	<td>'+itemLocation+'</td>';
+			tempHtml +=    '	<td>'+periodS+'</td>';
+			tempHtml +=    '</tr>';
+			$(tempHtml).appendTo('.comp-currencies table');
+		}
+	}
+}
+
+function displayComparableCommodities() {
+	$('.comp-comodities').show();
+}
+
 // Converts from the currency which to the other one
 function convertCurrency(which) {
 	// console.log('converting!!!');
@@ -464,8 +509,9 @@ function getValueInSilver(coin) {
 	for (let item of coinInfo) {
 
 		if ( item['location'] == coin['selectedLocation'] &&
-			 item['denomination'] == coin['selectedDenomination'] &&
-			 item['start date'] == coin['selectedPeriod'] ) 
+			 item['denomination'] == coin['selectedDenomination'] //&&
+			 // item['start date'] == coin['selectedPeriod'] 
+		   ) 
 		{
 			return (+item['value in grams of silver']);
 		}
@@ -476,7 +522,7 @@ function getValueInSilver(coin) {
 function isCoinInsidePeriod(startDateYear, startDateSuf, endDateYear, endDateSuf, pid) {
 	let selectedPeriod = periods[pid];
 	// console.log('in isCoinInsidePeriod for pid:'+pid);
-	// console.log('checking coin '+startDate+' '+endDate+' in '+selectedPeriod);
+	// console.log('checking coin '+startDateYear+' '+endDateYear+' in '+selectedPeriod);
 	let periodStart = selectedPeriod[0];
 	let periodEnd = selectedPeriod[1];
 	let periodStartYear = parseInt(periodStart);

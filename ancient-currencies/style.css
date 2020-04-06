@@ -127,3 +127,13 @@
 .comp-comodities {
   display: none;
 }
+
+.comparable {
+  max-height: 150px;
+  overflow: scroll;
+  width: auto;
+  display: inline-block;
+  padding: 0px 15px;
+  border: 1px solid black;
+  text-align: center;
+}
