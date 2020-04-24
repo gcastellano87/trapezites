@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 	req.onreadystatechange = () => {
 		if (req.readyState == XMLHttpRequest.DONE) {
-			console.log(req.responseText);
+			// console.log(req.responseText);
 			let json = JSON.parse(req.responseText);
 			let entries = prepareEntries( json.entries );
 			console.log(entries);
@@ -59,9 +59,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
 			periods = preparePeriods();
 			console.log('periods ready');
-			console.log(periods);
+			// console.log(periods);
 
-			update(1);
+			updateSelectionMenu(1);
 		}
 	};
 
@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	// 	console.log('periods ready');
 	// 	console.log(periods);
 
-	// 	update(1);
+	// 	updateSelectionMenu(1);
 	// 	// populate(1);
 	// 	// populate(2);
 	// 	// changeName(1);
@@ -109,7 +109,7 @@ $(document).on('click','.optionList a', function(e) {
 		toggleSelected(which, label, this.textContent);
 	}
 
-	update(which);
+	updateSelectionMenu(which);
 });
 
 /*--- clickable map events ---*/
@@ -154,7 +154,7 @@ $(document).on('click','.clickable-map area', function(e) {
 	}
 
 	//update options displayed
-	update(which);
+	updateSelectionMenu(which);
 });
 $(document).on('mouseover','.clickable-map area', function(e) {
 	e.preventDefault();
@@ -172,12 +172,28 @@ $(document).on('mouseout','.clickable-map area', function(e) {
 
 /*--- conversion ammount textbox event ---*/
 $(document).on('keyup', '.amount-box', function() {
+	//flush previous conversions
+	$('table tbody tr').remove();
+
 	let which = this.getAttribute('which');
-	convertCurrency(which);
+	let amountS = $('#amount-box'+which).val();
+	if ( !allCoinOptionsSelected(1) )
+	{
+		$('#errorBox').text("You must provide denomination, location, and period to convert.");
+	}
+	else if ( isNaN(amountS) ) {
+		$('#errorBox').text("Provide a valid number.");
+	}
+	else {
+		$('#errorBox').text("");
+		displayComparableCurrencies();
+		displayComparableCommodities();
+	}
+
 });
 
 /*--- functions that updated what is displayed ---*/
-function update(which) {
+function updateSelectionMenu(which) {
 	flush(which);
 	populate(which);
 	changeName(which);
@@ -192,9 +208,12 @@ function update(which) {
 		//display menu for second currency
 	} else {
 		//hide comparable stuff
-		$('.comp-currencies table tr').not(':first').remove();
+		// $('.comp-currencies table tr').not(':first').remove();
+		// $('.comp-currencies').hide();
+		// $('.comp-comodities table tr').not(':first').remove();
+		// $('.comp-comodities').hide();
+		$('table tbody tr').remove();
 		$('.comp-currencies').hide();
-		$('.comp-comodities table tr').not(':first').remove();
 		$('.comp-comodities').hide();
 
 		//possibly hide bottom menu
@@ -350,7 +369,7 @@ function changeName(which) {
 }
 
 function displayComparableCurrencies() {
-	console.log('in displayComparableCurrencies');
+	// console.log('in displayComparableCurrencies');
 	$('.comp-currencies').show();
 
 	// console.log(state['coin1']);
@@ -381,19 +400,58 @@ function displayComparableCurrencies() {
 
 			let tempHtml = '<tr>';
 			tempHtml +=    '	<td>+</td>';
-			tempHtml +=    '	<td>'+result+'</td>';
+			tempHtml +=    '	<td>'+result.toFixed(2)+'</td>';
 			tempHtml +=    '	<td>'+itemDenomination+'</td>';
 			tempHtml +=    '	<td>'+itemRegion+'</td>';
 			tempHtml +=    '	<td>'+itemLocation+'</td>';
 			tempHtml +=    '	<td>'+periodS+'</td>';
 			tempHtml +=    '</tr>';
-			$(tempHtml).appendTo('.comp-currencies table');
+			$(tempHtml).appendTo('.comp-currencies table tbody');
 		}
 	}
 }
 
 function displayComparableCommodities() {
+	// console.log('in displayComparableCommodities');
 	$('.comp-comodities').show();
+
+	for (let item of commInfo) {
+
+		// console.log(item);
+
+		let itemStartDateYear = item['start_date_year'];
+		let itemStartDateSuf = item['start_date_suf'];
+		let itemEndDateYear = item['end_date_year'];
+		let itemEndDateSuf = item['end_date_suf'];
+
+		// if (isCoinInsidePeriod(itemStartDateYear, itemEndDateSuf, 
+ 	// 											  itemEndDateYear, itemEndDateSuf, 
+ 	// 											  state['coin1']['selectedPeriod'])) 
+		// {
+			let itemRegion = item['region'];
+			let itemLocation = item['location'];
+			let itemDenomination = item['denomination'];
+
+			let periodS = item['start_date']+' to '+item['end_date'];
+
+			let amountS = $('#amount-box'+1).val();
+			let amount = +amountS;
+			let lhsSilver = getValueInSilver(state['coin1']);
+			let rhsSilver = +item['value in grams of silver'];
+			let result = (amount * lhsSilver) / rhsSilver;
+
+
+			let tempHtml = '<tr>';
+			tempHtml +=    '	<td>+</td>';
+			tempHtml +=    '	<td>'+result.toFixed(2)+'</td>';
+			tempHtml +=    '	<td>'+itemDenomination+'</td>';
+			tempHtml +=    '	<td>'+itemRegion+'</td>';
+			tempHtml +=    '	<td>'+itemLocation+'</td>';
+			tempHtml +=    '	<td>'+periodS+'</td>';
+			tempHtml +=    '</tr>';
+			$(tempHtml).appendTo('.comp-comodities table tbody');
+		// }
+	}
 }
 
 // Converts from the currency which to the other one

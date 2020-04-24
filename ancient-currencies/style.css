@@ -128,7 +128,27 @@
   display: none;
 }
 
-.comparable {
+/*table ,tr td{
+    border:1px solid red
+}*/
+tbody {
+    display:block;
+    height:120px;
+    overflow:auto;
+}
+thead, tbody tr {
+    display:table;
+    width:100%;
+    table-layout:fixed;
+}
+thead {
+    width: 100%;
+}
+/*table {
+    width:400px;
+}*/
+
+/*.comparable {
   max-height: 150px;
   overflow: scroll;
   width: auto;
@@ -136,4 +156,4 @@
   padding: 0px 15px;
   border: 1px solid black;
   text-align: center;
-}
+}*/
