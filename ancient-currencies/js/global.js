@@ -61,6 +61,9 @@ document.addEventListener("DOMContentLoaded", function() {
 			console.log('periods ready');
 			// console.log(periods);
 
+			//set state according to url parameters
+			setInitialState(window.location.href);
+
 			updateSelectionMenu(1);
 		}
 	};
@@ -101,13 +104,15 @@ $(document).on('click','.optionList a', function(e) {
 	$(this).toggleClass('selected');
 	let which = this.getAttribute('which');
 	let label = this.getAttribute('label');
+	let value = '';
 	console.log('selected ' + label);
 	if (label == 'period') {
-		let pid = this.getAttribute('pid');
-		toggleSelected(which, label, pid);
+		value = this.getAttribute('pid');
 	} else {
-		toggleSelected(which, label, this.textContent);
+		value = this.textContent;
 	}
+	toggleSelected(which, label, value);
+	window.history.replaceState('', '', updateURLParameters(window.location.href));
 
 	updateSelectionMenu(which);
 });
@@ -192,6 +197,95 @@ $(document).on('keyup', '.amount-box', function() {
 
 });
 
+function setInitialState(url) {
+	console.log('setting InitialState');
+	url = decodeURIComponent(url);
+
+    let tempArray = url.split("?");
+    let baseURL = tempArray[0];
+    let additionalURL = tempArray[1];
+    let temp = "";
+
+    if (additionalURL) {
+        tempArray = additionalURL.split("&");
+        for (let i=0; i<tempArray.length; i++){
+        	let param = tempArray[i].split('=');
+        	let key = param[0];
+        	let value = param[1];
+            if (key == 'location') {
+            	state['coin1']['isLocationSelected'] = true;
+            	state['coin1']['selectedLocation'] = value;
+            	let tempHtml = $('<a href="#" which="'+1+'" label="location">'+ value +'</a>');
+            	$(tempHtml).toggleClass('selected');
+				$(tempHtml).appendTo('.currency'+1+' .location .optionList');
+            } else if (key == 'denomination') {
+            	state['coin1']['isDenominationSelected'] = true;
+            	state['coin1']['selectedDenomination'] = value;
+            	let tempHtml = $('<a href="#" which="'+1+'" label="denomination">'+ value +'</a>');
+            	$(tempHtml).toggleClass('selected');
+				$(tempHtml).appendTo('.currency'+1+' .denomination .optionList');
+            } else if (key == 'period') {
+            	state['coin1']['isPeriodSelected'] = true;
+            	state['coin1']['selectedPeriod'] = value;
+            	let item = periods[value];
+				let str = item[0]+' to '+item[1];
+				let tempHtml = $('<a href="#" which="'+1+'" label="period" pid="'+value+'">'+ str +'</a>');
+				$(tempHtml).toggleClass('selected');
+				$(tempHtml).appendTo('.currency'+1+' .period .optionList');
+            } else {
+            	throw "Unrecognized url parameter.";
+            }
+        }
+    }
+}
+
+/**
+ * https://stackoverflow.com/questions/1090948/change-url-parameters
+ */
+function updateURLParameters(url, param, paramVal){
+
+	let tempArray = url.split("?");
+    let baseURL = tempArray[0];
+
+	let newParameters = '';
+	if (state['coin1']['isLocationSelected']) {
+		newParameters += newParameters != '' ? '&' : '';
+		newParameters += 'location=' + state['coin1']['selectedLocation'];
+	}
+	if (state['coin1']['isDenominationSelected']) {
+		newParameters += newParameters != '' ? '&' : '';
+		newParameters += 'denomination=' + state['coin1']['selectedDenomination'];
+	}
+	if (state['coin1']['isPeriodSelected']) {
+		newParameters += newParameters != '' ? '&' : '';
+		newParameters += 'period=' + state['coin1']['selectedPeriod'];
+	}
+
+	if (newParameters != '') {
+		return baseURL + '?' + newParameters;
+	} else {
+		return baseURL;
+	}
+
+    // let newAdditionalURL = "";
+    // let tempArray = url.split("?");
+    // let baseURL = tempArray[0];
+    // let additionalURL = tempArray[1];
+    // let temp = "";
+    // if (additionalURL) {
+    //     tempArray = additionalURL.split("&");
+    //     for (let i=0; i<tempArray.length; i++){
+    //         if(tempArray[i].split('=')[0] != param){
+    //             newAdditionalURL += temp + tempArray[i];
+    //             temp = "&";
+    //         }
+    //     }
+    // }
+
+    // let rows_txt = temp + "" + param + "=" + paramVal;
+    // return baseURL + "?" + newAdditionalURL + rows_txt;
+}
+
 /*--- functions that updated what is displayed ---*/
 function updateSelectionMenu(which) {
 	flush(which);
@@ -204,6 +298,7 @@ function updateSelectionMenu(which) {
 		$('#amount-box1').val(10);
 		displayComparableCurrencies();
 		displayComparableCommodities();
+		makeChange();
 
 		//display menu for second currency
 	} else {
@@ -283,8 +378,8 @@ function populate(which) {
 			if (item == '') {
 				item = '--Unknown--';
 			}
-			let tempHtml = $('<a href="#" which="'+which+'" label="location">'+ item +'</a>');
 			// $(tempHtml).appendTo('#currency'+which+'-location .optionList');
+			let tempHtml = $('<a href="#" which="'+which+'" label="location">'+ item +'</a>');
 			$(tempHtml).appendTo('.currency'+which+' .location .optionList');
 		}
 	}
@@ -366,6 +461,33 @@ function changeName(which) {
 	name = name + (coin['isPeriodSelected'] ? periods[coin['selectedPeriod']][1] : 'year');
 
 	$('#name'+which).text( name );
+}
+
+function makeChange() {
+	$('.change').show();
+
+	let family = [];
+
+	for (let item of coinInfo) {
+
+		let itemDenomination = item['denomination'];
+		let itemLocation = item['location'];
+		let itemStartDateYear = item['start_date_year'];
+		let itemStartDateSuf = item['start_date_suf'];
+		let itemEndDateYear = item['end_date_year'];
+		let itemEndDateSuf = item['end_date_suf'];
+
+		if (itemDenomination != state['coin1']['selectedDenomination'] &&
+			itemLocation == state['coin1']['selectedLocation'] && 
+			isCoinInsidePeriod(itemStartDateYear, itemEndDateSuf, 
+ 												  itemEndDateYear, itemEndDateSuf, 
+ 												  state['coin1']['selectedPeriod'])) 
+		{
+			family.push(item);
+		}
+	}
+
+	console.log(family);
 }
 
 function displayComparableCurrencies() {
