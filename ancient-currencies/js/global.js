@@ -262,10 +262,10 @@ $(document).on('keyup', '.amount-box', function() {
 		TODO: this code doesn't work yet, 
 			search is okay but backspace is faulty
 ---*/
-$(document).on('keydown', '.search-box', function() {
-
+$(document).on('keyup', '.search-box', function() {
 	let value = this.value;
 	let label = this.getAttribute('label');
+    value = value.toUpperCase();
 
 	console.log('searching on '+label+' for '+value);
 
