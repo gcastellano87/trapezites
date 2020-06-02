@@ -259,18 +259,18 @@ $(document).on('keyup', '.amount-box', function() {
 /*--- conversion ammount textbox event 
 		runs every time someone types into an search box
 
-		TODO: this code doesn't work yet, 
+		UPDATE: Working Now
+		    TODO: this code doesn't work yet,
 			search is okay but backspace is faulty
 ---*/
 $(document).on('keyup', '.search-box', function() {
 	let value = this.value;
 	let label = this.getAttribute('label');
-    value = value.toUpperCase();
 
 	console.log('searching on '+label+' for '+value);
 
 	if (label == 'period') {
-
+        value = value.toUpperCase();
 		$('.period .option-list a').each(function(i, item) {
 			// if (item.textContent.includes(value)) {
 			if (item.textContent.indexOf(value) != -1) {
@@ -280,9 +280,33 @@ $(document).on('keyup', '.search-box', function() {
 			}
 		});
 	}
-	else {
-		let which = this.getAttribute('which');
-		// TODO: implement search for denomination-location
+	//search for denomination-location left
+	else if(label == 'denomination-location-1'){
+		//let which = this.getAttribute('which');
+        $('.converter-left .denomination-location .option-list a').each(function(i, item) {
+			//console.log(item.textContent);
+			lcText = item.textContent.toLowerCase();    //make case-insensitive
+			value = value.toLowerCase();
+			if (lcText.indexOf(value) != -1) {
+				$(item).show();
+			} else {
+				$(item).hide();
+			}
+		});
+
+	}
+	//search for denomination-location right
+	else if(label = 'denomination-location-2'){
+
+	    $('.converter-right .denomination-location .option-list a').each(function(i, item) {
+            lcText = item.textContent.toLowerCase();    //make case-insensitive
+            value = value.toLowerCase();
+            if (lcText.indexOf(value) != -1) {
+                $(item).show();
+            } else {
+                $(item).hide();
+            }
+        });
 	}
 
 });
@@ -422,7 +446,7 @@ function updateApp(which) {
 		console.log('allTopOptionsSelected');
 		//save value in state
 		state['coin1']['value'] = getValueInSilver(state['coin1']);
-
+        console.log(state['coin1']['value']);
 		//display comparable stuff for 10
 		$('#amount-box1').val(10);
 		displayComparableCurrencies();
@@ -435,7 +459,6 @@ function updateApp(which) {
 		$('.comp-comodities').hide();
 
 	}
-	
 }
 
 function populate(which) {
@@ -651,7 +674,7 @@ function displayComparableCurrencies() {
 
 		if (isCoinInsidePeriod(itemStartDateYear, itemEndDateSuf, 
  												  itemEndDateYear, itemEndDateSuf, 
- 												  state['coin1']['selectedPeriod'])) 
+ 												  state['selectedPeriod']))
 		{
 			let itemRegion = item['region'];
 			let itemLocation = item['location'];
@@ -772,6 +795,7 @@ function toggleSelected(which, label, value) {
 		if (!state['isPeriodSelected']) {
 			state['isPeriodSelected'] = true;
 			state['selectedPeriod'] = value;
+			console.log(state['selectedPeriod']);
 		} else {
 			state['isPeriodSelected'] = false;
 			state['selectedPeriod'] = -1;
@@ -817,16 +841,21 @@ function toggleSelected(which, label, value) {
 
 function allCoinOptionsSelected(which) {
 	let coin = state['coin'+which];
+	    //**prints for debugging**//
+        /*console.log(coin['isLocationSelected']);
+        console.log(coin['isDenominationSelected']);
+        console.log(state['isPeriodSelected']);
+        console.log(state['selectedPeriod']);*/
 	return coin['isLocationSelected'] && 
 		   coin['isDenominationSelected'] && 
-		   coin['isPeriodSelected'];
+		   state['isPeriodSelected'];
 }
 
 function anyCoinOptionsSelected(which) {
 	let coin = state['coin'+which];
 	return coin['isLocationSelected'] || 
 		   coin['isDenominationSelected'] || 
-		   coin['isPeriodSelected'] ||
+		   state['isPeriodSelected'] ||
 		   coin['isRegionSelected'];
 }
 
@@ -839,7 +868,7 @@ function getValueInSilver(coin) {
 
 		if ( item['location'] == coin['selectedLocation'] &&
 			 item['denomination'] == coin['selectedDenomination'] //&&
-			 // item['start date'] == coin['selectedPeriod'] 
+			 //item['start date'] == state['selectedPeriod']
 		   ) 
 		{
 			return (+item['value in grams of silver']);
@@ -857,6 +886,8 @@ function getValueInSilver(coin) {
 */
 function isCoinInsidePeriod(startDateYear, startDateSuf, endDateYear, endDateSuf, pid) {
 	let selectedPeriod = periods[pid];
+	//console.log(selectedPeriod);
+	//console.log(pid);
 	// console.log('in isCoinInsidePeriod for pid:'+pid);
 	// console.log('checking coin '+startDateYear+startDateSuf+' '+endDateYear+endDateSuf+' in '+selectedPeriod);
 
