@@ -3,6 +3,20 @@ body {
   max-width: 980px;
 }
 
+/* about popup */
+#abtPopup {
+display: none;
+}
+
+.popup {
+  position: fixed;
+  z-index: 1;
+  height: 100px;
+  width: 80%;
+  background-color: gray;
+  margin: auto;
+}
+
 /* The search field */
 .input {
   box-sizing: border-box;

@@ -20,6 +20,7 @@ var periods;  // array of 25 year periods, initialized in call to preparePeriods
 // state stores data that user selected on each of the two coins
 // region doesn't need to be stored because it's only purpose it to aid with search
 // TODO: only 1 period should be selected for both coins (add "period" to object and store there)
+    //UPDATE:should be done now
 var state = {
 				"isPeriodSelected" : false,
 				"selectedPeriod" : -1, // index in periods array
@@ -311,6 +312,19 @@ $(document).on('keyup', '.search-box', function() {
 
 });
 
+/*--- click About event
+    runs every time the About button is pressed. Should display a pop-up.
+---*/
+$(document).on('click','.about', function() {
+    console.log('about clicked');
+    document.getElementById('abtPopup').style.display = "block";
+});
+
+$(document).on('click','.abtContent a', function() {
+    console.log('close clicked');
+    document.getElementById('abtPopup').style.display = "none";
+});
+
 /*--------------------------------------------------------------------*/
 /*------------- section 3: -------------------------------------------*/
 /*------------ functions that update what is displayed ---------------*/
@@ -447,10 +461,14 @@ function updateApp(which) {
 		//save value in state
 		state['coin1']['value'] = getValueInSilver(state['coin1']);
         console.log(state['coin1']['value']);
-		//display comparable stuff for 10
-		$('#amount-box1').val(10);
-		displayComparableCurrencies();
-		displayComparableCommodities();
+		$('#amount-box1').val();
+            //console.log($('#amount-box1').val());
+        if($('#amount-box1').val() != ""){      //makes sure user inputs a coin amount
+            displayComparableCurrencies();
+            displayComparableCommodities();
+        }else{
+            $('#error-box').text("Provide a valid number.");    //displays error message
+        }
 		// makeChange();
 
 	} else {
@@ -578,15 +596,27 @@ function changeName(which) {
 
 	let coin = state['coin'+which];
 
+	//formats string of period into [year] and [year] instead of [year,year]
+    period = periods[state['selectedPeriod']];
+    newStr = "";
+    if(period != undefined){
+        periodStr = String(period);
+        comma = periodStr.search(',');
+        console.log(comma);
+        newStr = periodStr.slice(0,comma) + " and " + periodStr.slice(comma+1);
+        console.log(newStr);
+    }
+
 	let name = '';
 
 	name = name + (coin['isLocationSelected'] ? coin['selectedLocation'] : 'location');
 	name = name + ' ';
 	name = name + (coin['isDenominationSelected'] ? coin['selectedDenomination'] : 'currency');
 	name = name + ' between ';
-	name = name + (coin['isPeriodSelected'] ? periods[coin['selectedPeriod']][0] : 'year');
-	name = name + ' and ';
-	name = name + (coin['isPeriodSelected'] ? periods[coin['selectedPeriod']][1] : 'year');
+	name = name + newStr;
+	//name = name + (state['isPeriodSelected'] ? periods[state['selectedPeriod']] : 'year');
+	//name = name + ' and ';
+	//name = name + (coin['isPeriodSelected'] ? periods[coin['selectedPeriod']][1] : 'year');
 
 	$('#name'+which).text( name );
 }
