@@ -251,6 +251,7 @@ $(document).on('keyup', '.amount-box', function() {
 	}
 	else {
 		$('#error-box').text("");
+		changeName(1);
 		displayComparableCurrencies();
 		displayComparableCommodities();
 	}
@@ -337,7 +338,7 @@ $(document).on('click','.abtContent a', function() {
 	if it does, it'll set the values in state to those parameters 
 	this way, that the correct page will load when updateApp() is called
 
-	TODO: need to add functionality for coin2 parameters
+	TODO: need to add functionality for coin2 parameters //Seems to work for coin2 already?
 */
 function setInitialState(url) {
 	console.log('setting InitialState');
@@ -374,8 +375,8 @@ function setInitialState(url) {
             	$(tempHtml).toggleClass('selected');
 				$(tempHtml).appendTo('.currency'+1+' .denomination .option-list');
             } else if (key == 'period') {
-            	state['coin1']['isPeriodSelected'] = true;
-            	state['coin1']['selectedPeriod'] = value;
+            	state['isPeriodSelected'] = true;
+            	state['selectedPeriod'] = value;
             	let item = periods[value];
 				let str = item[0]+' to '+item[1];
 				let tempHtml = $('<a href="#" which="'+1+'" label="period" pid="'+value+'">'+ str +'</a>');
@@ -411,10 +412,10 @@ function updateURLParameters(url, param, paramVal){
 		newParameters += newParameters != '' ? '&' : '';
 		newParameters += 'denomination1=' + state['coin1']['selectedDenomination'];
 	}
-	if (state['coin1']['isPeriodSelected']) {
+	/*if (state['coin1']['isPeriodSelected']) {
 		newParameters += newParameters != '' ? '&' : '';
 		newParameters += 'period1=' + state['coin1']['selectedPeriod'];
-	}
+	}*/
 
 	if (state['coin2']['isLocationSelected']) {
 		newParameters += newParameters != '' ? '&' : '';
@@ -424,10 +425,10 @@ function updateURLParameters(url, param, paramVal){
 		newParameters += newParameters != '' ? '&' : '';
 		newParameters += 'denomination2=' + state['coin2']['selectedDenomination'];
 	}
-	if (state['coin2']['isPeriodSelected']) {
+	/*if (state['coin2']['isPeriodSelected']) {
 		newParameters += newParameters != '' ? '&' : '';
 		newParameters += 'period2=' + state['coin2']['selectedPeriod'];
-	}
+	}*/
 
 	if (newParameters != '') {
 		return baseURL + '?' + newParameters;
@@ -609,6 +610,10 @@ function changeName(which) {
 
 	let name = '';
 
+	console.log($('#amount-box1').val());
+
+    name = name + $('#amount-box1').val();
+    name = name + ' ';
 	name = name + (coin['isLocationSelected'] ? coin['selectedLocation'] : 'location');
 	name = name + ' ';
 	name = name + (coin['isDenominationSelected'] ? coin['selectedDenomination'] : 'currency');
@@ -749,9 +754,9 @@ function displayComparableCommodities() {
 		let itemEndDateYear = item['end_date_year'];
 		let itemEndDateSuf = item['end_date_suf'];
 
-		// if (isCoinInsidePeriod(itemStartDateYear, itemEndDateSuf, 
- 	// 											  itemEndDateYear, itemEndDateSuf, 
- 	// 											  state['coin1']['selectedPeriod'])) 
+		// if (isCoinInsidePeriod(itemStartDateYear, itemEndDateSuf,
+ 	// 											  itemEndDateYear, itemEndDateSuf,
+ 	// 											  state['coin1']['selectedPeriod']))
 		// {
 			let itemRegion = item['region'];
 			let itemLocation = item['location'];
