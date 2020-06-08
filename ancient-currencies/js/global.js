@@ -550,7 +550,7 @@ function populate(which) {
 		for (let i=0; i<periods.length; i++) {
 			if (periodCounts[i] > 0) {
 				let item = periods[i];
-				let str = item[0]+' to '+item[1];
+				let str = item[0]+' to '+item[1]+' ('+periodCounts[i]+' coins)';
 				let tempHtml = $('<a href="#" label="period" pid="'+i+'">'+ str +'</a>');
 				$(tempHtml).appendTo('.period .option-list');
 			}
@@ -723,9 +723,8 @@ function displayComparableCurrencies() {
 			let rhsSilver = +item['value in grams of silver'];
 			let result = (amount * lhsSilver) / rhsSilver;
 
-//NEEDS TO GO IN DIFF FUNCTION -> needs to be updated every time a new denom is selected
             if (state['coin2']['selectedDenomination'] == itemDenomination){
-                console.log(state['coin2']['selectedDenomination']);
+                //console.log(state['coin2']['selectedDenomination']);
                 //console.log(itemDenomination);
                 document.getElementById("converter-output").innerHTML = result.toFixed(2);
             }
