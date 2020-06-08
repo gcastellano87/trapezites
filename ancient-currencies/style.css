@@ -3,6 +3,10 @@ body {
   max-width: 980px;
 }
 
+#converter-output{
+  margin-bottom: 0px;
+}
+
 /* about popup */
 #abtPopup {
 display: none;

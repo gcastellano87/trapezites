@@ -258,7 +258,7 @@ $(document).on('keyup', '.amount-box', function() {
 
 });
 
-/*--- conversion ammount textbox event 
+/*--- conversion amount textbox event
 		runs every time someone types into an search box
 
 		UPDATE: Working Now
@@ -338,7 +338,7 @@ $(document).on('click','.abtContent a', function() {
 	if it does, it'll set the values in state to those parameters 
 	this way, that the correct page will load when updateApp() is called
 
-	TODO: need to add functionality for coin2 parameters //Seems to work for coin2 already?
+	TODO: need to add functionality for coin2 parameters
 */
 function setInitialState(url) {
 	console.log('setting InitialState');
@@ -723,6 +723,12 @@ function displayComparableCurrencies() {
 			let rhsSilver = +item['value in grams of silver'];
 			let result = (amount * lhsSilver) / rhsSilver;
 
+//NEEDS TO GO IN DIFF FUNCTION -> needs to be updated every time a new denom is selected
+            if (state['coin2']['selectedDenomination'] == itemDenomination){
+                console.log(state['coin2']['selectedDenomination']);
+                //console.log(itemDenomination);
+                document.getElementById("converter-output").innerHTML = result.toFixed(2);
+            }
 
 			let tempHtml = '<tr>';
 			tempHtml +=    '	<td>+</td>';
