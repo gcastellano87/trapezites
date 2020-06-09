@@ -16,6 +16,7 @@
 var coinInfo; // stores all coin data from spreadsheet, initialized after call to prepareEntries()
 var commInfo; // stores all commodity data from spreadsheet, initialized after call to prepareEntries()
 var periods;  // array of 25 year periods, initialized in call to preparePeriods()
+var regions;  // array of all available regions, initialized in call to prepareRegions()
 
 // state stores data that user selected on each of the two coins
 // region doesn't need to be stored because it's only purpose it to aid with search
@@ -50,10 +51,11 @@ var state = {
 /*--------------------------------------------*/
 
 /*--- resize for map areas ---*/
+/*
 window.onload = function () {
 	imgMapFunc (1, 'region-map', 'region-img');
 	imgMapFunc (2, 'region-map', 'region-img');
-}
+}*/
 
 /*--- set up initial state 
 		
@@ -88,6 +90,10 @@ document.addEventListener("DOMContentLoaded", function() {
 			periods = preparePeriods();
 			console.log('periods ready');
 			// console.log(periods);
+
+			regions = prepareRegions();
+			console.log('regions ready');
+			console.log(regions);
 
 			//set state according to url parameters (if any)
 			setInitialState(window.location.href);
@@ -156,7 +162,15 @@ $(document).on('click','.option-list a', function(e) {
 		value = this.lastChild.textContent;
 		toggleSelected(which, label, value);
 		updateApp(which);
-	} else {
+	} else if (label == 'region'){
+	    label = 'region';
+	    value = this.firstChild.textContent;
+	    console.log('option-list' +value);
+	    toggleSelected(which, label, value);
+	    //console.log(which);
+	    updateApp(which);
+	}
+	else {
 		throw 'Wrong label on option-list anchor';
 	}
 
@@ -268,8 +282,9 @@ $(document).on('keyup', '.amount-box', function() {
 $(document).on('keyup', '.search-box', function() {
 	let value = this.value;
 	let label = this.getAttribute('label');
+	let which = this.getAttribute('which');
 
-	console.log('searching on '+label+' for '+value);
+	//console.log('searching on '+label+' for '+value);
 
 	if (label == 'period') {
         value = value.toUpperCase();
@@ -283,34 +298,56 @@ $(document).on('keyup', '.search-box', function() {
 		});
 	}
 	//search for denomination-location left
-	else if(label == 'denomination-location-1'){
+	else if(label == 'denomination-location'){
 		//let which = this.getAttribute('which');
-        $('.converter-left .denomination-location .option-list a').each(function(i, item) {
-			//console.log(item.textContent);
-			lcText = item.textContent.toLowerCase();    //make case-insensitive
-			value = value.toLowerCase();
-			if (lcText.indexOf(value) != -1) {
-				$(item).show();
-			} else {
-				$(item).hide();
-			}
-		});
-
+		if(which == 1){
+            $('.converter-left .denomination-location .option-list a').each(function(i, item) {
+                //console.log(item.textContent);
+                lcText = item.textContent.toLowerCase();    //make case-insensitive
+                value = value.toLowerCase();
+                if (lcText.indexOf(value) != -1) {
+                    $(item).show();
+                } else {
+                    $(item).hide();
+                }
+            });
+		} else {
+		    $('.converter-right .denomination-location .option-list a').each(function(i, item) {
+                lcText = item.textContent.toLowerCase();    //make case-insensitive
+                value = value.toLowerCase();
+                if (lcText.indexOf(value) != -1) {
+                    $(item).show();
+                } else {
+                    $(item).hide();
+                }
+            });
+		}
 	}
-	//search for denomination-location right
-	else if(label = 'denomination-location-2'){
-
-	    $('.converter-right .denomination-location .option-list a').each(function(i, item) {
-            lcText = item.textContent.toLowerCase();    //make case-insensitive
-            value = value.toLowerCase();
-            if (lcText.indexOf(value) != -1) {
-                $(item).show();
-            } else {
-                $(item).hide();
-            }
-        });
-	}
-
+	//search for region
+	else if(label == 'region'){
+        //console.log('search on region' + which);
+        if(which == 1){
+            $('.converter-left .region .option-list a').each(function(i, item) {
+                lcText = item.textContent.toLowerCase();    //make case-insensitive
+                value = value.toLowerCase();
+                if (lcText.indexOf(value) != -1) {
+                    $(item).show();
+                } else {
+                    $(item).hide();
+                }
+            });
+        } else {
+            $('.converter-right .region .option-list a').each(function(i, item) {
+                lcText = item.textContent.toLowerCase();    //make case-insensitive
+                value = value.toLowerCase();
+                if (lcText.indexOf(value) != -1) {
+                    $(item).show();
+                } else {
+                    $(item).hide();
+                }
+            });
+        }
+    }
 });
 
 /*--- click About event
@@ -492,6 +529,7 @@ function populate(which) {
 
 	let locations = new Set();
 	let denominations = new Set();
+	//let regions = new Set();
 	let locdenPairs = [];
 	for (let item of coinInfo) {
 
@@ -556,6 +594,18 @@ function populate(which) {
 			}
 		}
 	}
+
+	if (!coin['isRegionSelected']) {
+	    console.log(regions);
+        for (let i=0; i <regions.length; i++) {
+            let itemRegion = regions[i];
+            console.log(itemRegion);
+           // let metaTempHtml = '<div class="region">'++'</div>';
+            let str = itemRegion.toString();
+            let tempHtml = $('<a href="#" which="'+which+'" label="region">'+ str +'</a>');
+            $(tempHtml).appendTo('.currency'+which+' .region .option-list');
+        }
+	}
 }
 
 /*
@@ -563,7 +613,7 @@ function populate(which) {
 	except for the ones that have been selected
 */
 function flush(which) {
-
+	console.log('debug tracking'+which);
 	//flush textboxes
 	$('#amount-box1').val("");
 	$('#amount-box2').val("");
@@ -578,16 +628,27 @@ function flush(which) {
 
 	// $('#currency'+which+'-location .option-list').children().each(function(i) {
 	$('.currency'+which+' .denomination-location .option-list').children().each(function(i) {
+	//console.log('locden flush reached');
 	    if (!$(this).hasClass('selected')) {
 	    	$(this).remove();
 	    }
 	});
 
 	$('.period .option-list').children().each(function(i) {
+	//console.log('period flush reached');
 	    if (!$(this).hasClass('selected')) {
 	    	$(this).remove();
 	    }
 	});
+
+	//console.log($('currency'+which+' .region .option-list').children());
+
+	$('.currency'+which+' .region .option-list').children().each(function(i) {
+	//console.log('region flush reached');
+    	if (!$(this).hasClass('selected')) {
+    	    $(this).remove();
+    	}
+    });
 }
 
 /*
@@ -1087,6 +1148,36 @@ function preparePeriods() {
 }
 
 /*--
+    generates array of all available regions. Goes through coinInfo and populates an array ("regions") of all the
+    available regions from the table. To be used for Limit By Region drop down.
+--*/
+function prepareRegions() {
+    console.log('preparing regions')
+
+    let result = [];
+
+    //get list of unique regions from coinInfo
+    var count = 0;
+    var start = false;
+
+    for (let item of coinInfo){
+        for(k = 0; k < result.length; k++){
+            if(item['region'] == result[k]){
+                start = true;
+            }
+        }
+        count++;
+        if(count == 1 && start == false){
+            result.push(item['region']);
+        }
+        start = false;
+        count = 0;
+    }
+
+    return result;
+}
+
+/*--
 	Loop through map areas and de-select them
 --*/
 function clearMapAreas () {
@@ -1100,6 +1191,7 @@ function clearMapAreas () {
 		to make map areas fit the size of the map on
 		current screen
 --*/
+/*
 // TODO: resize for right map is not working for some reason!
 function imgMapFunc (which, mapId, imgId) {
 	mapId = mapId + which;
@@ -1137,5 +1229,5 @@ function imgMapFunc (which, mapId, imgId) {
     imageMap = new ImageMap(document.getElementById(mapId), document.getElementById(imgId));
     imageMap.resize();
     return;
-}
+}*/
 
