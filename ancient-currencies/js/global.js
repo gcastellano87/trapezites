@@ -165,6 +165,9 @@ $(document).on('click','.option-list a', function(e) {
 	} else if (label == 'region'){
 	    label = 'region';
 	    value = this.firstChild.textContent;
+	    //n = value.indexOf("(");
+	    //console.log(n);
+	    //value = value.slice(0, n);
 	    console.log('option-list' +value);
 	    toggleSelected(which, label, value);
 	    //console.log(which);
@@ -419,6 +422,12 @@ function setInitialState(url) {
 				let tempHtml = $('<a href="#" which="'+1+'" label="period" pid="'+value+'">'+ str +'</a>');
 				$(tempHtml).toggleClass('selected');
 				$(tempHtml).appendTo('.currency'+1+' .period .option-list');
+            } else if (key == 'region') {
+                state['coin1']['isRegionSelected'] = true;
+                state['coin1']['selectedRegion'] = value;
+                let tempHtml = $('<a href="#" which="'+1+'" label="location">'+ value +'</a>');
+                $(tempHtml).toggleClass('selected');
+                $(tempHtml).appendTo('.currency'+1+' .region .option-list');
             } else {
             	//error will appear on console if user tries to use fake parameters
             	throw "Unrecognized url parameter.";
@@ -449,6 +458,10 @@ function updateURLParameters(url, param, paramVal){
 		newParameters += newParameters != '' ? '&' : '';
 		newParameters += 'denomination1=' + state['coin1']['selectedDenomination'];
 	}
+	if (state['coin1']['isRegionSelected']) {
+    		newParameters += newParameters != '' ? '&' : '';
+    		newParameters += 'region1=' + state['coin1']['selectedRegion'];
+    	}
 	/*if (state['coin1']['isPeriodSelected']) {
 		newParameters += newParameters != '' ? '&' : '';
 		newParameters += 'period1=' + state['coin1']['selectedPeriod'];
@@ -462,6 +475,10 @@ function updateURLParameters(url, param, paramVal){
 		newParameters += newParameters != '' ? '&' : '';
 		newParameters += 'denomination2=' + state['coin2']['selectedDenomination'];
 	}
+	if (state['coin2']['isRegionSelected']) {
+    		newParameters += newParameters != '' ? '&' : '';
+    		newParameters += 'region2=' + state['coin2']['selectedRegion'];
+    	}
 	/*if (state['coin2']['isPeriodSelected']) {
 		newParameters += newParameters != '' ? '&' : '';
 		newParameters += 'period2=' + state['coin2']['selectedPeriod'];
@@ -507,7 +524,6 @@ function updateApp(which) {
         }else{
             $('#error-box').text("Provide a valid number.");    //displays error message
         }
-		// makeChange();
 
 	} else {
 		$('table tbody tr').remove();
@@ -522,6 +538,12 @@ function populate(which) {
 	console.log('populating menu for coin'+which);
 
 	let coin = state['coin'+which];
+    let rCoinCount = regCoinCount();
+    let pCoinCount = periodCoinCount();
+
+    //taking out the (number of coins) at end of selected Region to make sure populate works properly
+    n = coin['selectedRegion'].indexOf("(");
+    coin['selectedRegion'] = coin['selectedRegion'].slice(0, n-1);
 
 	// one slot for every period in periods
 	// will be used below to count how many coins in every period
@@ -529,8 +551,10 @@ function populate(which) {
 
 	let locations = new Set();
 	let denominations = new Set();
-	//let regions = new Set();
+	//let regionsSet = new Set();
 	let locdenPairs = [];
+
+	console.log(coin['selectedRegion']);
 	for (let item of coinInfo) {
 
 		let itemRegion = item['region'];
@@ -550,6 +574,7 @@ function populate(which) {
 						 													state['selectedPeriod'])))
 		   )
 		{
+		    //console.log('item region: '+itemRegion);
 			if(!state['isPeriodSelected']){
 				for (let i=0; i<periods.length; i++) {
 					let coinInsidePeriod = isCoinInsidePeriod(itemStartDateYear, itemStartDateSuf, 
@@ -560,9 +585,11 @@ function populate(which) {
 					}
 				}
 			}
+
 			locations.add(itemLocation);
 			denominations.add(itemDenomination);
 			locdenPairs.push([itemLocation, itemDenomination]);
+			console.log('region selected');
 		}
 	}
 
@@ -588,7 +615,7 @@ function populate(which) {
 		for (let i=0; i<periods.length; i++) {
 			if (periodCounts[i] > 0) {
 				let item = periods[i];
-				let str = item[0]+' to '+item[1]+' ('+periodCounts[i]+' coins)';
+				let str = item[0]+' to '+item[1]+' ('+pCoinCount[i]+' coins)';
 				let tempHtml = $('<a href="#" label="period" pid="'+i+'">'+ str +'</a>');
 				$(tempHtml).appendTo('.period .option-list');
 			}
@@ -596,14 +623,15 @@ function populate(which) {
 	}
 
 	if (!coin['isRegionSelected']) {
-	    console.log(regions);
+	    //console.log('regions clicked');
         for (let i=0; i <regions.length; i++) {
             let itemRegion = regions[i];
             console.log(itemRegion);
            // let metaTempHtml = '<div class="region">'++'</div>';
-            let str = itemRegion.toString();
+            let str = itemRegion.toString() + ' ('+rCoinCount[i]+' coins)';// +' ('+regionCounts[i]+' coins)';
             let tempHtml = $('<a href="#" which="'+which+'" label="region">'+ str +'</a>');
             $(tempHtml).appendTo('.currency'+which+' .region .option-list');
+            //$(coinsStr).appendTo('.currency'+which+' .region .option-list a');
         }
 	}
 }
@@ -644,8 +672,9 @@ function flush(which) {
 	//console.log($('currency'+which+' .region .option-list').children());
 
 	$('.currency'+which+' .region .option-list').children().each(function(i) {
-	//console.log('region flush reached');
+	console.log('region flush reached');
     	if (!$(this).hasClass('selected')) {
+    	    //console.log(this);
     	    $(this).remove();
     	}
     });
@@ -692,18 +721,75 @@ function changeName(which) {
 	ex. 'a Euro is 1.25 dollars' would turn into 'a Euro is 1 dollar and 1 quarter'
 
 	this function isn't working right now!
+
+	receives parameter for converted result & item from displayComparableCurrencies
 */
-function makeChange() {
+function makeChange(quantity, item) {
 
 	console.log('making change');
 
 	$('.change').show();
 	let family = [];
+    let weights = [];
 
-	// build coin family
+    //let selectedCoin = state['coin2']['selectedDenomination']; //get coin user wants to convert to
+    //let selectedCoinLoc = state['coin2']['selectedLocation'];
+
+    //getting standard of item & start/end years
+    let selectedStandard = item['standard'];
+    let selectedDenomination = item['denomination'];
+    let selectedLocation = item['location'];
+    let selectedStartYear = item['start_date_year'];
+    let selectedStartSuf = item['start_date_suf'];
+    let selectedEndYear = item['end_date_year'];
+    let selectedEndSuf = item['end_date_suf'];
+
+ /*
+    for(let item of coinInfo){
+        console.log(item['standard']);
+        if(item['denomination'] == selectedCoin && item['location'] == selectedCoinLoc){
+            let selectedStandard = item['standard'];
+            let selectedStartYear = item['start_date_year'];
+            let selectedStarSuf = item['start_date_suf'];
+            let selectedEndYear = item['end_date_year'];
+            let selectedEndSuf = item['end_date_suf'];
+            console.log('inside if reached');
+        }
+    } */
+
+    //get all coins that have same standard & location & overlapping time period
+    for(let item of coinInfo){
+        if(item['standard'] == selectedStandard && item['location'] == selectedLocation
+                                                && periodOverlaps(item['start_date_year'], item['end_date_year'], selectedStartYear, selectedEndYear)){
+            family.push(item);
+            weights.push(item['weight in grams']);
+        }
+    }
+    weights.sort(function(a, b){return b - a});
+    console.log(weights);
+
+    grams = quantity * item['weight in grams'];
+    for(i=0;i<weights.length;i++){
+        if(weights[i] < grams){
+            firstCoin = grams / weights[i]; //4.89 stater
+            numFirstCoin = Math.floor(firstCoin); //4
+            remainder = firstCoin - numFirstCoin; //.89
+            secondCoin = remainder * weights[i+1]; //11.09
+
+        }
+    }
+
+
+
+    console.log(family);
+
+
+
+/*	// build coin family
 	for (let item of coinInfo) {
 		let itemDenomination = item['denomination'];
 		let itemLocation = item['location'];
+		let itemStandard = item['standard'];
 		let itemStartDateYear = item['start_date_year'];
 		let itemStartDateSuf = item['start_date_suf'];
 		let itemEndDateYear = item['end_date_year'];
@@ -711,7 +797,8 @@ function makeChange() {
 
 		let itemValue = item['value in grams of silver'];
 
-		if (itemValue >= state['coin1']['selectedDenomination'] &&
+    //RODRIGO'S CODE
+	if (itemValue >= state['coin1']['selectedDenomination'] &&
 			itemDenomination != state['coin1']['selectedDenomination'] &&
 			itemLocation == state['coin1']['selectedLocation'] && 
 			isCoinInsidePeriod(itemStartDateYear, itemEndDateSuf, 
@@ -720,7 +807,7 @@ function makeChange() {
 		{
 			family.push(item);
 		}
-	}
+	}*/
 
 	// get all possible ways to make change using coins in family
 
@@ -747,7 +834,24 @@ function makeChange() {
     //     return 0;
     // }
 
-	console.log(family);
+	//console.log(family);
+}
+
+/*
+    determine if time periods overlap
+*/
+function periodOverlaps(itemS, itemE, refS, refE){
+    //if both in BC
+    if(itemS <= refS && itemS >= refE){
+        //start date overlaps
+        return true;
+    }
+    else if(itemE <= refS && itemE >= refE){
+        //end date overlaps
+        return true;
+    } else {
+        return false;
+    }
 }
 
 /*
@@ -783,6 +887,9 @@ function displayComparableCurrencies() {
 			let lhsSilver = state['coin1']['value'];
 			let rhsSilver = +item['value in grams of silver'];
 			let result = (amount * lhsSilver) / rhsSilver;
+
+            //call makechange function
+            makeChange(result, item);
 
             if (state['coin2']['selectedDenomination'] == itemDenomination){
                 //console.log(state['coin2']['selectedDenomination']);
@@ -908,6 +1015,7 @@ function toggleSelected(which, label, value) {
 			if (!coin['isRegionSelected']) {
 				coin['isRegionSelected'] = true;
 				coin['selectedRegion'] = value;
+				console.log(coin['selectedRegion']);
 			} else {
 				coin['isRegionSelected'] = false;
 				coin['selectedRegion'] = '';
@@ -1175,6 +1283,44 @@ function prepareRegions() {
     }
 
     return result;
+}
+
+/*--
+    return number of coins in each region & period in arrays
+--*/
+function regCoinCount(){
+
+    let regCounts = new Array(regions.length).fill(0)
+    for(let item of coinInfo){
+        for (let i=0; i<regions.length; i++){
+            if(item['region'] == regions[i]){
+                regCounts[i] += 1;
+            }
+        }
+    }
+    return regCounts;
+}
+
+function periodCoinCount(){
+
+    let periodCounts = new Array(periods.length).fill(0)
+    for (let item of coinInfo) {
+
+        let itemStartDateYear = item['start_date_year'];
+        let itemStartDateSuf = item['start_date_suf'];
+        let itemEndDateYear = item['end_date_year'];
+        let itemEndDateSuf = item['end_date_suf'];
+
+       for (let i=0; i<periods.length; i++) {
+        let coinInsidePeriod = isCoinInsidePeriod(itemStartDateYear, itemStartDateSuf,
+                                          itemEndDateYear, itemEndDateSuf, i);
+        // console.log('is '+itemDenomination+' '+itemLocation+' in '+periods[i]+': '+coinInsidePeriod);
+            if (coinInsidePeriod) {
+                periodCounts[i] += 1;
+            }
+        }
+    }
+    return periodCounts;
 }
 
 /*--

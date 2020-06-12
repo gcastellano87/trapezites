@@ -148,7 +148,7 @@ display: none;
 }
 
 .region {
-  width: auto;
+  /*width: auto;*/
   height: auto;
 }
 
