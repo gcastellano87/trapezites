@@ -753,8 +753,8 @@ function displayComparableCurrencies() {
 		let itemEndDateYear = item['end_date_year'];
 		let itemEndDateSuf = item['end_date_suf'];
 
-		if (isCoinInsidePeriod(itemStartDateYear, itemEndDateSuf, 
- 												  itemEndDateYear, itemEndDateSuf, 
+		if (isCoinInsidePeriod(itemStartDateYear, itemEndDateSuf,
+ 												  itemEndDateYear, itemEndDateSuf,
  												  state['selectedPeriod']))
 		{
 			let itemRegion = item['region'];
@@ -805,15 +805,16 @@ function displayComparableCommodities() {
 
 		// console.log(item);
 
-		let itemStartDateYear = item['start_date_year'];
+		let itemStartDateYear = item['start_date_year'] + 50;
 		let itemStartDateSuf = item['start_date_suf'];
-		let itemEndDateYear = item['end_date_year'];
+		let itemEndDateYear = item['end_date_year'] - 50;
 		let itemEndDateSuf = item['end_date_suf'];
 
-		// if (isCoinInsidePeriod(itemStartDateYear, itemEndDateSuf,
- 	// 											  itemEndDateYear, itemEndDateSuf,
- 	// 											  state['coin1']['selectedPeriod']))
-		// {
+        //range of +/- 50yrs of selected Time Period
+		if (isCoinInsidePeriod(itemStartDateYear, itemStartDateSuf,
+ 	 											  itemEndDateYear, itemEndDateSuf,
+ 												  state['selectedPeriod']))
+		 {
 			let itemRegion = item['region'];
 			let itemLocation = item['location'];
 			let itemDenomination = item['denomination'];
@@ -836,7 +837,7 @@ function displayComparableCommodities() {
 			tempHtml +=    '	<td>'+periodS+'</td>';
 			tempHtml +=    '</tr>';
 			$(tempHtml).appendTo('.comp-comodities table tbody');
-		// }
+		 }
 	}
 }
 
