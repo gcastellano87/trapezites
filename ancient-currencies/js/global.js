@@ -50,17 +50,10 @@ var state = {
 /*------------ event listeners ---------------*/
 /*--------------------------------------------*/
 
-/*--- resize for map areas ---*/
-/*
-window.onload = function () {
-	imgMapFunc (1, 'region-map', 'region-img');
-	imgMapFunc (2, 'region-map', 'region-img');
-}*/
+/*--- set up initial state
 
-/*--- set up initial state 
-		
 		runs every time the website finishes loading (DOMContentLoaded event)
-		
+
 		needs to send a request to a server that has the data json stored
 		this will possibly change in the future
 		right now I'm storing it on the website called jsonbin.io
@@ -130,23 +123,6 @@ document.addEventListener("DOMContentLoaded", function() {
 	// });
 });
 
-/*--- option-list datalist event
----*/
-document.addEventListener('input', function(e){
-    console.log(e.target.nextElementSibling.children);
-    value = e.target.value;
-    optionlist = e.target.nextElementSibling.children;
-    for(i=0;i<optionlist.length;i++) {
-        //compare = value.localeCompare(option.value);
-        console.log(optionlist[i].value);
-        if(value == optionlist[i].value){
-            console.log('datalist selection complete');
-        }
-    }
-
-
-});
-
 /*--- option-list events 
 		
 		run every time someone clicks on an item inside an option-list
@@ -198,75 +174,6 @@ $(document).on('click','.option-list a', function(e) {
 	window.history.replaceState('', '', updateURLParameters(window.location.href));
 });
 
-/*--- clickable map events 
-
-		run every time someone clicks on an area inside the clickable-map
-
-		basically the function determines what option was selected 
-		then it calls updateApp() to update the site
-
-
-		also, there's 2 more events for hover functionality on the map
-		basically when you hover above an area, the area's name should
-		be shown on the bottom-left corner of the map
----*/
-$(document).on('click','.clickable-map area', function(e) {
-	e.preventDefault();
-
-	//gather necessary data
-	let wasSelectedBefore = $(this).hasClass('selected');
-	let which = this.getAttribute('which');
-	let value = this.getAttribute('value');
-	let label = 'region';
-
-	// console.log(wasSelectedBefore+' '+which+' '+value+' '+label);
-	// console.log(state['coin'+which]['isRegionSelected']);
-
-	//update the sign that is displayed
-	$('.currency'+which+' .region > input').val( value );
-
-	//handle program logic
-	if (state['coin'+which]['isRegionSelected']) {
-		if (wasSelectedBefore) {
-			//region was selected and this object as well
-			// must deselect both
-			$(this).toggleClass('selected');
-			toggleSelected(which, label, '');
-			$('.currency'+which+' .region > input').val( '' );
-		} else {
-			//region was selected but not this object
-			// must clear the selected class from all objects,
-			// add it to this object and select this region
-			// console.log('here');
-			clearMapAreas();
-			$(this).toggleClass('selected');
-			toggleSelected(which, label, '');
-			toggleSelected(which, label, value);
-		}
-	} else {
-		//neither region nor object were selected
-		// must select both
-		$(this).toggleClass('selected');
-		toggleSelected(which, label, value);
-	}
-
-	//update options displayed
-	updateApp(which);
-});
-$(document).on('mouseover','.clickable-map area', function(e) {
-	e.preventDefault();
-	let which = this.getAttribute('which');
-	let value = this.getAttribute('value');
-	$('.currency'+which+' .map-label').val( value );
-});
-$(document).on('mouseout','.clickable-map area', function(e) {
-	e.preventDefault();
-	let which = this.getAttribute('which');
-	// let text = state['coin'+which]['selectedRegion'];
-	let text = '';
-	$('.currency'+which+' .map-label').val( text );
-});
-
 /*--- conversion ammount textbox event 
 		runs every time someone types into an amount-box
 ---*/
@@ -294,10 +201,6 @@ $(document).on('keyup', '.amount-box', function() {
 
 /*--- conversion amount textbox event
 		runs every time someone types into an search box
-
-		UPDATE: Working Now
-		    TODO: this code doesn't work yet,
-			search is okay but backspace is faulty
 ---*/
 $(document).on('keyup', '.search-box', function() {
 	let value = this.value;
@@ -753,9 +656,6 @@ function makeChange(quantity, item) {
 	let family = [];
     let weights = [];
 
-    //let selectedCoin = state['coin2']['selectedDenomination']; //get coin user wants to convert to
-    //let selectedCoinLoc = state['coin2']['selectedLocation'];
-
     //getting standard of item & start/end years
     let selectedStandard = item['standard'];
     let selectedDenomination = item['denomination'];
@@ -764,19 +664,6 @@ function makeChange(quantity, item) {
     let selectedStartSuf = item['start_date_suf'];
     let selectedEndYear = item['end_date_year'];
     let selectedEndSuf = item['end_date_suf'];
-
- /*
-    for(let item of coinInfo){
-        console.log(item['standard']);
-        if(item['denomination'] == selectedCoin && item['location'] == selectedCoinLoc){
-            let selectedStandard = item['standard'];
-            let selectedStartYear = item['start_date_year'];
-            let selectedStarSuf = item['start_date_suf'];
-            let selectedEndYear = item['end_date_year'];
-            let selectedEndSuf = item['end_date_suf'];
-            console.log('inside if reached');
-        }
-    } */
 
     //get all coins that have same standard & location & overlapping time period
     for(let item of coinInfo){
@@ -789,6 +676,7 @@ function makeChange(quantity, item) {
     weights.sort(function(a, b){return b - a});
    // console.log(weights);
 
+    //calculating change & putting results in arrays
     let change = [];
     let changeCoins = [];
     let famIndex = [];
@@ -806,6 +694,7 @@ function makeChange(quantity, item) {
         }
     }
 
+    //populating array of corresponding coins for change array
     for(i=0;i<family.length;i++){
         for(k=0;k<famIndex.length;k++){
             if(i == famIndex[k]){
@@ -818,6 +707,7 @@ function makeChange(quantity, item) {
    // console.log(family);
    // console.log(changeCoins);
 
+    //changeFamily includes [number of coins, denomination of coin] to be returned to displayComparableCurrencies
     changeFamily = [];
     for(i=0;i<change.length;i++){
         round = Math.round(change[i]);
@@ -826,56 +716,6 @@ function makeChange(quantity, item) {
     console.log(changeFamily);
 
     return changeFamily;
-/*	// build coin family
-	for (let item of coinInfo) {
-		let itemDenomination = item['denomination'];
-		let itemLocation = item['location'];
-		let itemStandard = item['standard'];
-		let itemStartDateYear = item['start_date_year'];
-		let itemStartDateSuf = item['start_date_suf'];
-		let itemEndDateYear = item['end_date_year'];
-		let itemEndDateSuf = item['end_date_suf'];
-
-		let itemValue = item['value in grams of silver'];
-
-    //RODRIGO'S CODE
-	if (itemValue >= state['coin1']['selectedDenomination'] &&
-			itemDenomination != state['coin1']['selectedDenomination'] &&
-			itemLocation == state['coin1']['selectedLocation'] && 
-			isCoinInsidePeriod(itemStartDateYear, itemEndDateSuf, 
- 												  itemEndDateYear, itemEndDateSuf, 
- 												  state['coin1']['selectedPeriod'])) 
-		{
-			family.push(item);
-		}
-	}*/
-
-	// get all possible ways to make change using coins in family
-
-    // public static void main(String[] args) {
-    //     List<Integer> countOfCoins = new ArrayList<>();
-    //     makeChange(7, 0, countOfCoins);
-    // }
-
-    // private static int makeChange(int amount, int startCoinIdx, List<Integer> coinsSoFar) {
-    //     if(startCoinIdx == coinSet.length){
-    //         if(amount == 0){
-    //             System.out.println(coinsSoFar);
-    //         }
-    //         //System.out.println(coinsSoFar);
-    //         return 0;
-    //     }
-    //     for(int count = 0;(count*coinSet[startCoinIdx]) <= amount;count++){
-    //         List<Integer> temp = new ArrayList<>();
-    //         for(int i = 0;i < coinsSoFar.size();i++) temp.add(coinsSoFar.get(i));
-    //         for(int i = 0;i < count;i++) temp.add(coinSet[startCoinIdx]);
-    //         makeChange(amount - (count * coinSet[startCoinIdx]),startCoinIdx+1, temp);
-    //         temp.clear();
-    //     }
-    //     return 0;
-    // }
-
-	//console.log(family);
 }
 
 /*
