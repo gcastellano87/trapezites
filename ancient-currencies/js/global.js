@@ -130,6 +130,23 @@ document.addEventListener("DOMContentLoaded", function() {
 	// });
 });
 
+/*--- option-list datalist event
+---*/
+document.addEventListener('input', function(e){
+    console.log(e.target.nextElementSibling.children);
+    value = e.target.value;
+    optionlist = e.target.nextElementSibling.children;
+    for(i=0;i<optionlist.length;i++) {
+        //compare = value.localeCompare(option.value);
+        console.log(optionlist[i].value);
+        if(value == optionlist[i].value){
+            console.log('datalist selection complete');
+        }
+    }
+
+
+});
+
 /*--- option-list events 
 		
 		run every time someone clicks on an item inside an option-list
@@ -140,7 +157,7 @@ document.addEventListener("DOMContentLoaded", function() {
 ---*/
 $(document).on('click','.option-list a', function(e) {
 	e.preventDefault();
-	// console.log('selected ' + this);
+     console.log('selected ' + this);
 
 	// let wasSelectedBefore = $(this).hasClass('selected');
 	$(this).toggleClass('selected');
@@ -287,6 +304,10 @@ $(document).on('keyup', '.search-box', function() {
 	let label = this.getAttribute('label');
 	let which = this.getAttribute('which');
 
+    //console.log(this.nextElementSibling.classList);
+	//search dropdown
+	this.nextElementSibling.classList.toggle("show");
+    console.log(this.nextElementSibling.classList);
 	//console.log('searching on '+label+' for '+value);
 
 	if (label == 'period') {
@@ -629,7 +650,7 @@ function populate(which) {
             console.log(itemRegion);
            // let metaTempHtml = '<div class="region">'++'</div>';
             let str = itemRegion.toString() + ' ('+rCoinCount[i]+' coins)';// +' ('+regionCounts[i]+' coins)';
-            let tempHtml = $('<a href="#" which="'+which+'" label="region">'+ str +'</a>');
+            let tempHtml = $('<a href="#" which="'+which+'" label="region">'+ str+ '</a>');
             $(tempHtml).appendTo('.currency'+which+' .region .option-list');
             //$(coinsStr).appendTo('.currency'+which+' .region .option-list a');
         }
@@ -766,25 +787,45 @@ function makeChange(quantity, item) {
         }
     }
     weights.sort(function(a, b){return b - a});
-    console.log(weights);
+   // console.log(weights);
 
-    grams = quantity * item['weight in grams'];
+    let change = [];
+    let changeCoins = [];
+    let famIndex = [];
+    biggestChange = Math.floor(quantity);
+    change.push(biggestChange); //7
+    famIndex.push(0);
+    decimal = quantity - Math.floor(quantity); //.5
+    toGrams = decimal * item['weight in grams']; //7.8g
     for(i=0;i<weights.length;i++){
-        if(weights[i] < grams){
-            firstCoin = grams / weights[i]; //4.89 stater
-            numFirstCoin = Math.floor(firstCoin); //4
-            remainder = firstCoin - numFirstCoin; //.89
-            secondCoin = remainder * weights[i+1]; //11.09
-
+        if(toGrams >= weights[i]){
+            changeNext = toGrams / weights[i]; //1
+            change.push(changeNext); //[7, 1]
+            famIndex.push(i);
+            toGrams = changeNext - Math.floor(changeNext);
         }
     }
 
+    for(i=0;i<family.length;i++){
+        for(k=0;k<famIndex.length;k++){
+            if(i == famIndex[k]){
+                changeCoins.push(family[i]);
+            }
+        }
+    }
 
+   // console.log(change);
+   // console.log(family);
+   // console.log(changeCoins);
 
-    console.log(family);
+    changeFamily = [];
+    for(i=0;i<change.length;i++){
+        round = Math.round(change[i]);
+        changeFamily.push([round, changeCoins[i].denomination]);
+    }
+    console.log(changeFamily);
 
-
-
+    return changeFamily;
 /*	// build coin family
 	for (let item of coinInfo) {
 		let itemDenomination = item['denomination'];
@@ -889,7 +930,7 @@ function displayComparableCurrencies() {
 			let result = (amount * lhsSilver) / rhsSilver;
 
             //call makechange function
-            makeChange(result, item);
+            changeArray = makeChange(result, item);
 
             if (state['coin2']['selectedDenomination'] == itemDenomination){
                 //console.log(state['coin2']['selectedDenomination']);
@@ -897,9 +938,11 @@ function displayComparableCurrencies() {
                 document.getElementById("converter-output").innerHTML = result.toFixed(2);
             }
 
+
 			let tempHtml = '<tr>';
 			tempHtml +=    '	<td>+</td>';
 			tempHtml +=    '	<td>'+result.toFixed(2)+'</td>';
+			tempHtml +=    '    <td>'+ changeArray +'</td>';
 			tempHtml +=    '	<td>'+itemDenomination+'</td>';
 			tempHtml +=    '	<td>'+itemRegion+'</td>';
 			tempHtml +=    '	<td>'+itemLocation+'</td>';
