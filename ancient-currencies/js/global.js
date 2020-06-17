@@ -199,7 +199,7 @@ $(document).on('keyup', '.amount-box', function() {
 
 });
 
-/*--- conversion amount textbox event
+/*--- search filters textbox event
 		runs every time someone types into an search box
 ---*/
 $(document).on('keyup', '.search-box', function() {
@@ -1171,7 +1171,8 @@ function prepareRegions() {
 }
 
 /*--
-    return number of coins in each region & period in arrays
+    reCoinCount() & periodCoinCount() return the number of coins in each region & period in arrays. Will be displayed
+    next to each option in respective dropdowns.
 --*/
 function regCoinCount(){
 
@@ -1208,57 +1209,4 @@ function periodCoinCount(){
     return periodCounts;
 }
 
-/*--
-	Loop through map areas and de-select them
---*/
-function clearMapAreas () {
-	$('.clickable-map area').each(function() {
-		$(this).removeClass('selected');
-	});
-}
-
-/*-- resize areas in image map 
-		this needs to run every time the page loads
-		to make map areas fit the size of the map on
-		current screen
---*/
-/*
-// TODO: resize for right map is not working for some reason!
-function imgMapFunc (which, mapId, imgId) {
-	mapId = mapId + which;
-	imgId = imgId + which;
-	console.log('imgMapFunc '+which+' '+mapId+' '+imgId);
-    var ImageMap = function (map, img) {
-	    var n,
-	        areas = map.getElementsByTagName('area'),
-	        // areas = $('.currency'+which+' map area'),
-	        len = areas.length,
-	        coords = [],
-	        previousWidth = 909;
-
-	        // console.log($('.currency'+which+' area'));
-
-	    for (n = 0; n < len; n++) {
-	        coords[n] = areas[n].coords.split(',');
-	    }
-	    this.resize = function () {
-	    	console.log('resize '+this);
-	        var n, m, clen,
-	            x = img.offsetWidth / previousWidth;
-	        for (n = 0; n < len; n++) {
-	            clen = coords[n].length;
-	            for (m = 0; m < clen; m++) {
-	                coords[n][m] *= x;
-	            }
-	            areas[n].coords = coords[n].join(',');
-	        }
-	        previousWidth = document.body.clientWidth;
-	        return true;
-	    }
-	    window.onresize = this.resize;
-	}
-    imageMap = new ImageMap(document.getElementById(mapId), document.getElementById(imgId));
-    imageMap.resize();
-    return;
-}*/
 
