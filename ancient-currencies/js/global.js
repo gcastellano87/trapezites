@@ -826,11 +826,12 @@ function displayComparableCommodities() {
 			let lhsSilver = state['coin1']['value'];
 			let rhsSilver = +item['value in grams of silver'];
 			let result = (amount * lhsSilver) / rhsSilver;
+			result = Math.round(result);
 
 
 			let tempHtml = '<tr>';
 			tempHtml +=    '	<td>+</td>';
-			tempHtml +=    '	<td>'+result.toFixed(2)+'</td>';
+			tempHtml +=    '	<td>'+result+'</td>';
 			tempHtml +=    '	<td>'+itemDenomination+'</td>';
 			tempHtml +=    '	<td>'+itemRegion+'</td>';
 			tempHtml +=    '	<td>'+itemLocation+'</td>';
