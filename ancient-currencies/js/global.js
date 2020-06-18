@@ -772,6 +772,12 @@ function displayComparableCurrencies() {
             //call makechange function
             changeArray = makeChange(result, item);
 
+            changeStr = "";
+            for(i=0;i<changeArray.length;i++){
+                changeStr += changeArray[i][0];
+                changeStr += " "+changeArray[i][1]+"\n";
+            }
+
             if (state['coin2']['selectedDenomination'] == itemDenomination){
                 //console.log(state['coin2']['selectedDenomination']);
                 //console.log(itemDenomination);
@@ -782,7 +788,7 @@ function displayComparableCurrencies() {
 			let tempHtml = '<tr>';
 			tempHtml +=    '	<td>+</td>';
 			tempHtml +=    '	<td>'+result.toFixed(2)+'</td>';
-			tempHtml +=    '    <td>'+ changeArray +'</td>';
+			tempHtml +=    '    <td>'+ changeStr +'</td>';
 			tempHtml +=    '	<td>'+itemDenomination+'</td>';
 			tempHtml +=    '	<td>'+itemRegion+'</td>';
 			tempHtml +=    '	<td>'+itemLocation+'</td>';
