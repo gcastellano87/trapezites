@@ -723,7 +723,7 @@ function changeName(which) {
     name = name + ' ';
 	name = name + (coin['isLocationSelected'] ? coin['selectedLocation'] : 'location');
 	name = name + ' ';
-	name = name + (coin['isDenominationSelected'] ? coin['selectedDenomination'] : 'currency');
+	name = name + (coin['isDenominationSelected'] ? coin['selectedDenomination'].value : 'currency');
 	name = name + ' between ';
 	name = name + newStr;
 	//name = name + (state['isPeriodSelected'] ? periods[state['selectedPeriod']] : 'year');
