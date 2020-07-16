@@ -116,7 +116,7 @@ document.addEventListener("DOMContentLoaded", function() {
     		}
     };
 
-	req.open("GET", "https://api.jsonbin.io/b/5f04a20b343d624b07816015/3", true);
+	req.open("GET", "https://api.jsonbin.io/b/5f04a20b343d624b07816015/4", true);
 	req.setRequestHeader("secret-key", "$2b$10$yjrD4Y8FJuGo2.cLYkzKP.FI6SCpY5GW8JUazMgOxXUnYi8Tf0MT2");
 	req.send();
 
@@ -921,10 +921,10 @@ function periodOverlaps(itemS, itemE, refS, refE){
 function displayComparableCurrencies() {
 	// console.log('in displayComparableCurrencies');
 	$('.comp-currencies').show();
-    let amountS = $('#amount-box'+1).val();
-    let amount = +amountS;
-    coin1 = getValueInSilver(state['coin1']); //amount value in grams
-    console.log(coin1);
+    let amount = $('#amount-box'+1).val();
+    //console.log(amount);
+    coin1 = getValueInSilver(state['coin1']) * amount; //amount value in grams
+    //console.log(coin1);
 
 	// console.log(state['coin1']);
 
@@ -947,18 +947,18 @@ function displayComparableCurrencies() {
                     //console.log(cnvResult);
             }
 
-            console.log(weights);
+            //console.log(weights);
             for(let i=0; i<weights.length; i++){
                 if(coin1 >= weights[i]){ //if amount in grams is greater than weight of denomination
-                    console.log('greater than ' + weights[i]);
+                    //console.log('greater than ' + weights[i]);
                     first = coin1 / weights[i];
                         //console.log(coin1);
-                        console.log(first);
+                        //console.log(first);
                     //cnvResult.push(first);
                     coin1 = first - Math.floor(first);
                     cnvResult.push(Math.floor(first));
                     coin1 = coin1 * weights[i];
-                    console.log(coin1);
+                    //console.log(coin1);
 
                     for(let item of coin.denominations){ //populate array of denominations to be displayed for each standard
                         if(weights[i] == item['weight in grams']){
@@ -967,10 +967,10 @@ function displayComparableCurrencies() {
                     }
                 }
             }
-            console.log(cnvResult);
-            console.log(coinList);
+            //console.log(cnvResult);
+            //console.log(coinList);
             //weights.push(coin.denominations['weight in grams']);
-            coin1 = getValueInSilver(state['coin1']);
+            coin1 = getValueInSilver(state['coin1']) * amount;
             //TODO: WORKING ON CONVERSION FUNCTIONALITY
 
             let displayText = [];
@@ -1241,7 +1241,7 @@ function allOptionsSelected() {
 }
 
 function getValueInSilver(coin) {
-    //console.log(coin['selectedDenomination'].value);
+    console.log(coin['selectedDenomination'].value);
     //console.log(coin['selectedLocation']);
 	for (let item of coinInfo) {
 
