@@ -678,13 +678,13 @@ function flush(which) {
             $(this).remove();
         }
     });*/
-/*
+
 	$('.period .option-list').children().each(function(i) {
 	//console.log('period flush reached');
 	    if (!$(this).hasClass('selected')) {
 	    	$(this).remove();
 	    }
-	});*/
+	});
 
 	//console.log($('currency'+which+' .region .option-list').children());
 
@@ -966,6 +966,12 @@ function displayComparableCurrencies() {
                         }
                     }
                 }
+            }
+
+            if(cnvResult.length == 0) {
+                first = coin1 / weights[0];
+                cnvResult.push(first.toFixed(2));
+                coinList.push(coin.denominations[0].denomination);
             }
             //console.log(cnvResult);
             //console.log(coinList);
