@@ -20,52 +20,54 @@
 
 <div class="container">
 
-	<div class="left">
 		<h1>Trapezites</h1>
 		<div>
-			<h2>Select a time period</h2>
+			<label>Select a time period</label>
 			<div class="block period">
 				<input type="text" placeholder="Search.." class="input search-box" label="period">
-				<div class="option-list"></div>
+				<select name="period" class="option-list">
+					<option></option>
+				</select>
 			</div>
 		</div>
+
 		<div class="converter">
 			<div id="error-box"></div>
 			<div class="converter-left">
-				<h2>Currency I Have:</h2>
+				<label>Currency I Have:</label>
 				<input type="text" placeholder="amount" id="amount-box1" class="amount-box" which="1">
 				<div class="block-container currency1">
 					<div class="block denomination-location" >
 						<input type="text" placeholder="Search.." class="input search-box" which="1" label="denomination-location">
-						<div class="option-list"></div>
+						<select which="1" name="denomination-location" class="option-list"></select>
 					</div>
 					<div class="block region" >
-						<h3>Limit by Region</h3>
+						<label>Limit by Region</label>
 						<!--<input type="text" placeholder="Search.." class="input search-box" which="1" label="region">-->
 						<input type="text" placeholder="Search.." class="input search-box" which="1" label="region">
-						<div class="option-list"></div>
+						<select which="1" name="region" class="option-list"></select>
 					</div>
 				</div>
 			</div>
 			<div class="converter-right">
-				<h2>Currency I Want:</h2>
+				<label>Currency I Want:</label>
 				<!--<input type="text" placeholder="amount" id="amount-box2" class="amount-box" which="2">-->
-				<p id="converter-output">ouput placeholder</p>
+				<p id="converter-output">output placeholder</p>
 				<div class="block-container currency2">
-					<div class="block denomination-location" >
+					<div class="block standard" >
 						<input type="text" placeholder="Search.." class="input search-box" which="2" label="denomination-location">
-						<div class="option-list"></div>
+						<select which="2" name="standard" class="option-list"></select>
 					</div>
 					<div class="block region" >
-						<h3>Limit by Region</h3>
+						<label>Limit by Region</label>
 						<input type="text" placeholder="Search.." class="input search-box" which="2" label="region">
-						<div class="option-list"></div>
+						<select which="2" name="region" class="option-list"></select>
 					</div>
 				</div>
 			</div>
 
 		</div>
-	</div>
+
 
 	<div id="translation-section">
 		<h3 id="name1" class="names">name placeholder</h3>
@@ -73,18 +75,17 @@
 
 
 	<div class="comp-currencies">
-		<h2>Comparable Local Currencies</h2>
+		<label>Comparable Local Currencies</label>
 		<!-- <div class="comparable"> -->
 		<table>
 			<thead>
 				<tr>
 					<th>+</th>
 					<th>Quantity</th>
-					<th>Change</th>
 					<th>Name</th>
-					<th>Region</th>
-					<th>Location</th>
-					<th>Period</th>
+					<!--<th>Region</th>-->
+					<!--<th>Location</th>-->
+					<!--<th>Period</th>-->
 				</tr>
 			</thead>
 			<tbody></tbody>
@@ -93,7 +94,7 @@
 	</div>
 
 	<div class="comp-comodities">
-		<h2>Comparable Commodities</h2>
+		<label>Comparable Commodities</label>
 		<div class="comparable">
 		<table>
 			<thead>

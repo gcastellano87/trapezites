@@ -17,6 +17,8 @@ var coinInfo; // stores all coin data from spreadsheet, initialized after call t
 var commInfo; // stores all commodity data from spreadsheet, initialized after call to prepareEntries()
 var periods;  // array of 25 year periods, initialized in call to preparePeriods()
 var regions;  // array of all available regions, initialized in call to prepareRegions()
+var standards = []; // array of all available standards (currency families)
+var bibliography; //stores all bibliography data from spreadsheet
 
 // state stores data that user selected on each of the two coins
 // region doesn't need to be stored because it's only purpose it to aid with search
@@ -36,11 +38,13 @@ var state = {
 				},
 				"coin2" : {
 					"isRegionSelected" : false,
-					"isLocationSelected" : false,
-					"isDenominationSelected" : false,
+					//"isLocationSelected" : false,
+					//"isDenominationSelected" : false,
+					"isStandardSelected" : false,
 					"selectedRegion" : '',
-					"selectedLocation" : '',
-					"selectedDenomination" : '',
+					"selectedStandard" : '',
+					//"selectedLocation" : '',
+					//"selectedDenomination" : '',
 					"value" : 0.0 // amount of coin used in conversion
 				}
 			};
@@ -66,11 +70,13 @@ document.addEventListener("DOMContentLoaded", function() {
 	// });
 
 	let req = new XMLHttpRequest();
+	let req2 = new XMLHttpRequest();
 
 	req.onreadystatechange = () => {
 		if (req.readyState == XMLHttpRequest.DONE) {
-			// console.log(req.responseText);
+		 // console.log(req);
 			let json = JSON.parse(req.responseText);
+			console.log(json);
 			let entries = prepareEntries( json.entries );
 			console.log(entries);
 
@@ -78,16 +84,20 @@ document.addEventListener("DOMContentLoaded", function() {
 			commInfo = entries['commodities'];
 
 			console.log('coinInfo and commInfo ready');
-			// console.log(coinInfo);
+			console.log(coinInfo);
+			console.log(coinInfo[0]);
 
 			periods = preparePeriods();
 			console.log('periods ready');
-			// console.log(periods);
+			console.log(periods);
 
 			regions = prepareRegions();
 			console.log('regions ready');
-			console.log(regions);
+			//console.log(regions);
 
+            standards = prepareStandards();
+            console.log('standards ready');
+            console.log(standards);
 			//set state according to url parameters (if any)
 			setInitialState(window.location.href);
 
@@ -96,10 +106,23 @@ document.addEventListener("DOMContentLoaded", function() {
 		}
 	};
 
-	req.open("GET", "https://api.jsonbin.io/b/5e88006885182d79b0632c49/1", true);
-	req.setRequestHeader("secret-key", "$2b$10$d5ndnThMEyDiTKVk8G9MFuSOQfEJqvsFNYrHov86R.wuyP6bZhCEa");
+	req2.onreadystatechange = () => {
+			if (req2.readyState == XMLHttpRequest.DONE) {
+    		    let json2 = JSON.parse(req2.responseText);
+                //let entries2 = prepareEntries( json2.entries );
+                //console.log(entries2);
+                bibliography = json2.entries;
+                console.log(bibliography);
+    		}
+    };
+
+	req.open("GET", "https://api.jsonbin.io/b/5f04a20b343d624b07816015/3", true);
+	req.setRequestHeader("secret-key", "$2b$10$yjrD4Y8FJuGo2.cLYkzKP.FI6SCpY5GW8JUazMgOxXUnYi8Tf0MT2");
 	req.send();
 
+    req2.open("GET", "https://api.jsonbin.io/b/5f0f25809180616628422abd", true);
+	req2.setRequestHeader("secret-key", "$2b$10$yjrD4Y8FJuGo2.cLYkzKP.FI6SCpY5GW8JUazMgOxXUnYi8Tf0MT2");
+	req2.send();
 	// $.getJSON("https://api.myjson.com/bins/15gpmk", (json)=>{
 	// 	// console.log(json);
 	// 	let entries = prepareEntries(json.entries);
@@ -130,39 +153,57 @@ document.addEventListener("DOMContentLoaded", function() {
 		basically the function determines what option was selected 
 		and calls toggleSelected() to update the state
 		then it calls updateApp() to update the site
+
+		todo: *********CHANGING HTML TO SELECT, SO CODE NEEDS TO BE UPDATED*********
+		todo: ADD BLANK OPTION FOR DEFAULT/RESETTING
 ---*/
-$(document).on('click','.option-list a', function(e) {
+$(document).on('change','.option-list', function(e) {
 	e.preventDefault();
-     console.log('selected ' + this);
+	console.log($(this).children(".option-list :selected").val());
+    //console.log('selected ' + this);
 
 	// let wasSelectedBefore = $(this).hasClass('selected');
-	$(this).toggleClass('selected');
-	let label = this.getAttribute('label');// region, location, denomination or period
+	$(this).children(".option-list :selected").toggleClass('selected');
+	let name = this.name;// region, location, denomination or period
+	    console.log(this.name);
 	let which = this.getAttribute('which');// which coin is being updated (1 (left) or 2 (right))
 	let value = '';// what value is the label getting set to
-	console.log('selected ' + label);
-	if (label == 'period') {
-		value = this.getAttribute('pid');
-		toggleSelected(which, label, value);
+	//console.log('selected ' + label);
+	if (name == 'period') {
+		value = $(this).children(".option-list :selected").val();
+		console.log(value);
+		toggleSelected(which, name, value);
 		updateApp(1);
 		updateApp(2);
 
-	} else if (label == 'denomination-location') {
+	} else if (name == 'denomination-location') {
 		label = 'denomination';
-		value = this.firstChild.textContent;
+		console.log($(this).children(".option-list :selected").data());
+		value = $(this).children(".option-list :selected").data();
 		toggleSelected(which, label, value);
 		label = 'location';
-		value = this.lastChild.textContent;
+		console.log($(this).children(".option-list :selected").val());
+		value = $(this).children(".option-list :selected").val();
 		toggleSelected(which, label, value);
 		updateApp(which);
-	} else if (label == 'region'){
-	    label = 'region';
-	    value = this.firstChild.textContent;
+	} else if (name == 'standard') {
+        //label = 'denomination';
+        //value = this.firstChild.textContent;
+        value = $(this).children(".option-list :selected").val()
+        toggleSelected(which, name, value);
+        //label = 'location';
+        //value = this.lastChild.textContent;
+        //toggleSelected(which, label, value);
+        updateApp(which);
+	} else if (name == 'region'){
+	    value = $(this).children(".option-list :selected").val();
+	    //value = this.firstChild.textContent;
 	    //n = value.indexOf("(");
 	    //console.log(n);
 	    //value = value.slice(0, n);
 	    console.log('option-list' +value);
-	    toggleSelected(which, label, value);
+	    console.log(which);
+	    toggleSelected(which, name, value);
 	    //console.log(which);
 	    updateApp(which);
 	}
@@ -455,6 +496,7 @@ function updateApp(which) {
 		$('.comp-comodities').hide();
 
 	}
+
 }
 
 function populate(which) {
@@ -475,15 +517,20 @@ function populate(which) {
 
 	let locations = new Set();
 	let denominations = new Set();
+	let standards = new Set();
 	//let regionsSet = new Set();
 	let locdenPairs = [];
+	//let standards = [];
 
-	console.log(coin['selectedRegion']);
+	//console.log(coin['selectedRegion']);
+	//console.log(coin);
+	console.log(which);
 	for (let item of coinInfo) {
 
 		let itemRegion = item['region'];
 		let itemLocation = item['location'];
 		let itemDenomination = item['denomination'];
+		let itemStandard = item['version of standard'];
 		let itemStartDateYear = item['start_date_year'];
 		let itemStartDateSuf = item['start_date_suf'];
 		let itemEndDateYear = item['end_date_year'];
@@ -493,6 +540,7 @@ function populate(which) {
 			(!coin['isRegionSelected']       || (coin['isRegionSelected'] && itemRegion == coin['selectedRegion'])) &&
 			(!coin['isLocationSelected']     || (coin['isLocationSelected'] && itemLocation == coin['selectedLocation'])) &&
 			(!coin['isDenominationSelected'] || (coin['isDenominationSelected'] && itemDenomination == coin['selectedDenomination'])) &&
+			(!coin['isStandardSelected']     || (coin['isStandardSelected'] && itemStandard == coin['selectedStandard'])) &&
 			(!state['isPeriodSelected'] 	 || (state['isPeriodSelected'] && isCoinInsidePeriod(itemStartDateYear, itemStartDateSuf, 
 						 													itemEndDateYear, itemEndDateSuf, 
 						 													state['selectedPeriod'])))
@@ -503,22 +551,25 @@ function populate(which) {
 				for (let i=0; i<periods.length; i++) {
 					let coinInsidePeriod = isCoinInsidePeriod(itemStartDateYear, itemStartDateSuf, 
 							 						  itemEndDateYear, itemEndDateSuf, i);
-					// console.log('is '+itemDenomination+' '+itemLocation+' in '+periods[i]+': '+coinInsidePeriod);
+				     //console.log('is '+itemDenomination+' '+itemLocation+' in '+periods[i]+': '+coinInsidePeriod);
 					if (coinInsidePeriod) {
 						periodCounts[i] += 1;
 					}
 				}
 			}
 
+            //standards = prepareStandards(item);
 			locations.add(itemLocation);
 			denominations.add(itemDenomination);
 			locdenPairs.push([itemLocation, itemDenomination]);
+			standards.add(itemStandard);
 			console.log('region selected');
+			//console.log(standards);
 		}
 	}
 
-	if (!coin['isLocationSelected'] && !coin['isDenominationSelected']) {
-		// console.log(locations);
+	if (!coin['isLocationSelected'] && !coin['isDenominationSelected'] && which==1) {
+	     //console.log(locdenPairs);
 		for (let item of locdenPairs) {
 			let loc = item[0];
 			let den = item[1];
@@ -528,20 +579,27 @@ function populate(which) {
 			}
 
 			// $(tempHtml).appendTo('#currency'+which+'-location .option-list');
-			let metaTempHtml = '<div class="denomination">'+den+'</div><div class="location">'+loc+'</div>';
-			let tempHtml = $('<a href="#" which="'+which+'" label="denomination-location">'+ metaTempHtml +'</a>');
-			$(tempHtml).appendTo('.currency'+which+' .denomination-location .option-list');
+			//let metaTempHtml = '<div class="denomination">'+den+'</div><br><div class="location">'+loc+'</div>';
+			let metaTempHtml = den+'; '+loc;
+			//let tempHtml = $('<a href="#" which="'+which+'" label="denomination-location">'+ metaTempHtml +'</a>');
+			tempHtml = $('<option which='+which+' value="'+loc+'" data-value="'+den+'">' +metaTempHtml +'</option>');
+			$(tempHtml).appendTo('.currency'+1+' .denomination-location .option-list');
+
 		}
 	}
 
 	if (!state['isPeriodSelected']) {
 		// console.log(periods);
+		let value = 0;
 		for (let i=0; i<periods.length; i++) {
 			if (periodCounts[i] > 0) {
 				let item = periods[i];
-				let str = item[0]+' to '+item[1]+' ('+pCoinCount[i]+' coins)';
-				let tempHtml = $('<a href="#" label="period" pid="'+i+'">'+ str +'</a>');
+				let str = item[0]+' to '+item[1]+' ('+pCoinCount[i]+' currencies)';
+				//let value = item[0]+' to '+item[1];
+				//let tempHtml = $('<a href="#" label="period" pid="'+i+'">'+ str +'</a>');
+				let tempHtml = $('<option value='+value+'>'+ str +'</option>');
 				$(tempHtml).appendTo('.period .option-list');
+				value = value + 1;
 			}
 		}
 	}
@@ -550,14 +608,33 @@ function populate(which) {
 	    //console.log('regions clicked');
         for (let i=0; i <regions.length; i++) {
             let itemRegion = regions[i];
-            console.log(itemRegion);
+            //console.log(itemRegion);
            // let metaTempHtml = '<div class="region">'++'</div>';
             let str = itemRegion.toString() + ' ('+rCoinCount[i]+' coins)';// +' ('+regionCounts[i]+' coins)';
-            let tempHtml = $('<a href="#" which="'+which+'" label="region">'+ str+ '</a>');
+            //let tempHtml = $('<a href="#" which="'+which+'" label="region">'+ str+ '</a>');
+            let tempHtml = $('<option which="'+which+'" >'+ str+ '</option>');
             $(tempHtml).appendTo('.currency'+which+' .region .option-list');
             //$(coinsStr).appendTo('.currency'+which+' .region .option-list a');
         }
 	}
+    var count =0;
+	if (!coin['isStandardSelected']) {
+    	    console.log('standards clicked');
+            for (let item of standards) {
+                console.log('in standards loop');
+                let itemStandard = item;
+                //console.log(itemStandard);
+               // let metaTempHtml = '<div class="region">'++'</div>';
+                let str = itemStandard;// + ' ('+rCoinCount[i]+' coins)'; +' ('+regionCounts[i]+' coins)';
+                let id = itemStandard.id;
+                //let tempHtml = $('<a href="#" which="'+which+'" label="region">'+ str+ '</a>');
+                let tempHtml = $('<option value="'+id+'" which="2" >'+ str+ '</option>');
+                $(tempHtml).appendTo('.currency'+2+' .standard .option-list');
+                //$(coinsStr).appendTo('.currency'+which+' .region .option-list a');
+                count += 1;
+            }
+            console.log(count);
+    	}
 }
 
 /*
@@ -586,12 +663,28 @@ function flush(which) {
 	    }
 	});
 
+    //standards
+    $('.currency'+which+' .standard .option-list').children().each(function(i) {
+	//console.log('locden flush reached');
+	    if (!$(this).hasClass('selected')) {
+	    	$(this).remove();
+	    }
+	});
+    /*console.log($('.currency'+which+' .standard.option-list').children().contents());
+    $('.currency'+which+' .standard .denomination-location .option-list').children().each(function(i) {
+    //console.log('locden flush reached');
+        console.log(this);
+        if (!$(this).hasClass('selected')) {
+            $(this).remove();
+        }
+    });*/
+/*
 	$('.period .option-list').children().each(function(i) {
 	//console.log('period flush reached');
 	    if (!$(this).hasClass('selected')) {
 	    	$(this).remove();
 	    }
-	});
+	});*/
 
 	//console.log($('currency'+which+' .region .option-list').children());
 
@@ -617,7 +710,7 @@ function changeName(which) {
     if(period != undefined){
         periodStr = String(period);
         comma = periodStr.search(',');
-        console.log(comma);
+        //console.log(comma);
         newStr = periodStr.slice(0,comma) + " and " + periodStr.slice(comma+1);
         console.log(newStr);
     }
@@ -713,10 +806,95 @@ function makeChange(quantity, item) {
         round = Math.round(change[i]);
         changeFamily.push([round, changeCoins[i].denomination]);
     }
-    console.log(changeFamily);
+    //console.log(changeFamily);
 
     return changeFamily;
 }
+/*
+    prepare list of standards (currency families) & returns array of denominations of that standard
+*/
+function prepareStandards() {
+    let currencies = [];
+    let family = [];
+    let denominations = [];
+    for(let item of coinInfo) {
+        standard = item['version of standard'];
+        family.push(standard);
+    }
+    let unique = [...new Set(family)];
+    Currency = {
+        "name" : '',
+        "id" : '',
+        "start_date" : '',
+        "end_date" : '',
+        "denominations" : []
+    };
+    //currency = Object.create(Currency);
+//getting time period
+    var num = /\d/;
+    var bc = "BC";
+    var start = '';
+    var end = '';
+    var id = 0;
+    for(let coin of unique){
+        denominations = [];
+        currency = Object.create(Currency);
+        currency.name = coin;
+        currency.id = id;
+
+        var nums = coin.match(num);
+        bc = coin.match(bc);
+        var hyphenIndex = coin.indexOf('–');
+        start = coin.substring(nums['index'], hyphenIndex);
+        currency.start_date = start;
+        end = coin.substring(hyphenIndex+1,bc['index']-1);
+        currency.end_date = end;
+        //console.log(currency);
+        currencies.push(currency);
+
+        for(let item of coinInfo) {
+            if(item['version of standard'] == coin) {
+                denominations.push(item);
+            }
+        }
+        //console.log(denominations);
+        currency["denominations"] = denominations;
+        id += 1;
+    }
+    console.log(currencies);
+
+    return currencies;
+}
+
+/* function to make new array of all the unique standards */
+function uniqueStandards(standards){
+    console.log('getting unique standards');
+
+    console.log(standards[6]);
+    console.log(standards[7]);
+    //console.log(standards[6].equals(standards[7]));
+    return [...new Set(standards)]
+/*
+    var count = 0;
+    var start = false;
+    result = [];
+
+    for (let item of standardsArray){
+        for(k = 0; k < standardsArray.length; k++){
+            if(item == standardsArray[k]){
+                start = true;
+            }
+        }
+        count++;
+        if(count == 1 && start == false){
+            result.push(item);
+        }
+        start = false;
+        count = 0;
+    }
+*/
+}
+
 
 /*
     determine if time periods overlap
@@ -743,10 +921,99 @@ function periodOverlaps(itemS, itemE, refS, refE){
 function displayComparableCurrencies() {
 	// console.log('in displayComparableCurrencies');
 	$('.comp-currencies').show();
+    let amountS = $('#amount-box'+1).val();
+    let amount = +amountS;
+    coin1 = getValueInSilver(state['coin1']); //amount value in grams
+    console.log(coin1);
 
 	// console.log(state['coin1']);
 
-	for (let item of coinInfo) {
+    //let standardWeights = [];
+
+	for (let coin of standards) {
+	//console.log(coin);
+	    let cnvResult = [];
+	    let coinList = [];
+	    let weights = [];
+        if (isCoinInsidePeriod(coin.start_date, "BC",
+         										coin.end_date, "BC",
+         										state['selectedPeriod'])) {
+            //console.log('here');
+            //console.log(coin.denominations);
+            for(let item of coin.denominations) { //loop thru denominations in standard
+                //console.log(item['weight in grams']);
+                weights.push(item['weight in grams']);
+                weights.sort(function(a, b){return b-a})
+                    //console.log(cnvResult);
+            }
+
+            console.log(weights);
+            for(let i=0; i<weights.length; i++){
+                if(coin1 >= weights[i]){ //if amount in grams is greater than weight of denomination
+                    console.log('greater than ' + weights[i]);
+                    first = coin1 / weights[i];
+                        //console.log(coin1);
+                        console.log(first);
+                    //cnvResult.push(first);
+                    coin1 = first - Math.floor(first);
+                    cnvResult.push(Math.floor(first));
+                    coin1 = coin1 * weights[i];
+                    console.log(coin1);
+
+                    for(let item of coin.denominations){ //populate array of denominations to be displayed for each standard
+                        if(weights[i] == item['weight in grams']){
+                            coinList.push(item.denomination);
+                        }
+                    }
+                }
+            }
+            console.log(cnvResult);
+            console.log(coinList);
+            //weights.push(coin.denominations['weight in grams']);
+            coin1 = getValueInSilver(state['coin1']);
+            //TODO: WORKING ON CONVERSION FUNCTIONALITY
+
+            let displayText = [];
+            for(i=0;i<cnvResult.length;i++){
+                displayText.push(cnvResult[i]+' '+coinList[i]);
+            }
+
+            let tempHtml = '<tr>';
+            tempHtml +=    '	<td>+</td>';
+            tempHtml +=    '	<td>'+displayText+'</td>';
+            tempHtml +=    '    <td>'+ coin.name +'</td>';
+            //tempHtml +=    '	<td>'+itemDenomination+'</td>';
+            //tempHtml +=    '	<td>'+itemRegion+'</td>';
+            //tempHtml +=    '	<td>'+itemLocation+'</td>';
+            //tempHtml +=    '	<td>'+coin.start_date+'-'+coin.end_date+'</td>';
+            tempHtml +=    '</tr>';
+            $(tempHtml).appendTo('.comp-currencies table tbody');
+        }
+
+	}
+	//console.log(standardWeights);
+
+
+	/*
+	   let change = [];
+        let changeCoins = [];
+        let famIndex = [];
+        biggestChange = Math.floor(quantity);
+        change.push(biggestChange); //7
+        famIndex.push(0);
+        decimal = quantity - Math.floor(quantity); //.5
+        toGrams = decimal * item['weight in grams']; //7.8g
+        for(i=0;i<weights.length;i++){
+            if(toGrams >= weights[i]){
+                changeNext = toGrams / weights[i]; //1
+                change.push(changeNext); //[7, 1]
+                famIndex.push(i);
+                toGrams = changeNext - Math.floor(changeNext);
+            }
+        }
+	*/
+
+	/*for (let item of coinInfo) {
 
 		let itemStartDateYear = item['start_date_year'];
 		let itemStartDateSuf = item['start_date_suf'];
@@ -796,7 +1063,7 @@ function displayComparableCurrencies() {
 			tempHtml +=    '</tr>';
 			$(tempHtml).appendTo('.comp-currencies table tbody');
 		}
-	}
+	}*/
 }
 
 /*
@@ -888,30 +1155,32 @@ function convertCurrency(which) {
 /*----------------------------------------------------------------*/
 
 
-function toggleSelected(which, label, value) {
-	
-	if (label == 'period') {
-		if (!state['isPeriodSelected']) {
+function toggleSelected(which, name, value) {
+	console.log(name);
+	console.log(value);
+	//console.log(state['isPeriodSelected'])
+	if (name == 'period') {
+		//if (!state['isPeriodSelected']) {
 			state['isPeriodSelected'] = true;
 			state['selectedPeriod'] = value;
 			console.log(state['selectedPeriod']);
-		} else {
-			state['isPeriodSelected'] = false;
-			state['selectedPeriod'] = -1;
-		}
+		//} else {
+		//	state['isPeriodSelected'] = false;
+		//	state['selectedPeriod'] = -1;
+		//}
 	} else {
-		let coin = state['coin'+which]
-
-		if (label == 'region') {
-			if (!coin['isRegionSelected']) {
+		let coin = state['coin'+which];
+        console.log(coin);
+		if (name == 'region') {
+			//if (!coin['isRegionSelected']) {
 				coin['isRegionSelected'] = true;
 				coin['selectedRegion'] = value;
 				console.log(coin['selectedRegion']);
-			} else {
-				coin['isRegionSelected'] = false;
-				coin['selectedRegion'] = '';
-			}
-		} else if (label == 'location') {
+			//} else {
+			//	coin['isRegionSelected'] = false;
+			//	coin['selectedRegion'] = '';
+			//}
+		} else if (name == 'location') {
 			if (!coin['isLocationSelected']) {
 				coin['isLocationSelected'] = true;
 				coin['selectedLocation'] = value;
@@ -919,7 +1188,7 @@ function toggleSelected(which, label, value) {
 				coin['isLocationSelected'] = false;
 				coin['selectedLocation'] = '';
 			}
-		} else if (label == 'denomination') {
+		} else if (name == 'denomination') {
 			if (!coin['isDenominationSelected']) {
 				coin['isDenominationSelected'] = true;
 				coin['selectedDenomination'] = value;
@@ -927,6 +1196,14 @@ function toggleSelected(which, label, value) {
 				coin['isDenominationSelected'] = false;
 				coin['selectedDenomination'] = '';
 			}
+        } else if (name == 'standard') {
+            if (!coin['isStandardSelected']) {
+                coin['isStandardSelected'] = true;
+                coin['selectedStandard'] = value;
+            } else {
+                coin['isStandardSelected'] = false;
+                coin['selectedStandard'] = '';
+            }
 		} else {
 			throw "Error in toggleSelected()";
 		}
@@ -964,13 +1241,16 @@ function allOptionsSelected() {
 }
 
 function getValueInSilver(coin) {
+    //console.log(coin['selectedDenomination'].value);
+    //console.log(coin['selectedLocation']);
 	for (let item of coinInfo) {
 
 		if ( item['location'] == coin['selectedLocation'] &&
-			 item['denomination'] == coin['selectedDenomination'] //&&
+			 item['denomination'] == coin['selectedDenomination'].value //&&
 			 //item['start date'] == state['selectedPeriod']
 		   ) 
 		{
+		    //console.log('inside if');
 			return (+item['value in grams of silver']);
 		}
 	}
@@ -986,12 +1266,13 @@ function getValueInSilver(coin) {
 */
 function isCoinInsidePeriod(startDateYear, startDateSuf, endDateYear, endDateSuf, pid) {
 	let selectedPeriod = periods[pid];
-	//console.log(selectedPeriod);
+	//console.log(pid);
 	//console.log(pid);
 	// console.log('in isCoinInsidePeriod for pid:'+pid);
 	// console.log('checking coin '+startDateYear+startDateSuf+' '+endDateYear+endDateSuf+' in '+selectedPeriod);
 
 	let periodStart = selectedPeriod[0];
+	//console.log(selectedPeriod[0]);
 	let periodEnd = selectedPeriod[1];
 	let periodStartYear = parseInt(periodStart);
 	let periodStartSuf = periodStart.slice(-2);
@@ -1109,13 +1390,15 @@ function preparePeriods() {
 						 maxYear, minSuf) > 0) {
 			maxYear = item['end_date_year'];
 			maxSuf = item['end_date_suf'];
+			//console.log(maxYear);
+			//console.log(maxSuf);
 		}
 	}
 	let min = minYear+' '+minSuf;
 	let max = maxYear+' '+maxSuf;
 
-	// console.log('min '+min);
-	// console.log('max '+max);
+	 console.log('min '+min);
+	 console.log('max '+max);
 
 	//round up or down
 	minYear = Math.ceil(parseInt(minYear)/25)*25;
@@ -1143,6 +1426,7 @@ function preparePeriods() {
 		}
 		min = minYear+' '+minSuf;
 	}
+
 	return result;
 }
 
