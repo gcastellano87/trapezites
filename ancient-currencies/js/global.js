@@ -244,20 +244,23 @@ $(document).on('keyup', '.amount-box', function() {
 		runs every time someone types into an search box
 ---*/
 $(document).on('keyup', '.search-box', function() {
+    console.log('searching');
 	let value = this.value;
+	    console.log(value);
 	let label = this.getAttribute('label');
 	let which = this.getAttribute('which');
 
     //console.log(this.nextElementSibling.classList);
 	//search dropdown
 	this.nextElementSibling.classList.toggle("show");
-    console.log(this.nextElementSibling.classList);
+    //console.log(this.nextElementSibling.classList);
 	//console.log('searching on '+label+' for '+value);
 
 	if (label == 'period') {
         value = value.toUpperCase();
-		$('.period .option-list a').each(function(i, item) {
+		$('.period .option-list option').each(function(i, item) {
 			// if (item.textContent.includes(value)) {
+			console.log(item.textContent);
 			if (item.textContent.indexOf(value) != -1) {
 				$(item).show();
 			} else {
@@ -323,12 +326,12 @@ $(document).on('keyup', '.search-box', function() {
 ---*/
 $(document).on('click','.about', function() {
     console.log('about clicked');
-    document.getElementById('abtPopup').style.display = "block";
+    document.getElementById('abt-popup').style.display = "block";
 });
 
-$(document).on('click','.abtContent a', function() {
+$(document).on('click','.abt-content a', function() {
     console.log('close clicked');
-    document.getElementById('abtPopup').style.display = "none";
+    document.getElementById('abt-popup').style.display = "none";
 });
 
 /*--------------------------------------------------------------------*/
@@ -546,6 +549,7 @@ function populate(which) {
 						 													state['selectedPeriod'])))
 		   )
 		{
+
 		    //console.log('item region: '+itemRegion);
 			if(!state['isPeriodSelected']){
 				for (let i=0; i<periods.length; i++) {
@@ -589,7 +593,7 @@ function populate(which) {
 	}
 
 	if (!state['isPeriodSelected']) {
-		// console.log(periods);
+	 console.log('periods populated');
 		let value = 0;
 		for (let i=0; i<periods.length; i++) {
 			if (periodCounts[i] > 0) {
@@ -644,8 +648,10 @@ function populate(which) {
 function flush(which) {
 	console.log('debug tracking'+which);
 	//flush textboxes
-	$('#amount-box1').val("");
+	//$('#amount-box1').val("");s
 	$('#amount-box2').val("");
+
+    var selected = 0;
 
 	// console.log('flushing!');
 
@@ -682,6 +688,7 @@ function flush(which) {
 	$('.period .option-list').children().each(function(i) {
 	//console.log('period flush reached');
 	    if (!$(this).hasClass('selected')) {
+	        console.log('period option flushed');
 	    	$(this).remove();
 	    }
 	});
@@ -733,83 +740,7 @@ function changeName(which) {
 	$('#name'+which).text( name );
 }
 
-/* 
-	purpose of this function is to give conversion amounts in smaller coins instead of decimals
-	ex. 'a Euro is 1.25 dollars' would turn into 'a Euro is 1 dollar and 1 quarter'
 
-	this function isn't working right now!
-
-	receives parameter for converted result & item from displayComparableCurrencies
-*/
-function makeChange(quantity, item) {
-
-	console.log('making change');
-
-	$('.change').show();
-	let family = [];
-    let weights = [];
-
-    //getting standard of item & start/end years
-    let selectedStandard = item['standard'];
-    let selectedDenomination = item['denomination'];
-    let selectedLocation = item['location'];
-    let selectedStartYear = item['start_date_year'];
-    let selectedStartSuf = item['start_date_suf'];
-    let selectedEndYear = item['end_date_year'];
-    let selectedEndSuf = item['end_date_suf'];
-
-    //get all coins that have same standard & location & overlapping time period
-    for(let item of coinInfo){
-        if(item['standard'] == selectedStandard && item['location'] == selectedLocation
-                                                && periodOverlaps(item['start_date_year'], item['end_date_year'], selectedStartYear, selectedEndYear)){
-            family.push(item);
-            weights.push(item['weight in grams']);
-        }
-    }
-    weights.sort(function(a, b){return b - a});
-   // console.log(weights);
-
-    //calculating change & putting results in arrays
-    let change = [];
-    let changeCoins = [];
-    let famIndex = [];
-    biggestChange = Math.floor(quantity);
-    change.push(biggestChange); //7
-    famIndex.push(0);
-    decimal = quantity - Math.floor(quantity); //.5
-    toGrams = decimal * item['weight in grams']; //7.8g
-    for(i=0;i<weights.length;i++){
-        if(toGrams >= weights[i]){
-            changeNext = toGrams / weights[i]; //1
-            change.push(changeNext); //[7, 1]
-            famIndex.push(i);
-            toGrams = changeNext - Math.floor(changeNext);
-        }
-    }
-
-    //populating array of corresponding coins for change array
-    for(i=0;i<family.length;i++){
-        for(k=0;k<famIndex.length;k++){
-            if(i == famIndex[k]){
-                changeCoins.push(family[i]);
-            }
-        }
-    }
-
-   // console.log(change);
-   // console.log(family);
-   // console.log(changeCoins);
-
-    //changeFamily includes [number of coins, denomination of coin] to be returned to displayComparableCurrencies
-    changeFamily = [];
-    for(i=0;i<change.length;i++){
-        round = Math.round(change[i]);
-        changeFamily.push([round, changeCoins[i].denomination]);
-    }
-    //console.log(changeFamily);
-
-    return changeFamily;
-}
 /*
     prepare list of standards (currency families) & returns array of denominations of that standard
 */
