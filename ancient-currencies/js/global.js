@@ -101,8 +101,9 @@ document.addEventListener("DOMContentLoaded", function() {
 			//set state according to url parameters (if any)
 			setInitialState(window.location.href);
 
-			updateApp(1);
-			updateApp(2);
+			//updateApp(1);
+			//updateApp(2);
+			initialPopulate();
 		}
 	};
 
@@ -146,6 +147,68 @@ document.addEventListener("DOMContentLoaded", function() {
 	// });
 });
 
+/*initial populating option lists*/
+function initialPopulate() {
+     let pCoinCount = periodCoinCount();
+     let rCoinCount = regCoinCount();
+
+     let locations = new Set();
+     let denominations = new Set();
+     let locdenPairs = [];
+
+     console.log('periods populated');
+        let value = 0;
+        for (let i=0; i<periods.length; i++) {
+                let item = periods[i];
+                let str = item[0]+' to '+item[1]+' ('+pCoinCount[i]+' currencies)';
+                //let value = item[0]+' to '+item[1];
+                //let tempHtml = $('<a href="#" label="period" pid="'+i+'">'+ str +'</a>');
+                let tempHtml = $('<option value='+value+'>'+ str +'</option>');
+                $(tempHtml).appendTo('.period .option-list');
+                value = value + 1;
+        }
+
+     console.log('regions populated');
+        for (let i=0; i <regions.length; i++) {
+            let itemRegion = regions[i];
+            let str = itemRegion.toString() + ' ('+rCoinCount[i]+' coins)';
+            let tempHtml = $('<option which="'+1+'" >'+ str+ '</option>');
+            $(tempHtml).appendTo('.currency'+1+' .region .option-list');
+            let tempHtml2 = $('<option which="'+2+'" >'+ str+ '</option>');
+            $(tempHtml2).appendTo('.currency'+2+' .region .option-list');
+        }
+
+     console.log('denominations populated');
+        for (let item of coinInfo) {
+            let den = item['denomination'];
+            let loc = item['location'];
+
+            if (den == '') {
+                item = '--Unknown--';
+            }
+
+            // $(tempHtml).appendTo('#currency'+which+'-location .option-list');
+            //let metaTempHtml = '<div class="denomination">'+den+'</div><br><div class="location">'+loc+'</div>';
+            let metaTempHtml = den+'; '+loc;
+            //let tempHtml = $('<a href="#" which="'+which+'" label="denomination-location">'+ metaTempHtml +'</a>');
+            tempHtml = $('<option which='+1+' value="'+loc+'" data-value="'+den+'">' +metaTempHtml +'</option>');
+            $(tempHtml).appendTo('.currency'+1+' .denomination-location .option-list');
+
+        }
+
+     console.log('standards populated');
+        var count =0;
+        for (let item of standards) {
+            let itemStandard = item['name'];
+            let str = itemStandard;
+            let id = itemStandard.id;
+            let tempHtml = $('<option value="'+id+'" which="2" >'+ str+ '</option>');
+            $(tempHtml).appendTo('.currency'+2+' .standard .option-list');
+            count += 1;
+        }
+}
+
+
 /*--- option-list events 
 		
 		run every time someone clicks on an item inside an option-list
@@ -163,7 +226,7 @@ $(document).on('change','.option-list', function(e) {
     //console.log('selected ' + this);
 
 	// let wasSelectedBefore = $(this).hasClass('selected');
-	$(this).children(".option-list :selected").toggleClass('selected');
+	//$(this).children(".option-list :selected").toggleClass('selected');
 	let name = this.name;// region, location, denomination or period
 	    console.log(this.name);
 	let which = this.getAttribute('which');// which coin is being updated (1 (left) or 2 (right))
@@ -472,7 +535,7 @@ function updateURLParameters(url, param, paramVal){
 	displays/hides new sections of the page if program logic is met
 */
 function updateApp(which) {
-	flush(which);
+	//flush(which);
 	populate(which);
 
 	if (which == 1) {
@@ -552,20 +615,33 @@ function populate(which) {
 
 		    //console.log('item region: '+itemRegion);
 			if(!state['isPeriodSelected']){
-				for (let i=0; i<periods.length; i++) {
+			    $('.period .option-list').children().each(function(i) {
+			    this.disabled = false;
+				//for (let i=0; i<periods.length; i++) {
 					let coinInsidePeriod = isCoinInsidePeriod(itemStartDateYear, itemStartDateSuf, 
 							 						  itemEndDateYear, itemEndDateSuf, i);
 				     //console.log('is '+itemDenomination+' '+itemLocation+' in '+periods[i]+': '+coinInsidePeriod);
-					if (coinInsidePeriod) {
+					if (!coinInsidePeriod) {
 						periodCounts[i] += 1;
+						this.disabled = true;
+						console.log(this.disabled);
 					}
-				}
+				});
 			}
 
             //standards = prepareStandards(item);
 			locations.add(itemLocation);
 			denominations.add(itemDenomination);
 			locdenPairs.push([itemLocation, itemDenomination]);
+
+            if(!coin['isLocationSelected'] && !coin['isDenominationSelected']) {
+                $('.denomination-location .option-list').children().each(function(i) {
+                    this.disabled = false;
+
+                });
+            }
+
+
 			standards.add(itemStandard);
 			console.log('region selected');
 			//console.log(standards);
@@ -592,21 +668,21 @@ function populate(which) {
 		}
 	}
 
-	if (!state['isPeriodSelected']) {
-	 console.log('periods populated');
-		let value = 0;
+
+
+    /*
 		for (let i=0; i<periods.length; i++) {
 			if (periodCounts[i] > 0) {
 				let item = periods[i];
-				let str = item[0]+' to '+item[1]+' ('+pCoinCount[i]+' currencies)';
+				//let str = item[0]+' to '+item[1]+' ('+pCoinCount[i]+' currencies)';
 				//let value = item[0]+' to '+item[1];
 				//let tempHtml = $('<a href="#" label="period" pid="'+i+'">'+ str +'</a>');
-				let tempHtml = $('<option value='+value+'>'+ str +'</option>');
-				$(tempHtml).appendTo('.period .option-list');
+				//let tempHtml = $('<option value='+value+'>'+ str +'</option>');
+				//$(tempHtml).appendTo('.period .option-list');
 				value = value + 1;
 			}
-		}
-	}
+		}*/
+
 
 	if (!coin['isRegionSelected']) {
 	    //console.log('regions clicked');
