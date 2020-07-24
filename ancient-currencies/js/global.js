@@ -617,14 +617,14 @@ function populate(which) {
 			if(!state['isPeriodSelected']){
 			    $('.period .option-list').children().each(function(i) {
 			    this.disabled = false;
+			    //console.log(this);
 				//for (let i=0; i<periods.length; i++) {
 					let coinInsidePeriod = isCoinInsidePeriod(itemStartDateYear, itemStartDateSuf, 
-							 						  itemEndDateYear, itemEndDateSuf, i);
+							 						  itemEndDateYear, itemEndDateSuf, this.value);
 				     //console.log('is '+itemDenomination+' '+itemLocation+' in '+periods[i]+': '+coinInsidePeriod);
 					if (!coinInsidePeriod) {
 						periodCounts[i] += 1;
 						this.disabled = true;
-						console.log(this.disabled);
 					}
 				});
 			}
@@ -636,19 +636,38 @@ function populate(which) {
 
             if(!coin['isLocationSelected'] && !coin['isDenominationSelected']) {
                 $('.denomination-location .option-list').children().each(function(i) {
-                    this.disabled = false;
+                    this.disabled = true;
+                    //console.log(this.getAttribute('data-value'));
+                    for (let item of locdenPairs) {
+                        let loc = item[0];
+                        let den = item[1];
+                        if(loc == this.value && den == this.getAttribute('data-value')) {
+                            //console.log('loc and den dont match');
+                            this.disabled = false;
+                        }
+                    }
 
                 });
             }
 
-
 			standards.add(itemStandard);
-			console.log('region selected');
-			//console.log(standards);
+            if(!coin['isStandardSelected']) {
+                $('.standard .option-list').children().each(function(i) {
+                    this.disabled = true;
+                    for (let item of standards) {
+                        //console.log(this.text);
+                        //console.log(item);
+                        if(this.text == item) {
+                            this.disabled = false;
+                        }
+                    }
+                });
+            }
+
 		}
 	}
 
-	if (!coin['isLocationSelected'] && !coin['isDenominationSelected'] && which==1) {
+	/*if (!coin['isLocationSelected'] && !coin['isDenominationSelected'] && which==1) {
 	     //console.log(locdenPairs);
 		for (let item of locdenPairs) {
 			let loc = item[0];
@@ -666,7 +685,7 @@ function populate(which) {
 			$(tempHtml).appendTo('.currency'+1+' .denomination-location .option-list');
 
 		}
-	}
+	}*/
 
 
 
@@ -697,7 +716,7 @@ function populate(which) {
             //$(coinsStr).appendTo('.currency'+which+' .region .option-list a');
         }
 	}
-    var count =0;
+    /*var count =0;
 	if (!coin['isStandardSelected']) {
     	    console.log('standards clicked');
             for (let item of standards) {
@@ -714,7 +733,7 @@ function populate(which) {
                 count += 1;
             }
             console.log(count);
-    	}
+    	}*/
 }
 
 /*
