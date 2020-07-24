@@ -1,5 +1,5 @@
 <?php
-$file = fopen("table2.csv","r") or die("file does not exist");
+$file = fopen("bibliography.csv","r") or die("file does not exist");
 $count = 0;
 $json_array = array();
 $response = array();
@@ -79,7 +79,7 @@ $response['total_entries'] = $total_entries;
 // $response['calendars_info'] = $json_array_2;
 // print_r($json_array_2);
 
-$fp = fopen('currency.json', 'w');
+$fp = fopen('bibliography.json', 'w');
 // fwrite($fp, json_encode($response, JSON_HEX_QUOT | JSON_HEX_TAG));
 fwrite($fp, json_encode($response));
 fclose($fp);
