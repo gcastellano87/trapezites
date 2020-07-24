@@ -13,6 +13,8 @@
 /*------------ global variables ---------------*/
 /*---------------------------------------------*/
 
+
+
 var coinInfo; // stores all coin data from spreadsheet, initialized after call to prepareEntries()
 var commInfo; // stores all commodity data from spreadsheet, initialized after call to prepareEntries()
 var periods;  // array of 25 year periods, initialized in call to preparePeriods()
@@ -63,7 +65,6 @@ var state = {
 		right now I'm storing it on the website called jsonbin.io
 ---*/
 document.addEventListener("DOMContentLoaded", function() {
-	console.log('reading json...');
 	// http://myjson.com/k8xmq
 	// $.getJSON("https://spreadsheets.google.com/feeds/cells/1AFmyU-Domc8QLXnEz-TlET-qD1rl8n0Aaxfh6_ui-DQ/1/od6/public/values?alt=json", (json)=>{
 	// 	console.log(json);
