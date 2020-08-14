@@ -78,6 +78,7 @@ document.addEventListener("DOMContentLoaded", function() {
 		 // console.log(req);
 			let json = JSON.parse(req.responseText);
 			console.log(json);
+			console.log(json.entries);
 			let entries = prepareEntries( json.entries );
 			console.log(entries);
 
