@@ -59,6 +59,7 @@ var standard = {
 
 var standards = {
     list: [],
+    filtered_list: [],
     initialize (coins_json) {
         standards.list = standards.build_list(coins_json);
         //console.log(standards.list);
@@ -98,8 +99,33 @@ var standards = {
             $(tempHtml).appendTo('.currency'+2+' .standard .option-list');
         }
     },
-
-
+    build_filtered_list: function(id) {
+        console.log('standards filtered list');
+        let start_date = periods.list[id]['start_date'];
+        let end_date = periods.list[id]['end_date'];
+        console.log(start_date, end_date);
+        let filtered = [];
+        for (let standard of standards.list) {
+            if (standard['start_date'] <= start_date && standard['start_date'] >= end_date) {
+                filtered.push(standard);
+            } else if (standard['end_date'] >= end_date && standard['end_date'] <= start_date) {
+                filtered.push(standard);
+            }
+        }
+        standards.filtered_list = filtered;
+        standards.filter();
+        console.log(filtered);
+    },
+    filter: function() {
+        $('.standard .option-list').children().each(function(i) {
+            this.disabled = true;
+            for (let item of standards.filtered_list) {
+                if (item['name'] == this.text) {
+                    this.disabled = false;
+                }
+            }
+        });
+    }
 }
 
 var region = {
@@ -208,8 +234,8 @@ var	periods = {
         //round up or down
         minYear = Math.ceil(parseInt(minYear)/25)*25;
         maxYear = Math.ceil(parseInt(maxYear)/25)*25;
-        min = minYear+' '+minSuf;
-        max = maxYear+' '+maxSuf;
+        min = minYear;
+        max = maxYear;
         // console.log('rounded min '+min);
         // console.log('rounded max '+max);
 
@@ -220,7 +246,7 @@ var	periods = {
             if (minSuf == 'BC') {
                 periodEnd = minYear - 24;
                 prd['start_date'] = min;
-                prd['end_date'] = periodEnd+' '+minSuf;
+                prd['end_date'] = periodEnd;
                 result.push(prd);
                 minYear = minYear - 25;
                 if (minYear == 0) {
@@ -229,11 +255,11 @@ var	periods = {
             } else {
                 periodEnd = minYear + 24;
                 prd['start_date'] = min;
-                prd['end_date'] = periodEnd+' '+minSuf;
+                prd['end_date'] = periodEnd;
                 result.push(prd);
                 minYear = minYear + 25;
             }
-            min = minYear+' '+minSuf;
+            min = minYear;
         }
 
         return result;
@@ -261,23 +287,35 @@ var	periods = {
         }
     },
     build_dropdown: function(){
+        $('.period .option-list').change(function() {
+            console.log($(this).children('.option-list :selected').val());
+            let id = $(this).children('.option-list :selected').val();
+            coins.build_filtered_list(id);
+            standards.build_filtered_list(id);
+        });
+
+        //add_event_listener(coins.on_coin_selected(coin));
     		//periods.dropdown_element.appendTo(search elemtn)
     		//for each	periods.filtered_list();
     		//periods.dropdown_element.appendTo(<div class="period">)
+    		let id = 0;
         for (let item of periods.list) {
-            let str = item['start_date']+' to '+item['end_date'];
-            let tempHtml = $('<option>'+ str +'</option>');
+            let str = item['start_date']+' BC to '+item['end_date']+ ' BC';
+            let tempHtml = $('<option value='+id+'>'+ str +'</option>');
+            //let tempHtml = item;
             $(tempHtml).appendTo('.period .option-list');
+            id++;
         }
     },
 	filtered_list: function(){
-		if (regions.selected_region === {}){
+	    //console.log('reached filtered list');
+		/*if (regions.selected_region === {}){
 			return periods.list;
 		}
 
 		return periods.list.filter(function(period){
 			return period.start_date >= regions.selected_region.start_date && period.end_date <= regions.selected_region.end_date;
-		})
+		})*/
 	},
 	dropdown_element: function(){
 		let element = document.getElementByClass('period')[0];
@@ -291,6 +329,7 @@ var	periods = {
 var coins = {
     selected_coin: {},
     list: [],
+    filtered_list: [],
     initialize: function(coins_json){
         console.log('reached');
         //coins.list = coins_json;
@@ -299,8 +338,8 @@ var coins = {
         coins.build_dropdown(coins_json);
         //coins.build_dropdown();
     },
-    filtered_list: function(){
-
+    build_filtered_list: function(id){
+        console.log('coins filtered list');
     },
     dropdown_element: function(){
 
