@@ -129,6 +129,7 @@ var standards = {
 }
 
 var region = {
+    "id": '',
     "name": '',
     "locations": [],
     "coins": [],
@@ -139,6 +140,8 @@ var region = {
 var regions = {
     selected_region: {},
     list: [],
+    filtered_list_coins: [],
+    filtered_list_standards: [],
     initialize: function(coins_json) {
         regions.list = regions.build_list(coins_json);
         console.log(regions.list);
@@ -151,13 +154,14 @@ var regions = {
             regions.add(coins[i]['region'])
         }
         //console.log(regions);
-
+        let id = 0;
         for (let i of regions) {
             regCoinTemp = [];
             regLocTemp = [];
             regStdTemp = [];
             newRegion = Object.create(region);
             newRegion['name'] = i;
+            newRegion['id'] = id;
             for (let k of coins) {
                 if (k['region'] == i) {
                     //console.log('tru');
@@ -171,17 +175,57 @@ var regions = {
             newRegion['coins'] = regCoinTemp;
             newRegion['standards'] = regStdTemp;
             regionArray.push(newRegion);
+            id++;
         }
         return regionArray;
     },
+    build_filtered_list: function () {
+        //loop through coins
+        let coinsRegions = new Set();
+        let standardsRegions = new Set();
+        for (let coin of coins.filtered_list) {
+            coinsRegions.add(coin['region']);
+        }
+        for (let standard of standards.filtered_list) {
+            standardsRegions.add(standard['region']);
+        }
+        regions.filtered_list_coins = coinsRegions;
+        regions.filtered_list_standards = standardsRegions;
+        regions.filter();
+    },
     build_dropdown: function () {
+        $('.currency1 .region .option-list').change(function() { //option selection event listener
+            //console.log($(this).children('.option-list :selected').val());
+            let id = $(this).children('.option-list :selected').val();
+            coins.build_filtered_list(id,'r');
+            //standards.build_filtered_list(id);
+        });
+
         for (let item of regions.list) {
             let str = item['name'];
-            let tempHtml = $('<option which="'+1+'" >'+ str+ '</option>');
-            $(tempHtml).appendTo('.currency'+1+' .region .option-list');
-            let tempHtml2 = $('<option which="'+2+'" >'+ str+ '</option>');
-            $(tempHtml2).appendTo('.currency'+2+' .region .option-list');
+            let tempHtml = $('<option value='+item['id']+'>'+ str+ '</option>');
+            $(tempHtml).appendTo('.currency1 .region .option-list');
+            let tempHtml2 = $('<option value='+item['id']+'>'+ str+ '</option>');
+            $(tempHtml2).appendTo('.currency2 .region .option-list');
         }
+    },
+    filter: function () {
+        $('.currency1 .region .option-list').children().each(function(i) {
+            this.disabled = true;
+            for (let item of regions.filtered_list_coins) {
+                if (item == this.text) {
+                    this.disabled = false;
+                }
+            }
+        });
+        $('.currency2 .region .option-list').children().each(function(i) {
+            this.disabled = true;
+            for (let item of regions.filtered_list_standards) {
+                if (item == this.text) {
+                    this.disabled = false;
+                }
+            }
+        });
     }
 	
 }
@@ -287,11 +331,12 @@ var	periods = {
         }
     },
     build_dropdown: function(){
-        $('.period .option-list').change(function() {
+        $('.period .option-list').change(function() { //option selection event listener
             console.log($(this).children('.option-list :selected').val());
             let id = $(this).children('.option-list :selected').val();
-            coins.build_filtered_list(id);
+            coins.build_filtered_list(id, 'p');
             standards.build_filtered_list(id);
+            regions.build_filtered_list();
         });
 
         //add_event_listener(coins.on_coin_selected(coin));
@@ -338,8 +383,35 @@ var coins = {
         coins.build_dropdown(coins_json);
         //coins.build_dropdown();
     },
-    build_filtered_list: function(id){
-        console.log('coins filtered list');
+    build_filtered_list: function(id, filterType){
+        if (filterType == 'p') {
+            let start_date = periods.list[id]['start_date'];
+            let end_date = periods.list[id]['end_date'];
+            let filtered = [];
+            for (let coin of coins.list) {
+                if (coin['start_date_year'] <= start_date && coin['start_date_year'] >= end_date) {
+                    filtered.push(coin);
+                } else if (coin['end_date_year'] >= end_date && coin['end_date_year'] <= start_date) {
+                    filtered.push(coin);
+                }
+            }
+            coins.filtered_list = filtered;
+            coins.filter();
+            console.log(filtered);
+            console.log('coins filtered list: period');
+        } else if (filterType == 'r') {
+            let region = regions.list[id];
+            //console.log(region);
+            let filtered = [];
+            for (let coin of coins.list) {
+                if (coin['region'] == region['name']) {
+                    filtered.push(coin);
+                }
+            }
+            coins.filtered_list = filtered;
+            coins.filter();
+            console.log('coins filtered list: region');
+        }
     },
     dropdown_element: function(){
 
@@ -352,6 +424,17 @@ var coins = {
             tempHtml = $('<option>' +metaTempHtml +'</option>');
             $(tempHtml).appendTo('.currency'+1+' .denomination-location .option-list');
         }
+    },
+    filter: function () {
+        $('.denomination-location .option-list').children().each(function(i) {
+            this.disabled = true;
+            for (let item of coins.filtered_list) {
+                let name = item['denomination']+ '; '+item['location'];
+                if (name == this.text) {
+                    this.disabled = false;
+                }
+            }
+        });
     },
     build_list: function(entries){
     /*let listTemp = [];
