@@ -189,7 +189,8 @@ var regions = {
     },
     build_dropdown: function () {
         console.log('building regions dropdown');
-        $('.currency1 .region .option-list').change(function() { //option selection event listener
+        //option selection event listeners
+        $('.currency1 .region .option-list').change(function() {
             //console.log($(this).children('.option-list :selected').val());
             let id = $(this).children('.option-list :selected').val();
             coins.build_filtered_list(id,'r');
@@ -197,7 +198,7 @@ var regions = {
             //standards.build_filtered_list(id);
         });
 
-        $('.currency2 .region .option-list').change(function() { //option selection event listener
+        $('.currency2 .region .option-list').change(function() {
             //console.log($(this).children('.option-list :selected').val());
             let id = $(this).children('.option-list :selected').val();
             standards.build_filtered_list(id,'r');
@@ -351,13 +352,7 @@ var	periods = {
     //todo: need to write filtering functions for periods dropdown
         //console.log('reached filtered list');
         console.log(coins.filtered_list);
-        /*if (regions.selected_region === {}){
-            return periods.list;
-        }
 
-        return periods.list.filter(function(period){
-            return period.start_date >= regions.selected_region.start_date && period.end_date <= regions.selected_region.end_date;
-        })*/
     },
     filter: function () {
 
