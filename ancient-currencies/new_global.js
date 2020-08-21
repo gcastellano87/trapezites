@@ -48,6 +48,7 @@ var standard = {
 }
 
 var standards = {
+    selected_standard: {},
     list: [],
     filtered_list: [],
     initialize (coins_json) {
@@ -85,6 +86,14 @@ var standards = {
     },
     build_dropdown: function() {
         console.log('building standards dropdown');
+        $('.standard .option-list').change(function() {
+            let id = $(this).children('.option-list :selected').val();
+            for (let item of standards.list) {
+                if (item['id'] == id) {
+                    standards.selected_standard = item;
+                }
+            }
+        });
         for (let item of standards.list) {
             let metaTempHtml = item['name'];
             tempHtml = $('<option value='+item['id']+'>' +metaTempHtml +'</option>');
@@ -251,6 +260,7 @@ var regions = {
 /*---------------- PERIODS ------------------*/
 /*-------------------------------------------*/
 var period = {
+    'id': '',
     'start_date': '',
     'end_date': ''
 }
@@ -305,9 +315,11 @@ var	periods = {
         // console.log('rounded max '+max);
 
         result = [];
+        id = 0;
         while (periods.compare_years(minYear, minSuf, maxYear, maxSuf) == -1){
             prd = Object.create(period);
             let periodEnd;
+            prd['id'] = id;
             if (minSuf == 'BC') {
                 periodEnd = minYear - 24;
                 prd['start_date'] = min;
@@ -325,6 +337,7 @@ var	periods = {
                 minYear = minYear + 25;
             }
             min = minYear;
+            id++;
         }
 
         return result;
@@ -334,6 +347,7 @@ var	periods = {
         $('.period .option-list').change(function() { //option selection event listener
             //console.log($(this).children('.option-list :selected').val());
             let id = $(this).children('.option-list :selected').val();
+            periods.selected_period = periods.list[id];
             coins.build_filtered_list(id,'p');
             standards.build_filtered_list(id,'p');
             regions.build_filtered_list();
@@ -370,7 +384,7 @@ var	periods = {
             else if (suf1 == 'AD' && suf2 == 'BC') {
                 return 1;
             }
-            else if (suf1 == 'BC' && suf2 == 'BC') {
+            if (suf1 == 'BC' && suf2 == 'BC') {
                 // console.log('both BC');
                 return num1 > num2 ? -1 : 1;
             }
@@ -389,6 +403,7 @@ var coins = {
     selected_coin: {},
     list: [],
     filtered_list: [],
+    comparable_standards: [],
     initialize: function(coins_json){
         console.log('initializing coins');
         coins.list = coins.build_list(coins_json);
@@ -412,6 +427,11 @@ var coins = {
         $('.denomination-location .option-list').change(function() {
             //console.log($(this).children('.option-list :selected').val());
             let id = $(this).children('.option-list :selected').val();
+            for (let item of coins.list) {
+                if (item['id'] == id) {
+                    coins.selected_coin = item;
+                }
+            }
             coins.on_coin_selected(id);
         });
         for (let item of coins.list) {
@@ -462,30 +482,68 @@ var coins = {
     },
     on_coin_selected: function(id){
         console.log('coin selected');
-        //if period !selected
-        //else if
-        for (let item of coins.list) {
-            if (item['id'] == id) {
-                selected_coin = item;
-            }
-        }
+        coins.comparable_standards = coins.get_comparable_standards();
+        $(document).on('keyup', '.amount-box', function() {
+            coins.convert_to_standard();
+        });
         //call conversion functions
     },
-    //todo: write conversion functions
-    coins_by_decreasing_value: function(){
-        //return [];
+    //todo: conversion functions incomplete
+    convert_to_standard: function() {        //get list of weights of coins in standard
+        let amount = $('.amount-box').val();
+        let selected_standard = standards.selected_standard;
+        let amount_in_grams = amount * coins.selected_coin['weight in grams'];
+        //console.log(amount_in_grams);
+
+        for (let standard of coins.comparable_standards) {
+            weights = coins.get_weights_by_dec_value(standard);
+            //console.log(weights);
+            let conversion_results = [];
+            for(let i=0; i<weights.length; i++){
+                if(amount_in_grams >= weights[i]){ //if amount in grams is greater than weight of denomination
+                    //console.log('greater than ' + weights[i]);
+                    first = amount_in_grams / weights[i];
+                    amount_in_grams = first - Math.floor(first);
+                    conversion_results.push(Math.floor(first));
+                    amount_in_grams = amount_in_grams * weights[i];
+                }
+            }
+
+            if(conversion_results.length == 0) {
+                first = amount_in_grams / weights[0];
+                conversion_results.push(first.toFixed(2));
+            }
+            //console.log(conversion_results);
+        }
+
+    },
+    get_weights_by_dec_value: function(standard) {
+        weights = [];
+        for (let coin of standard['coins']) {
+            weights.push(coin['weight in grams']);
+        }
+        weights.sort(function(a, b){return b-a})
+        return weights;
     },
     display_value_in_coins: function(value_in_silver){
        // the_coins = this.convert_silver_to_coins_in_standard(value_in_silver)
        //for each coin generate html for
        // return html;
     },
-    convert_silver_to_coins_in_standard: function(value_in_silver){
-       // loop through standard.coins_by_decreasing_value
-
-       // return number of each coin
+    get_comparable_standards: function() {
+        console.log('getting comparable standards');
+        let comparable_standards = [];
+        let start_date = periods.selected_period['start_date'];
+        let end_date = periods.selected_period['end_date'];
+        for (let standard of standards.list) {
+            if (standard['start_date'] <= start_date && standard['start_date'] >= end_date) {
+                comparable_standards.push(standard);
+            } else if (standard['end_date'] >= end_date && standard['end_date'] <= start_date) {
+                comparable_standards.push(standard);
+            }
+        }
+        return comparable_standards;
     }
-
 }
 
 /*-------------------------------------------*/
@@ -542,8 +600,8 @@ var app = {
         var numId = stdName.match(ifNum);
         var bcId = stdName.match(bc);
         var hyphenId = stdName.indexOf('–');
-        start_date = stdName.substring(numId['index'], hyphenId);
-        end_date = stdName.substring(hyphenId+1,bcId['index']-1);
+        start_date = parseInt(stdName.substring(numId['index'], hyphenId));
+        end_date = parseInt(stdName.substring(hyphenId+1,bcId['index']-1));
         dates = [start_date, end_date];
 
         return dates;

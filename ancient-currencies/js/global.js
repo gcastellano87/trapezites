@@ -161,13 +161,13 @@ function initialPopulate() {
      console.log('periods populated');
         let value = 0;
         for (let i=0; i<periods.length; i++) {
-                let item = periods[i];
-                let str = item[0]+' to '+item[1]+' ('+pCoinCount[i]+' currencies)';
-                //let value = item[0]+' to '+item[1];
-                //let tempHtml = $('<a href="#" label="period" pid="'+i+'">'+ str +'</a>');
-                let tempHtml = $('<option value='+value+'>'+ str +'</option>');
-                $(tempHtml).appendTo('.period .option-list');
-                value = value + 1;
+            let item = periods[i];
+            let str = item[0]+' to '+item[1]+' ('+pCoinCount[i]+' currencies)';
+            //let value = item[0]+' to '+item[1];
+            //let tempHtml = $('<a href="#" label="period" pid="'+i+'">'+ str +'</a>');
+            let tempHtml = $('<option value='+value+'>'+ str +'</option>');
+            $(tempHtml).appendTo('.period .option-list');
+            value = value + 1;
         }
 
      console.log('regions populated');
@@ -980,9 +980,6 @@ function displayComparableCurrencies() {
                 if(coin1 >= weights[i]){ //if amount in grams is greater than weight of denomination
                     //console.log('greater than ' + weights[i]);
                     first = coin1 / weights[i];
-                        //console.log(coin1);
-                        //console.log(first);
-                    //cnvResult.push(first);
                     coin1 = first - Math.floor(first);
                     cnvResult.push(Math.floor(first));
                     coin1 = coin1 * weights[i];
