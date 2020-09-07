@@ -1,0 +1,4 @@
+name: trapezites
+recipe: lamp
+config:
+  webroot: .
