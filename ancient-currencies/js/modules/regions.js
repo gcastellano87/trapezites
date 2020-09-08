@@ -16,10 +16,10 @@ export const Regions = {
     filtered_list_standards: [],
     initialize: function(coins_json) {
         console.log('initializing regions');
-        Regions.list = Regions.build_list(coins_json);
-        Regions.build_dropdown();
+        Regions.initialize_list(coins_json);
+        Regions.build_dropdowns();
     },
-    build_list: function (coins) {
+    initialize_list: function (coins) {
         console.log('building regions list');
         let regions_list = new Set();
         let regionArray = [];
@@ -50,24 +50,12 @@ export const Regions = {
             regionArray.push(newRegion);
             id++;
         }
-        return regionArray;
+        regionArray.sort((a, b) => (a.name > b.name) ? 1 : -1)
+        console.log("Regions:" , regionArray);
+        Regions.list = regionArray;
     },
-    build_dropdown: function () {
-        console.log('building regions dropdown');
-        //option selection event listeners
-        $('.currency1 .region .option-list').change(function() {
-            //console.log($(this).children('.option-list :selected').val());
-            let id = $(this).children('.option-list :selected').val();
-            coins.build_filtered_list(id,'r');
-            periods.build_filtered_list(id);
-            //standards.build_filtered_list(id);
-        });
-
-        $('.currency2 .region .option-list').change(function() {
-            //console.log($(this).children('.option-list :selected').val());
-            let id = $(this).children('.option-list :selected').val();
-            standards.build_filtered_list(id,'r');
-        });
+    build_dropdowns: function () {
+        console.log('building regions dropdowns');
 
         for (let item of Regions.list) {
             let str = item['name'];

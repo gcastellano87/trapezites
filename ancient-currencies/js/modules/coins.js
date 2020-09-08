@@ -5,14 +5,18 @@
 export const Coins = {
     selected_coin: {},
     list: [],
+    active_filters: {
+        region: '',
+        period: '',
+    },
     filtered_list: [],
     comparable_standards: [],
     initialize: function(coins_json){
         console.log('initializing coins');
-        Coins.list = Coins.build_list(coins_json);
-        Coins.build_dropdown(coins_json);
+        Coins.initialize_list(coins_json);
+        Coins.build_dropdown();
     },
-    build_list: function(entries){
+    initialize_list: function(entries){
         console.log('building coins list');
         let listTemp = [];
         let id = 0;
@@ -23,65 +27,72 @@ export const Coins = {
             listTemp.push(obj);
         }
         //console.log(listTemp);
-        return listTemp;
+        Coins.list = listTemp;
+    },
+    get_list: function(){
+        return Coins.list;
+    },
+    set_period_filter: function(period){
+        Coins.active_filters.period = period;
+    },
+    set_region_filter: function(region){
+        Coins.active_filters.region = region;
+    },
+    period_filter: function(coin){
+        let is_match = true;
+        let period = Coins.active_filters.period;
+
+        if (!period) { return is_match;}
+
+        let start_date = period.start_date;
+        let end_date = period.end_date;
+
+        if (coin['start_date_year'] <= start_date && coin['start_date_year'] >= end_date) {
+                is_match = true;
+        } else if (coin['end_date_year'] >= end_date && coin['end_date_year'] <= start_date) {
+                is_match = true;
+        } else {
+            is_match = false;
+        }
+        
+        return is_match;
+    },
+    region_filter: function(coin){
+        let region = Coins.active_filters.region;
+        // console.log('filter region:', region);
+        if ( region ){
+            return coin['region'] == region.name;
+        } else {
+            return true;
+        }
+    },
+    get_filtered_list: function(){
+        return Coins.get_list()
+            .filter(Coins.period_filter)
+            .filter(Coins.region_filter);
+
+        return filtered_list;
     },
     build_dropdown: function(){
         console.log('building coins dropdown');
-        $('.denomination-location .option-list').change(function() {
-            //console.log($(this).children('.option-list :selected').val());
-            let id = $(this).children('.option-list :selected').val();
-            for (let item of Coins.list) {
-                if (item['id'] == id) {
-                    Coins.selected_coin = item;
-                }
+        console.log(Coins.get_filtered_list());
+        // Clear the dropdown
+        $('.currency'+1+' .denomination-location .option-list').empty();
+
+        let coins = Coins.get_filtered_list();
+        // If there aren't any matches...
+        if (coins.length == 0){
+            $('<option value="" selected disabled hidden>No coins match...</option>').appendTo('.currency'+1+' .denomination-location .option-list');
+        } else {
+            // Add a placeholder element
+            $('<option value="" selected disabled hidden>Choose here or type in Search..</option>').appendTo('.currency'+1+' .denomination-location .option-list');
+            // Add an element for each of the filtered coins
+            for (let item of coins) {
+                let metaTempHtml = item['denomination'].trim() + '; '+item['location'];
+                let tempHtml = $('<option value='+item['id']+'>' +metaTempHtml +'</option>');
+                $(tempHtml).appendTo('.currency'+1+' .denomination-location .option-list');
             }
-            Coins.on_coin_selected(id);
-        });
-        for (let item of Coins.list) {
-            let metaTempHtml = item['denomination']+ '; '+item['location'];
-            let tempHtml = $('<option value='+item['id']+'>' +metaTempHtml +'</option>');
-            $(tempHtml).appendTo('.currency'+1+' .denomination-location .option-list');
         }
-    },
-    build_filtered_list: function(id, filterType){
-        console.log('building coins filtered list');
-        if (filterType == 'p') { //if period dropdown selected
-            let start_date = periods.list[id]['start_date'];
-            let end_date = periods.list[id]['end_date'];
-            let filtered = [];
-            for (let coin of Coins.list) {
-                if (coin['start_date_year'] <= start_date && coin['start_date_year'] >= end_date) {
-                    filtered.push(coin);
-                } else if (coin['end_date_year'] >= end_date && coin['end_date_year'] <= start_date) {
-                    filtered.push(coin);
-                }
-            }
-            Coins.filtered_list = filtered;
-            Coins.filter();
-        } else if (filterType == 'r') { //if region dropdown selected
-            let region = regions.list[id];
-            //console.log(region);
-            let filtered = [];
-            for (let coin of Coins.list) {
-                if (coin['region'] == region['name']) {
-                    filtered.push(coin);
-                }
-            }
-            Coins.filtered_list = filtered;
-            Coins.filter();
-            periods.build_filtered_list(id);
-        }
-    },
-    filter: function () {
-        $('.denomination-location .option-list').children().each(function(i) {
-            this.disabled = true;
-            for (let item of Coins.filtered_list) {
-                let name = item['denomination']+ '; '+item['location'];
-                if (name == this.text) {
-                    this.disabled = false;
-                }
-            }
-        });
     },
     on_coin_selected: function(id){
         console.log('coin selected');

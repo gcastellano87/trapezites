@@ -16,13 +16,18 @@ export const Standard = {
 export const Standards = {
     selected_standard: {},
     list: [],
-    filtered_list: [],
+    active_filters: {
+        region: '',
+        period: '',
+    },
     initialize (coins_json) {
         console.log('initializing standards');
-        Standards.list = Standards.build_list(coins_json);
+        Standards.initialize_list(coins_json);
+        console.log('Standards', Standards.list);
+
         Standards.build_dropdown();
     },
-    build_list: function(coins) {
+    initialize_list: function(coins) {
         console.log('building standards list');
         let standards_list = new Set();
         let standardsArray = [];
@@ -48,7 +53,7 @@ export const Standards = {
             newStandard['end_date'] = Standards.get_dates(i)[1];
             id++;
         }
-        return standardsArray;
+        Standards.list = standardsArray;
     },
     get_dates: function(standard) { //function extracts start_date and end_date from standard name
         let stdName = standard;
@@ -68,60 +73,65 @@ export const Standards = {
 
         return dates;
     },
+    get_list: function(){
+        return Standards.list;
+    },
+    set_period_filter: function(period){
+        Standards.active_filters.period = period;
+    },
+    set_region_filter: function(region){
+        Standards.active_filters.region = region;
+    },
+    period_filter: function(standard){
+        let is_match = true;
+        let period = Standards.active_filters.period;
+
+        if (!period) { return is_match;}
+
+        let start_date = period.start_date;
+        let end_date = period.end_date;
+
+        if (standard['start_date'] <= start_date && standard['start_date'] >= end_date) {
+                is_match = true;
+        } else if (standard['end_date'] >= end_date && standard['end_date'] <= start_date) {
+                is_match = true;
+        } else {
+            is_match = false;
+        }
+        
+        return is_match;
+    },
+    region_filter: function(standard){
+        let region = Standards.active_filters.region;
+        // console.log('filter region:', region);
+        if ( region ){
+            return standard['region'] == region.name;
+        } else {
+            return true;
+        }
+    },
+    get_filtered_list: function(){
+        return Standards.get_list()
+            .filter(Standards.period_filter)
+            .filter(Standards.region_filter);
+    },
     build_dropdown: function() {
         console.log('building standards dropdown');
-        $('.standard .option-list').change(function() {
-            let id = $(this).children('.option-list :selected').val();
-            for (let item of Standards.list) {
-                if (item['id'] == id) {
-                    Standards.selected_standard = item;
-                }
+        // Clear the dropdown
+        $('.currency'+2+' .standard .option-list').empty();
+        let standards = Standards.get_filtered_list();
+        // If there aren't any matches...
+        if (standards.length == 0){
+            $('<option value="" selected disabled hidden>No standards match...</option>').appendTo('.currency'+2+' .standard .option-list');
+        } else {
+            // Add a placeholder element
+            $('<option value="" selected disabled hidden>Choose here or type in Search..</option>').appendTo('.currency'+2+' .standard .option-list');
+            // Add an element for each of the filtered standards
+            for (let item of standards) {
+                let metaTempHtml = item['name'];
+                let tempHtml = $('<option value='+item['id']+'>' +metaTempHtml +'</option>');
+                $(tempHtml).appendTo('.currency'+2+' .standard .option-list');
             }
-        });
-        for (let item of Standards.list) {
-            let metaTempHtml = item['name'];
-            let tempHtml = $('<option value='+item['id']+'>' +metaTempHtml +'</option>');
-            $(tempHtml).appendTo('.currency'+2+' .standard .option-list');
         }
-    },
-    build_filtered_list: function(id, filterType) {
-        console.log('building standards filtered list');
-        if (filterType == 'p') {
-            let start_date = periods.list[id]['start_date'];
-            let end_date = periods.list[id]['end_date'];
-            //console.log(start_date, end_date);
-            let filtered = [];
-            for (let standard of Standards.list) {
-                if (standard['start_date'] <= start_date && standard['start_date'] >= end_date) {
-                    filtered.push(standard);
-                } else if (standard['end_date'] >= end_date && standard['end_date'] <= start_date) {
-                    filtered.push(standard);
-                }
-            }
-            Standards.filtered_list = filtered;
-            Standards.filter();
-        } else if (filterType == 'r') {
-            let region = regions.list[id];
-            //console.log(region);
-            let filtered = [];
-            for (let standard of Standards.list) {
-                if (standard['region'] == region['name']) {
-                    filtered.push(standard);
-                }
-            }
-            Standards.filtered_list = filtered;
-            Standards.filter();
-        }
-
-    },
-    filter: function() {
-        $('.standard .option-list').children().each(function(i) {
-            this.disabled = true;
-            for (let item of Standards.filtered_list) {
-                if (item['name'] == this.text) {
-                    this.disabled = false;
-                }
-            }
-        });
     }
 }
