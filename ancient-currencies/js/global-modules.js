@@ -33,31 +33,35 @@ location
 commodity
 */
 
-import { Standard, Standards }  from './modules/standards.js';
+
+import { StandardVersion, Standards }  from './modules/standards.js';
 import { Region, Regions }  from './modules/regions.js';
 import { Period, Periods }  from './modules/periods.js';
 import { Coins } from './modules/coins.js';
-
 /*-------------------------------------------*/
 /*------------------ APP --------------------*/
 /*-------------------------------------------*/
 var App = {
     entries: [],
     initialize: function(){
-        var the_headers = new Headers();
-        the_headers.append('secret-key', '$2b$10$yjrD4Y8FJuGo2.cLYkzKP.FI6SCpY5GW8JUazMgOxXUnYi8Tf0MT2');
+        // var the_headers = new Headers();
+        // the_headers.append('secret-key', '$2b$10$yjrD4Y8FJuGo2.cLYkzKP.FI6SCpY5GW8JUazMgOxXUnYi8Tf0MT2');
 
-        const request = new Request('https://api.jsonbin.io/b/5f04a20b343d624b07816015/4',  {   
-            method: 'GET',
-            headers: the_headers,
-        });
+        // const request = new Request('https://api.jsonbin.io/b/5f04a20b343d624b07816015/4',  {   
+        //     method: 'GET',
+        //     headers: the_headers,
+        // });
 
-        fetch(request).then(response => { return response.json()}).then(jsonResponse => {
+        // fetch(request).then(response => { return response.json()}).then(jsonResponse => {
 
-            let entries = App.process_entries(jsonResponse);
-            App.initialize_dropdowns(entries);
-            App.add_listeners();
-        });
+        //     let entries = App.process_entries(jsonResponse);
+        //     App.initialize_dropdowns(entries);
+        //     App.add_listeners();
+        // });
+        let data = JSON.parse(document.getElementById('data').innerHTML);
+        window.entries = data.entries;
+        App.initialize_dropdowns(data.entries);
+        App.add_listeners();
     },
     add_listeners: function(){
         $('.denomination-location .option-list').change(function() {
@@ -95,9 +99,22 @@ var App = {
         console.log("entries:", entries);
         //calling initialize functions for objects
         Coins.initialize(entries);
+                // DEBUGGIN ONLY
+                window.coins = Coins.list;
+
         Standards.initialize(entries);
+                // DEBUGGIN ONLY
+                window.standards = Standards.list;
         Periods.initialize(entries);
+                // DEBUGGIN ONLY
+                window.periods = Periods.list;
         Regions.initialize(entries);
+            // DEBUGGIN ONLY
+            window.regions = Regions.list;
+
+        
+        
+        
     },
     process_entries: function(json){
         let initial_entries = json.entries;

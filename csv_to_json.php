@@ -68,7 +68,7 @@ while(! feof($currency_file)){
 		print_r($currency_row);
 		   
 		for($i = 0; $i<count($currency_row); $i++){
-          $currency_row[$i] = strtolower($currency_row[$i]);
+          $currency_row[$i] = str_replace(' ','_',strtolower($currency_row[$i]));
         }
 		$currency_header = $currency_row;
   	} else {

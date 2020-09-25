@@ -37,13 +37,13 @@
 				<input type="text" placeholder="amount" id="amount-box1" class="amount-box">
 				<div class="block-container currency1">
 					<div class="block denomination-location" >
-						<input type="text" placeholder="Search.." class="input search-box" which="1" label="denomination-location">
-						<select which="1" name="denomination-location" class="option-list"></select>
+						<input type="text" placeholder="Search.." class="input search-box" label="denomination-location">
+						<select name="denomination-location" class="option-list"></select>
 					</div>
 					<div class="block region" >
 						<label>Limit by Region</label>
-						<input type="text" placeholder="Search.." class="input search-box" which="1" label="region">
-						<select which="1" name="region" class="option-list"></select>
+						<input type="text" placeholder="Search.." class="input search-box" label="region">
+						<select name="region" class="option-list"></select>
 					</div>
 				</div>
 			</div>
@@ -53,13 +53,13 @@
 				<p id="converter-output">output placeholder</p>
 				<div class="block-container currency2">
 					<div class="block standard" >
-						<input type="text" placeholder="Search.." class="input search-box" which="2" label="denomination-location">
-						<select which="2" name="standard" class="option-list"></select>
+						<input type="text" placeholder="Search.." class="input search-box" label="denomination-location">
+						<select name="standard" class="option-list"></select>
 					</div>
 					<div class="block region" >
 						<label>Limit by Region</label>
-						<input type="text" placeholder="Search.." class="input search-box" which="2" label="region">
-						<select which="2" name="region" class="option-list"></select>
+						<input type="text" placeholder="Search.." class="input search-box" label="region">
+						<select name="region" class="option-list"></select>
 					</div>
 				</div>
 			</div>
@@ -125,6 +125,10 @@
 		<tbody></tbody>
 	</table>
 </div> -->
-
+<?php
+	echo '<script id="data" type="application/json">';
+	echo file_get_contents('currency.json');
+	echo '</script>';
+?>
 </body>
 </html>

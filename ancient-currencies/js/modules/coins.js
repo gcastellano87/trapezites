@@ -18,16 +18,8 @@ export const Coins = {
     },
     initialize_list: function(entries){
         console.log('building coins list');
-        let listTemp = [];
-        let id = 0;
-        for (let i in entries) {
-            let obj = entries[i];
-            obj['id'] = id;
-            id++;
-            listTemp.push(obj);
-        }
         //console.log(listTemp);
-        Coins.list = listTemp;
+        Coins.list = entries.map(function(entry, index){  entry.id = index; return entry;} );
     },
     get_list: function(){
         return Coins.list;
