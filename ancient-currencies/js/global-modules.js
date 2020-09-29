@@ -99,22 +99,20 @@ var App = {
         console.log("entries:", entries);
         //calling initialize functions for objects
         Coins.initialize(entries);
+        // DEBUGGIN ONLY
+        window.coins = Coins;
+        var coins_list = Coins.get_list();
+        
+        Standards.initialize(coins_list);
                 // DEBUGGIN ONLY
-                window.coins = Coins.list;
-
-        Standards.initialize(entries);
+                window.standards = Standards;
+        Periods.initialize(coins_list);
                 // DEBUGGIN ONLY
-                window.standards = Standards.list;
-        Periods.initialize(entries);
-                // DEBUGGIN ONLY
-                window.periods = Periods.list;
-        Regions.initialize(entries);
+                window.periods = Periods;
+        Regions.initialize(coins_list);
             // DEBUGGIN ONLY
-            window.regions = Regions.list;
+            window.regions = Regions;
 
-        
-        
-        
     },
     process_entries: function(json){
         let initial_entries = json.entries;

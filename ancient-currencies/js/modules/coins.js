@@ -2,6 +2,9 @@
 /*-------------------------------------------*/
 /*----------------- COINS -------------------*/
 /*-------------------------------------------*/
+import { Dat, DatRange } from './dates.js';
+
+
 export const Coins = {
     selected_coin: {},
     list: [],
@@ -16,10 +19,17 @@ export const Coins = {
         Coins.initialize_list(coins_json);
         Coins.build_dropdown();
     },
-    initialize_list: function(entries){
+    initialize_list: function(coins){
         console.log('building coins list');
         //console.log(listTemp);
-        Coins.list = entries.map(function(entry, index){  entry.id = index; return entry;} );
+        Coins.list = coins
+            .map(function(coin, index){  
+                coin.id = index;
+                coin.standard_by_location = coin.standard && coin.location ? coin.standard + " (" + coin.location + ")" : ""; 
+                coin.range = new DatRange(coin.start_date + " - " + coin.end_date);
+
+                return coin;
+            } );
     },
     get_list: function(){
         return Coins.list;
@@ -31,23 +41,11 @@ export const Coins = {
         Coins.active_filters.region = region;
     },
     period_filter: function(coin){
-        let is_match = true;
         let period = Coins.active_filters.period;
 
-        if (!period) { return is_match;}
+        if (!period) { return true;}
 
-        let start_date = period.start_date;
-        let end_date = period.end_date;
-
-        if (coin['start_date_year'] <= start_date && coin['start_date_year'] >= end_date) {
-                is_match = true;
-        } else if (coin['end_date_year'] >= end_date && coin['end_date_year'] <= start_date) {
-                is_match = true;
-        } else {
-            is_match = false;
-        }
-        
-        return is_match;
+        return coin.range.overlaps(period);
     },
     region_filter: function(coin){
         let region = Coins.active_filters.region;

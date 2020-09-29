@@ -1,3 +1,4 @@
+import { Coins } from './coins.js';
 /*-------------------------------------------*/
 /*--------------- STANDARDS -----------------*/
 /*-------------------------------------------*/
@@ -92,15 +93,17 @@ export const Standards = {
     },
     initialize_list: function(coins) {
 
-        let names_of_standards = [...new Set(coins.map(function(coin){return coin.version_of_standard}))];
-        console.table(names_of_standards);
-        Standards.list = names_of_standards
-            .filter(function(standard_name){ return standard_name != "";})
+        let standards_by_locations = [...new Set(coins.map(function(coin){return coin.standard_by_location}))];
+// TODO  We've got the coins grouped by standard in location.  Now we need to group them by time period.  Probably this means that each DatRange also needs to be periordized?   Got to thinkg this through
+
+        console.table(standards_by_locations);
+        Standards.list = standards_by_locations
+            .filter(function(standard_name){ return standard_name;})
             .map(function(standard_name,index){
-                let coins_in_standard = coins.filter(function(coin){
-                    return coin.version_of_standard && coin.version_of_standard === standard_name;
+                let coins_in_standard_location = coins.filter(function(coin){
+                    return coin.standard_by_location && coin.standard_by_location === standard_name;
                 });
-                return new StandardVersion(index, standard_name, coins_in_standard);})
+                return new StandardVersion(index, standard_name, coins_in_standard_location);})
             .sort(function(a,b) {
                 var nameA = a.name.toUpperCase(); // ignore upper and lowercase
                 var nameB = b.name.toUpperCase(); // ignore upper and lowercase

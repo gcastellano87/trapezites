@@ -3,8 +3,12 @@
 /*-------------------------------------------*/
 
 export class Dat {
-    constructor(date_string){
-        this.date   =  this.parse_date(date_string);
+    constructor(date_string_or_num){
+        if(isNaN(date_string_or_num)){
+            this.date   =  this.parse_date_as_string(date_string_or_num);           
+        } else {
+            this.date   =  this.parse_date_as_num(date_string_or_num);
+        }
     }
     
     get era(){
@@ -14,13 +18,26 @@ export class Dat {
     get year(){
         return this.date.year;
     }
-
+    
     get abs() {
         if (this.date.era === "BC"){
             return -Math.abs(this.year);
         } else {
             return Math.abs(this.year);
         }
+    }
+
+    before(dat){
+        return this.abs < dat.abs;
+    }
+
+    after(dat){
+        return this.abs > dat.abs;
+    }
+
+    compare(dat){
+        // returns negative number if smaller, positive if better, 0 if same
+        return this.abs - dat.abs;
     }
 
     as_string(format = 'full'){
@@ -36,8 +53,9 @@ export class Dat {
         }
     }
 
-    parse_date(date_string){
-        date_string = date_string.trim();
+    parse_date_as_string(date_string){
+
+        date_string = date_string.trim().toUpperCase();
         let date_letters = date_string.match(/[A-Z]+/g).toString();
         let date_numbers = date_string.match(/\d+/);
         date_numbers = date_numbers[date_numbers.length-1]
@@ -63,12 +81,37 @@ export class Dat {
 
         return date_object;
     }
+    parse_date_as_num(date_num){
+
+        let date_object = {};
+
+        date_object.year = Math.abs(date_num);
+
+        if (date_num < 0 ){
+            date_object.era = "BC";
+        } else if (date_name > 0) {
+            date_object.era = "AD";
+        } else if (date_num === 0){
+            // if the number is 0, make it 1 AD
+            date_object.year = 1;
+            date_object.era = "AD";
+        }
+
+        return date_object;
+    }
 }
 
 export class DatRange {
-    constructor(date_range_string){
-        this.range_string = this.find_range_string(date_range_string);
-        this.range = this.parse_range_string();
+    constructor(date_range_string_or_dats){
+        if ( typeof date_range_string_or_dats === 'string') {
+            this.range_string = this.find_range_string(date_range_string_or_dats);
+            this.range = this.parse_range_string();
+        } else if ( typeof date_range_string_or_dats === 'object' && date_range_string_or_dats !== null && date_range_string_or_dats.hasOwnProperty('start') && date_range_string_or_dats.start instanceof Dat && date_range_string_or_dats.hasOwnProperty('end') && date_range_string_or_dats.end instanceof Dat ) {
+            this.range = date_range_string_or_dats;
+        } else {
+            console.error("DatRange requires either a string or an object containing a start key and an end key with Dat objects but it got:", date_range_string_or_dats);
+        }
+        
     }
 
     get start(){
@@ -80,8 +123,26 @@ export class DatRange {
     }
 
     get duration(){
-        this.end.abs - this.start.abs;
+        this.end - this.start;
     }
+
+    contains(dat_or_drange){
+        if (dat_or_drange instanceof Dat){
+            return dat_or_drange.after(this.start) && dat_or_drange.before(this.end);
+        } else if (dat_or_drange instanceof DatRange ){
+            return dat_or_drange.start.after(this.start) && dat_or_drange.end.before(this.end);
+        } else {
+            console.error("Type Error: DatRange.contains parameter must be Dat or DatRange");
+        }
+    }
+
+    overlaps(dat_range){
+        if (!dat_range instanceof DatRange){
+            console.error("Type Error: DatRange.contains parameter must be DatRange");
+        }
+        return this.contains(dat_range.start) || this.contains(dat_range.end);
+    }
+
 
     as_string(format = 'default'){
         if (format === "full" || format === "both"){
