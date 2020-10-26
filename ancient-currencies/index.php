@@ -5,7 +5,7 @@
 	<link rel="stylesheet" href="style.css">
 	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> -->
 	<script src="./js/jquery.min.js"></script>
-	<script type="module" src="./js/global-modules.js"></script>
+	
 </head>
 <body>
 
@@ -130,5 +130,6 @@
 	echo file_get_contents('currency.json');
 	echo '</script>';
 ?>
+<script type="module" src="./js/global-modules.js"></script>
 </body>
 </html>

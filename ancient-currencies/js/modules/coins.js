@@ -2,7 +2,8 @@
 /*-------------------------------------------*/
 /*----------------- COINS -------------------*/
 /*-------------------------------------------*/
-import { Dat, DatRange } from './dates.js';
+import { DatRange } from './utils/dat_range.js';
+import { RangedCoins } from './utils/ranged_coins.js';
 
 
 export const Coins = {
@@ -20,16 +21,16 @@ export const Coins = {
         Coins.build_dropdown();
     },
     initialize_list: function(coins){
-        console.log('building coins list');
-        //console.log(listTemp);
-        Coins.list = coins
+        // DEBUGGIN ONLY
+        // console.log('building coins list');
+        Coins.list = new RangedCoins(coins
             .map(function(coin, index){  
                 coin.id = index;
                 coin.standard_by_location = coin.standard && coin.location ? coin.standard + " (" + coin.location + ")" : ""; 
                 coin.range = new DatRange(coin.start_date + " - " + coin.end_date);
 
                 return coin;
-            } );
+            }));
     },
     get_list: function(){
         return Coins.list;
@@ -45,7 +46,7 @@ export const Coins = {
 
         if (!period) { return true;}
 
-        return coin.range.overlaps(period);
+        return coin.range.overlaps(period.range);
     },
     region_filter: function(coin){
         let region = Coins.active_filters.region;

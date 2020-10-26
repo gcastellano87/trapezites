@@ -4,54 +4,40 @@ import { Coins } from './coins.js';
 /*-------------------------------------------*/
 // TODO:  Change the way "version of standard" is created
 
-import { DatRange } from './dates.js';
 
-export class StandardVersion {
-    constructor( id, name, coins) {
-        if ( id === "" || name === "" || coins.length < 1){
-            console.error("Invalid Standard.  id = " + id + " name = '" + name + "'", coins );
-        }
+import { RangedItems } from './utils/ranged_items.js';
+import { RangedCoins } from './utils/ranged_coins.js';
 
-        this.id         = id;
-        this.name       = name;
+export class StandardVersion extends RangedItems {
+    constructor(coins) {
+
         this.coins      = coins;
-        this.region     = this.initialize_region();
-        this.location   = this.initialize_location();
-        this.dates      = this.initialize_dates();
+        super(coins);
+        this._region     = this.initialize_region();
+        this._location   = this.initialize_location();
+        this._name       = this.initialize_name();
     }
-    get short_name() {
-        // expected format:  "Milesian 525–500 BC Knidos"
-        // get's the text up to the first number and then trims
-        var match = this.name.match(/\(/);
-        if (match){
-            return this.name.substr(0,match.index).trim();
-        } else {
-            console.error("Invalid name (no date): " + this.name);
-            return "";
-        }
-    }
-    get start_date() {
-        return this.dates.start;
-    }
-
-    get end_date() {
-        return this.dates.end;
+    get name() {
+        return this._name;
     }
     
-    includes_date(date){
-        return date.abs >= this.start.abs && date.abs < this.end.abs; 
+    get region() {
+        return this._region;
+    }
+    
+    get location() {
+        return this._location;
     }
 
-    get duration(){
-        return this.dates.duration;
-    }
+    initialize_name() {
+        let all_standard_by_locations     = this.coins.map(coin => coin.standard_by_location);
+        let unique_standard_by_locations  = [...new Set(all_standard_by_locations)];
 
-    date_string(format = 'default'){
-        return this.dates.as_string(format);
-    }
-
-    initialize_dates() {
-        return new DatRange(this.name);
+        if (unique_standard_by_locations.length != 1 ){
+            console.error("Data Error: Each Standard should have only one standard_by_location.  This one had " + unique_standard_by_locations.length, unique_standard_by_locations,this);
+        }
+        // console.log(unique_standard_by_locations);
+        return unique_standard_by_locations[0];  
     }
 
     initialize_region() {
@@ -91,31 +77,89 @@ export const Standards = {
         console.log('Standards', Standards.list);
         Standards.build_dropdown();
     },
+    arrays_equal: function(a, b) {
+        if (a === b) return true;
+        if (a == null || b == null) return false;
+        if (a.length !== b.length) return false;
+      
+        a.sort((y, z) => (y.denomination > z.denomination) ? 1 : -1)
+        b.sort((y, z) => (y.denomination > z.denomination) ? 1 : -1)
+        
+        for (var i = 0; i < a.length; ++i) {
+          if (a[i] !== b[i]) return false;
+        }
+        return true;
+      },
     initialize_list: function(coins) {
+      
+        let the_coins = coins.ranged_items;
 
-        let standards_by_locations = [...new Set(coins.map(function(coin){return coin.standard_by_location}))];
-// TODO  We've got the coins grouped by standard in location.  Now we need to group them by time period.  Probably this means that each DatRange also needs to be periordized?   Got to thinkg this through
+        // Make an array of all of the standards by location
+        let standards_by_locations = [...new Set(the_coins.map(function(coin){return coin.standard_by_location}))];
 
-        console.table(standards_by_locations);
-        Standards.list = standards_by_locations
-            .filter(function(standard_name){ return standard_name;})
-            .map(function(standard_name,index){
-                let coins_in_standard_location = coins.filter(function(coin){
-                    return coin.standard_by_location && coin.standard_by_location === standard_name;
-                });
-                return new StandardVersion(index, standard_name, coins_in_standard_location);})
-            .sort(function(a,b) {
-                var nameA = a.name.toUpperCase(); // ignore upper and lowercase
-                var nameB = b.name.toUpperCase(); // ignore upper and lowercase
-                if (nameA < nameB) {
-                  return -1;
+        // Create a slot to store coins by standard and location
+        let standards_by_locations_with_coins_slot = standards_by_locations
+            .filter(function(standard){if (standard){ return standard;}})
+            .map(function(standard){ return {name: standard, coins: []}})
+
+        // Fill the slot with coins by standard and location
+        the_coins.forEach(function(coin){
+            standards_by_locations_with_coins_slot.forEach(function(standard){
+                if ( standard.name === coin.standard_by_location){
+                    standard.coins.push(coin);
                 }
-                if (nameA > nameB) {
-                  return 1;
-                }
+            })
+        })
+        // Display the coins
+        console.table(standards_by_locations_with_coins_slot);
 
-                return 0;
-              });
+
+        let versioned_standards = [];
+        console.log("starting ---------------------")
+        standards_by_locations_with_coins_slot.forEach(function(s){
+            // console.log("count coins:", s.coins.length);
+
+            let ranged_standard_coins = new RangedCoins(s.coins);
+
+            let periods= ranged_standard_coins.distinct_periods;
+            // console.log(ranged_standard_coins);
+            // let coins_grouped_by_standard = ranged_standard_coins.grouped_by_distinct_periods();
+            // coins_grouped_by_standard.forEach(coin_group => {
+            //     versioned_standards.push(new StandardVersion(coin_group));
+            // });
+        });
+
+        console.table(versioned_standards);
+        // let standards_by_location_with_coins = standards_by_locations_with_coins_slot;
+        window.standards_by_locations = versioned_standards;
+        // console.table(standards_by_location_with_coins);
+        
+        // let standards_version = [];
+
+        // standards_by_location_with_coins.forEach(function(standard){
+        //     let earliest = standard.coins.sort(function(a,b){ return a.range.start.compare(b.range.start);})[0].start;
+        //     let latest = standard.coins.sort(function(a,b){ return a.range.start.compare(b.range.end);})[standard.coins.length-1].end;
+        //     let num_of_periods = Array(Math.ceil((end - start)/increment)).fill("");
+        //     num_of_periods.forEach
+        // })
+        // // console.log("Coins as RangedItems");
+        // // window.coins_as_RangedItems = new RangedItems(coins, 25);
+        // // console.log("Coins AFTER RangedItems");
+        // Standards.list = standards_by_location_with_coins
+        //     .map(function(standard,index){
+        //         return new StandardVersion(index, standard.name, standard.coins);})
+        //     .sort(function(a,b) {
+        //         var nameA = a.name.toUpperCase(); // ignore upper and lowercase
+        //         var nameB = b.name.toUpperCase(); // ignore upper and lowercase
+        //         if (nameA < nameB) {
+        //           return -1;
+        //         }
+        //         if (nameA > nameB) {
+        //           return 1;
+        //         }
+
+        //         return 0;
+        //       });
     },
     get_list: function(){
         return Standards.list;
@@ -132,8 +176,8 @@ export const Standards = {
 
         if (!period) { return is_match;}
 
-        let start_date = period.start_date;
-        let end_date = period.end_date;
+        let start_date = period.range.start_date;
+        let end_date = period.range.end_date;
 
         if (standard['start_date'] <= start_date && standard['start_date'] >= end_date) {
                 is_match = true;

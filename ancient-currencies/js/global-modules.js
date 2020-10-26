@@ -32,12 +32,16 @@ location
 
 commodity
 */
+import{ Tests } from './modules/tests.js';
 
+var test = new Tests();
 
 import { StandardVersion, Standards }  from './modules/standards.js';
 import { Region, Regions }  from './modules/regions.js';
 import { Period, Periods }  from './modules/periods.js';
 import { Coins } from './modules/coins.js';
+
+
 /*-------------------------------------------*/
 /*------------------ APP --------------------*/
 /*-------------------------------------------*/
@@ -59,7 +63,8 @@ var App = {
         //     App.add_listeners();
         // });
         let data = JSON.parse(document.getElementById('data').innerHTML);
-        window.entries = data.entries;
+         // DEBUGGIN ONLY
+        // window.entries = data.entries;
         App.initialize_dropdowns(data.entries);
         App.add_listeners();
     },
@@ -70,7 +75,7 @@ var App = {
         $('.period .option-list').change(function() {
             let id = $(this).children('.option-list :selected').val();
             Periods.selected_period = Periods.list[id];
-            console.log("THE SELECTED PERIOD", Periods.selected_period);
+            // console.log("THE SELECTED PERIOD", Periods.selected_period);
             Coins.set_period_filter(Periods.selected_period);
             Coins.build_dropdown();
             Standards.set_period_filter(Periods.selected_period);
@@ -96,25 +101,27 @@ var App = {
         });
     },
     initialize_dropdowns: function(entries){
-        console.log("entries:", entries);
+        
+        // console.log("entries:", entries);
         //calling initialize functions for objects
         Coins.initialize(entries);
         // DEBUGGIN ONLY
-        window.coins = Coins;
-        var coins_list = Coins.get_list();
+        // window.coins = Coins;
+        var coins_list = Coins.get_filtered_list();
         
-        Standards.initialize(coins_list);
-                // DEBUGGIN ONLY
-                window.standards = Standards;
+        // Standards.initialize(coins_list);
+        //         // DEBUGGIN ONLY
+        //         window.standards = Standards;
         Periods.initialize(coins_list);
-                // DEBUGGIN ONLY
-                window.periods = Periods;
+            // DEBUGGIN ONLY
+            // window.periods = Periods;
         Regions.initialize(coins_list);
             // DEBUGGIN ONLY
-            window.regions = Regions;
+            // window.regions = Regions;
 
     },
     process_entries: function(json){
+        alert("I THINK THIS CODE IS DEAD, BUT IF YOU SEE THIS MESSAGE, I GUESS IT ISN'T");
         let initial_entries = json.entries;
 
         //separates commodities from currencies
