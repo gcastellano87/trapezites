@@ -73,20 +73,20 @@ var App = {
        $('.option-list').select2();
     },
     add_listeners: function(){
-        $('.denomination-location .search-box').keyup(function(){
-            let text = $(this).val();
-            Coins.set_text_filter(text);
-            Coins.build_dropdown(); 
-        });
+        // $('.location .search-box').keyup(function(){
+        //     let text = $(this).val();
+        //     Coins.set_text_filter(text);
+        //     Coins.build_dropdown(); 
+        // });
         
-        $('.denomination-location .option-list').change(function() {
+        $('.currency-from .option-list').change(function() {
             let id = $(this).children('.option-list :selected').val();
             Coins.selected_coin = Coins.list[id];
        //TODO
         });
 
 
-        $('.period .option-list').change(function() {
+        $('.period-selector .option-list').change(function() {
             let id = $(this).children('.option-list :selected').val();
             Periods.selected_period = Periods.list[id];
             // console.log("THE SELECTED PERIOD", Periods.selected_period);
@@ -99,31 +99,31 @@ var App = {
         $('.standard .option-list').change(function() {
 
         });
-        $('.currency1 .region .option-list').change(function() {
+        $('.currency-from .region-selector .option-list').change(function() {
             let id = $(this).children('.option-list :selected').val();
             Regions.selected_region = Regions.list[id];
             console.log("THE SELECTED Region", Regions.selected_region);
             Coins.set_region_filter(Regions.selected_region);
             Coins.build_dropdown();
         });
-        $('.currency2 .region .option-list').change(function() {
+        $('.currency-to .region-selector .option-list').change(function() {
             let id = $(this).children('.option-list :selected').val();
             Regions.selected_region = Regions.list[id];
             console.log("THE SELECTED Region 2", Regions.selected_region);
             Standards.set_region_filter(Regions.selected_region);
             Standards.build_dropdown();
         });
-        $('.currency2 .search-box').keyup(function(){
-            let text = $(this).val();
-            Standards.set_text_filter(text);
-            Standards.build_dropdown(); 
-        });        
+        // $('.currency2 .search-box').keyup(function(){
+        //     let text = $(this).val();
+        //     Standards.set_text_filter(text);
+        //     Standards.build_dropdown(); 
+        // });        
         
-        $('.period .search-box').keyup(function(){
-            let text = $(this).val();
-            Periods.set_text_filter(text);
-            Periods.build_dropdown(); 
-        });
+        // $('.period .search-box').keyup(function(){
+        //     let text = $(this).val();
+        //     Periods.set_text_filter(text);
+        //     Periods.build_dropdown(); 
+        // });
 
     },
     initialize_dropdowns: function(entries){

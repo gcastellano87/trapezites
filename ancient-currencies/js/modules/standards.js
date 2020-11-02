@@ -182,20 +182,20 @@ export const Standards = {
     build_dropdown: function() {
         console.log('building standards dropdown');
         // Clear the dropdown
-        $('.currency'+2+' .standard .option-list').empty();
+        $('.standard-to .standard-selector .option-list').empty();
         let standards = Standards.get_filtered_list();
         // console.table(standards)
         // console.table(Standards.get_list());
         // If there aren't any matches...
         if (standards.length == 0){
-            $('<option value="" selected disabled hidden>No standards match...</option>').appendTo('.currency'+2+' .standard .option-list');
+            $('<option value="" selected disabled hidden>No standards match...</option>').appendTo('.standard-to .standard-selector .option-list');
         } else {
             // Add a placeholder element
-            $('<option value="" selected disabled hidden>Choose here or type in Search..</option>').appendTo('.currency'+2+' .standard .option-list');
+            $('<option value="" selected disabled hidden>Choose here or type in Search..</option>').appendTo('.standard-to .standard-selector .option-list');
 
             standards.forEach(standard => {
                 // console.log("shortname:" + standard.short_name );
-                $('<option value='+standard.id+'>' + standard.standard_version_name + '</option>').appendTo('.currency'+2+' .standard .option-list');
+                $('<option value='+standard.id+'>' + standard.standard_version_name + '</option>').appendTo('.standard-to .standard-selector .option-list');
             });
         }
     }

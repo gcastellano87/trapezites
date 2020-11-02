@@ -39,17 +39,17 @@ export const Periods = {
     build_dropdown: function(){
         console.log('building periods dropdown');
         // console.log("Periods.get_filtered_list()", Periods.get_filtered_list())
-        $('.period .option-list').empty();
+        $('.period-selector .option-list').empty();
         let list = Periods.get_filtered_list();
         console.log('list',list);
         
         if(list.length === 0){
-            $('<option value="" selected disabled hidden>No periods match...</option>').appendTo('.period .option-list');
+            $('<option value="" selected disabled hidden>No periods match...</option>').appendTo('.period-selector .option-list');
         } else {
-            $('<option value="" selected disabled hidden>Select</option>').appendTo('.period .option-list');
+            $('<option value="" selected disabled hidden>Select</option>').appendTo('.period-selector .option-list');
         
             list.forEach(function(period, index){                
-                $('<option value='+(index)+'>'+ period.range.string + " (" + period.ranged_items.length +  ")" + '</option>').appendTo('.period .option-list');
+                $('<option value='+(index)+'>'+ period.range.string + " (" + period.ranged_items.length +  ")" + '</option>').appendTo('.period-selector .option-list');
             });
         }
     },

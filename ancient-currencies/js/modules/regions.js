@@ -60,9 +60,9 @@ export const Regions = {
         for (let item of Regions.list) {
             let str = item['name'];
             let tempHtml = $('<option value='+item['id']+'>'+ str+ '</option>');
-            $(tempHtml).appendTo('.currency1 .region .option-list');
+            $(tempHtml).appendTo('.currency-from .region-selector .option-list');
             let tempHtml2 = $('<option value='+item['id']+'>'+ str+ '</option>');
-            $(tempHtml2).appendTo('.currency2 .region .option-list');
+            $(tempHtml2).appendTo('.standard-to .region-selector .option-list');
         }
     },
     build_filtered_list: function () {
@@ -81,7 +81,7 @@ export const Regions = {
         Regions.filter();
     },
     filter: function () {
-        $('.currency1 .region .option-list').children().each(function(i) {
+        $('.currency-from .region-selector .option-list').children().each(function(i) {
             this.disabled = true;
             for (let item of Regions.filtered_list_coins) {
                 if (item == this.text) {
@@ -89,7 +89,7 @@ export const Regions = {
                 }
             }
         });
-        $('.currency2 .region .option-list').children().each(function(i) {
+        $('.standard-to .region-selector .option-list').children().each(function(i) {
             this.disabled = true;
             for (let item of Regions.filtered_list_standards) {
                 if (item == this.text) {

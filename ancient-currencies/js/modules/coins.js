@@ -78,20 +78,20 @@ export const Coins = {
         // console.log('building coins dropdown');
         // console.log(Coins.get_filtered_list());
         // Clear the dropdown
-        $('.currency'+1+' .denomination-location .option-list').empty();
+        $('.currency-from .coin-selector .option-list').empty();
 
         let coins = Coins.get_filtered_list();
         // If there aren't any matches...
         if (coins.length == 0){
-            $('<option value="" selected disabled hidden>No coins match...</option>').appendTo('.currency'+1+' .denomination-location .option-list');
+            $('<option value="" selected disabled hidden>No coins match...</option>').appendTo('.currency-from .coin-selector .option-list');
         } else {
             // Add a placeholder element
-            $('<option value="" selected disabled hidden>Choose here or type in Search..</option>').appendTo('.currency'+1+' .denomination-location .option-list');
+            $('<option value="" selected disabled hidden>Choose here or type in Search..</option>').appendTo('.currency-from .coin-selector .option-list');
             // Add an element for each of the filtered coins
             for (let item of coins) {
                 let metaTempHtml = item['denomination'].trim() + '; '+item['location'];
                 let tempHtml = $('<option value='+item['id']+'>' +metaTempHtml +'</option>');
-                $(tempHtml).appendTo('.currency'+1+' .denomination-location .option-list');
+                $(tempHtml).appendTo('.currency-from .coin-selector .option-list');
             }
         }
     },
