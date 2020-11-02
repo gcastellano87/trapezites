@@ -12,34 +12,38 @@ export const Coins = {
     active_filters: {
         region: '',
         period: '',
+        text: '',
     },
     filtered_list: [],
     comparable_standards: [],
     initialize: function(coins_json){
-        console.log('initializing coins');
+        // console.log('initializing coins');
         Coins.initialize_list(coins_json);
         Coins.build_dropdown();
     },
     initialize_list: function(coins){
         // DEBUGGIN ONLY
         // console.log('building coins list');
-        Coins.list = new RangedCoins(coins
+        Coins.list = coins
             .map(function(coin, index){  
                 coin.id = index;
                 coin.standard_by_location = coin.standard && coin.location ? coin.standard + " (" + coin.location + ")" : ""; 
                 coin.range = new DatRange(coin.start_date + " - " + coin.end_date);
 
                 return coin;
-            }));
+            });
     },
     get_list: function(){
-        return Coins.list;
+        return Coins.list.sort((a,b) => a.denomination.trim().localeCompare(b.denomination.trim()));
     },
     set_period_filter: function(period){
         Coins.active_filters.period = period;
     },
     set_region_filter: function(region){
         Coins.active_filters.region = region;
+    },
+    set_text_filter: function(text){
+        Coins.active_filters.text = text;
     },
     period_filter: function(coin){
         let period = Coins.active_filters.period;
@@ -57,16 +61,23 @@ export const Coins = {
             return true;
         }
     },
+    text_filter: function(coin){
+        let text = Coins.active_filters.text;
+        if (text){
+            return coin.denomination.includes(text);
+        } else {
+            return true;
+        }
+    },
     get_filtered_list: function(){
         return Coins.get_list()
             .filter(Coins.period_filter)
-            .filter(Coins.region_filter);
-
-        return filtered_list;
+            .filter(Coins.region_filter)
+            .filter(Coins.text_filter);
     },
     build_dropdown: function(){
-        console.log('building coins dropdown');
-        console.log(Coins.get_filtered_list());
+        // console.log('building coins dropdown');
+        // console.log(Coins.get_filtered_list());
         // Clear the dropdown
         $('.currency'+1+' .denomination-location .option-list').empty();
 

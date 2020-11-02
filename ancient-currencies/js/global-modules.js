@@ -34,7 +34,7 @@ commodity
 */
 import{ Tests } from './modules/tests.js';
 
-var test = new Tests();
+var test = new Tests('quiet');
 
 import { StandardVersion, Standards }  from './modules/standards.js';
 import { Region, Regions }  from './modules/regions.js';
@@ -69,8 +69,16 @@ var App = {
         App.add_listeners();
     },
     add_listeners: function(){
-        $('.denomination-location .option-list').change(function() {
+        $('.denomination-location .search-box').keyup(function(){
+            let text = $(this).val();
+            Coins.set_text_filter(text);
+            Coins.build_dropdown(); 
+        });
 
+        $('.denomination-location .option-list').change(function() {
+            let id = $(this).children('.option-list :selected').val();
+            Coins.selected_coin = Coins.list[id];
+            // TODO
         });
         $('.period .option-list').change(function() {
             let id = $(this).children('.option-list :selected').val();
@@ -99,6 +107,12 @@ var App = {
             Standards.set_region_filter(Regions.selected_region);
             Standards.build_dropdown();
         });
+        $('.currency2 .search-box').keyup(function(){
+            let text = $(this).val();
+            Standards.set_text_filter(text);
+            Standards.build_dropdown(); 
+        });
+
     },
     initialize_dropdowns: function(entries){
         
@@ -106,18 +120,18 @@ var App = {
         //calling initialize functions for objects
         Coins.initialize(entries);
         // DEBUGGIN ONLY
-        // window.coins = Coins;
+        window.coins = Coins;
         var coins_list = Coins.get_filtered_list();
         
-        // Standards.initialize(coins_list);
+        Standards.initialize(coins_list);
         //         // DEBUGGIN ONLY
-        //         window.standards = Standards;
+                window.standards = Standards;
         Periods.initialize(coins_list);
             // DEBUGGIN ONLY
-            // window.periods = Periods;
+            window.periods = Periods;
         Regions.initialize(coins_list);
             // DEBUGGIN ONLY
-            // window.regions = Regions;
+            window.regions = Regions;
 
     },
     process_entries: function(json){

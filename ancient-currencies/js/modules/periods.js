@@ -24,17 +24,19 @@ export const Periods = {
         let ranged_coins = new RangedCoins(coins, 25);
         let periods = ranged_coins.periods;
 
-        Periods.list = periods;
+        Periods.list = periods.ranged_items;
     },
     set_list: function(new_list){
         Periods.list = new_list;
     },
     build_dropdown: function(){
         console.log('building periods dropdown');
-        console.log("Periods.get_filtered_list()", Periods.get_filtered_list())
+        // console.log("Periods.get_filtered_list()", Periods.get_filtered_list())
         $('<option value="" selected disabled hidden>Choose here or type in Search..</option>').appendTo('.period .option-list');
         Periods.get_filtered_list().forEach(function(period, index){
-            let tempHtml = $('<option value='+(index)+'>'+ period.range.as_string() + "(" + period.ranged_items.length +  ")" + '</option>');
+            // console.log('period',period);
+            
+            let tempHtml = $('<option value='+(index)+'>'+ period.range.string + " (" + period.ranged_items.length +  ")" + '</option>');
             $(tempHtml).appendTo('.period .option-list');
         });
 

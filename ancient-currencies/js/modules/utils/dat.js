@@ -26,6 +26,9 @@ export class Dat {
             return Math.abs(this.year);
         }
     }
+    get string(){
+        return this.as_string('full');
+    }
 
     before(dat){
         return this.abs < dat.abs;

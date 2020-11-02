@@ -103,10 +103,17 @@ export class DatRange {
 
     // Returns true if the dat_range given overlaps with the dat_range
     overlaps(dat_range){
-        if (!(dat_range instanceof DatRange)){
-            console.error("Type Error: DatRange.contains parameter must be DatRange");
+        if (!(dat_range.start && dat_range.end)){
+            console.error("dat_range items must all respond to a method called 'start' and 'end', this dat_range was:", dat_range);
         }
-        return this.contains_exclusive(dat_range.start) || this.contains_exclusive(dat_range.end);
+        return this.contains_exclusive(dat_range.end) || this.contains_exclusive(dat_range.start) || this.during(dat_range);
+    }
+
+    during(dat_range){
+        if (!(dat_range.start && dat_range.end)){
+            console.error("dat_range items must all respond to a method called 'start' and 'end', this dat_range was:", dat_range);
+        }
+        return dat_range.start.equal_or_before(this.start) && dat_range.end.equal_or_after(this.end);
     }
 
 

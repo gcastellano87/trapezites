@@ -5,17 +5,17 @@ import { Coins } from './coins.js';
 // TODO:  Change the way "version of standard" is created
 
 
+import { DatRange } from './utils/dat_range.js';
 import { RangedItems } from './utils/ranged_items.js';
 import { RangedCoins } from './utils/ranged_coins.js';
 
-export class StandardVersion extends RangedItems {
-    constructor(coins) {
-
-        this.coins      = coins;
-        super(coins);
-        this._region     = this.initialize_region();
-        this._location   = this.initialize_location();
-        this._name       = this.initialize_name();
+export class StandardVersion {
+    constructor(coins, name ='', location = '', region = '') {
+        this._region     = region || this.initialize_region(coins);
+        this._location   = location || this.initialize_location(coins);
+        this._name       = name || this.initialize_name(coins);
+        this.coins      = new RangedItems(coins);
+        this.standard_version_name =  this.name + " " + this.coins.string;
     }
     get name() {
         return this._name;
@@ -29,8 +29,8 @@ export class StandardVersion extends RangedItems {
         return this._location;
     }
 
-    initialize_name() {
-        let all_standard_by_locations     = this.coins.map(coin => coin.standard_by_location);
+    initialize_name(coins) {
+        let all_standard_by_locations     = coins.map(coin => coin.standard_by_location);
         let unique_standard_by_locations  = [...new Set(all_standard_by_locations)];
 
         if (unique_standard_by_locations.length != 1 ){
@@ -40,8 +40,8 @@ export class StandardVersion extends RangedItems {
         return unique_standard_by_locations[0];  
     }
 
-    initialize_region() {
-        let all_regions     = this.coins.map(coin => coin.region);
+    initialize_region(coins) {
+        let all_regions     = coins.map(coin => coin.region);
         let unique_regions  = [...new Set(all_regions)];
 
         if (unique_regions.length != 1 ){
@@ -51,8 +51,8 @@ export class StandardVersion extends RangedItems {
         return unique_regions[0];
     }
 
-    initialize_location() {
-        let all_locations     = this.coins.map(coin => coin.location);
+    initialize_location(coins) {
+        let all_locations     = coins.map(coin => coin.location);
         let unique_locations  = [...new Set(all_locations)];
 
         if (unique_locations.length != 1 ){
@@ -70,40 +70,30 @@ export const Standards = {
     active_filters: {
         region: '',
         period: '',
+        text: '',
     },
     initialize: function(coins_json) {
         console.log('initializing standards');
         Standards.initialize_list(coins_json);
-        console.log('Standards', Standards.list);
+        // console.log('Standards', Standards.list);
         Standards.build_dropdown();
     },
-    arrays_equal: function(a, b) {
-        if (a === b) return true;
-        if (a == null || b == null) return false;
-        if (a.length !== b.length) return false;
-      
-        a.sort((y, z) => (y.denomination > z.denomination) ? 1 : -1)
-        b.sort((y, z) => (y.denomination > z.denomination) ? 1 : -1)
-        
-        for (var i = 0; i < a.length; ++i) {
-          if (a[i] !== b[i]) return false;
-        }
-        return true;
-      },
     initialize_list: function(coins) {
+    //   console.log('coins',coins);
       
         let the_coins = coins.ranged_items;
 
         // Make an array of all of the standards by location
-        let standards_by_locations = [...new Set(the_coins.map(function(coin){return coin.standard_by_location}))];
-
+        let standards_by_locations = [...new Set(coins.map(function(coin){return coin.standard_by_location}))];
+        // console.table('standards_by_locations',standards_by_locations);
+        
         // Create a slot to store coins by standard and location
         let standards_by_locations_with_coins_slot = standards_by_locations
             .filter(function(standard){if (standard){ return standard;}})
-            .map(function(standard){ return {name: standard, coins: []}})
+            .map(function(standard){ return {name: standard, coins: [], location: ""}})
 
         // Fill the slot with coins by standard and location
-        the_coins.forEach(function(coin){
+        coins.forEach(function(coin){
             standards_by_locations_with_coins_slot.forEach(function(standard){
                 if ( standard.name === coin.standard_by_location){
                     standard.coins.push(coin);
@@ -111,55 +101,41 @@ export const Standards = {
             })
         })
         // Display the coins
-        console.table(standards_by_locations_with_coins_slot);
-
-
+        // console.table(standards_by_locations_with_coins_slot);
         let versioned_standards = [];
-        console.log("starting ---------------------")
+        // console.log("starting ---------------------")
+        let total_periods = 0;
+        let periods_with_coins = 0;
         standards_by_locations_with_coins_slot.forEach(function(s){
-            // console.log("count coins:", s.coins.length);
-
+            // console.log('standard name without version: ',s.name);
+            
             let ranged_standard_coins = new RangedCoins(s.coins);
 
             let periods= ranged_standard_coins.distinct_periods;
-            // console.log(ranged_standard_coins);
-            // let coins_grouped_by_standard = ranged_standard_coins.grouped_by_distinct_periods();
-            // coins_grouped_by_standard.forEach(coin_group => {
-            //     versioned_standards.push(new StandardVersion(coin_group));
-            // });
+            total_periods += periods.ranged_items.length;
+            // console.log('periods to make standards',periods.ranged_items.length );
+            
+            periods.ranged_items.forEach(function(period){
+                // console.log('coins before filter: ',s.coins);
+                
+                let coins_in_period = s.coins.filter(coin => { 
+                    // console.log('coin.range',coin.range.string);
+                    // console.log('period.range',new DatRange(period.range).string);
+                    
+                    return coin.range.overlaps(new DatRange(period.range))
+                });
+                // console.log('coins after filter',coins_in_period);
+                
+                if (coins_in_period.length > 0){
+                    periods_with_coins++;
+                    versioned_standards.push(new StandardVersion(coins_in_period))
+                }
+            });
+
         });
-
-        console.table(versioned_standards);
-        // let standards_by_location_with_coins = standards_by_locations_with_coins_slot;
-        window.standards_by_locations = versioned_standards;
-        // console.table(standards_by_location_with_coins);
         
-        // let standards_version = [];
-
-        // standards_by_location_with_coins.forEach(function(standard){
-        //     let earliest = standard.coins.sort(function(a,b){ return a.range.start.compare(b.range.start);})[0].start;
-        //     let latest = standard.coins.sort(function(a,b){ return a.range.start.compare(b.range.end);})[standard.coins.length-1].end;
-        //     let num_of_periods = Array(Math.ceil((end - start)/increment)).fill("");
-        //     num_of_periods.forEach
-        // })
-        // // console.log("Coins as RangedItems");
-        // // window.coins_as_RangedItems = new RangedItems(coins, 25);
-        // // console.log("Coins AFTER RangedItems");
-        // Standards.list = standards_by_location_with_coins
-        //     .map(function(standard,index){
-        //         return new StandardVersion(index, standard.name, standard.coins);})
-        //     .sort(function(a,b) {
-        //         var nameA = a.name.toUpperCase(); // ignore upper and lowercase
-        //         var nameB = b.name.toUpperCase(); // ignore upper and lowercase
-        //         if (nameA < nameB) {
-        //           return -1;
-        //         }
-        //         if (nameA > nameB) {
-        //           return 1;
-        //         }
-
-        //         return 0;
-        //       });
+        // console.table(versioned_standards);
+        return this.list = versioned_standards;
     },
     get_list: function(){
         return Standards.list;
@@ -170,24 +146,11 @@ export const Standards = {
     set_region_filter: function(region){
         Standards.active_filters.region = region;
     },
+    set_text_filter: function(text){
+        Standards.active_filters.text = text;
+    },
     period_filter: function(standard){
-        let is_match = true;
-        let period = Standards.active_filters.period;
-
-        if (!period) { return is_match;}
-
-        let start_date = period.range.start_date;
-        let end_date = period.range.end_date;
-
-        if (standard['start_date'] <= start_date && standard['start_date'] >= end_date) {
-                is_match = true;
-        } else if (standard['end_date'] >= end_date && standard['end_date'] <= start_date) {
-                is_match = true;
-        } else {
-            is_match = false;
-        }
-        
-        return is_match;
+        return Standards.active_filters.period.range.overlaps(standard.coins.range);
     },
     region_filter: function(standard){
         let region = Standards.active_filters.region;
@@ -198,10 +161,19 @@ export const Standards = {
             return true;
         }
     },
+    text_filter: function(standard){
+        let text = Standards.active_filters.text;
+        if (text){
+            return standard.standard_version_name.includes(text);
+        } else {
+            return true;
+        }
+    },
     get_filtered_list: function(){
         return Standards.get_list()
             .filter(Standards.period_filter)
-            .filter(Standards.region_filter);
+            .filter(Standards.region_filter)
+            .filter(Standards.text_filter);
     },
     build_dropdown: function() {
         console.log('building standards dropdown');
@@ -219,7 +191,7 @@ export const Standards = {
 
             standards.forEach(standard => {
                 // console.log("shortname:" + standard.short_name );
-                $('<option value='+standard.id+'>' + standard.short_name + ' (' + standard.location + ') ' + standard.date_string() + '</option>').appendTo('.currency'+2+' .standard .option-list');
+                $('<option value='+standard.id+'>' + standard.standard_version_name + '</option>').appendTo('.currency'+2+' .standard .option-list');
             });
         }
     }

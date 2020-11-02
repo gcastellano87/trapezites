@@ -7,7 +7,7 @@ import { DatRange } from './dat_range.js';
 export class RangedItems extends DatRange {
     constructor(array_of_ranged_items = []){
         if (!Array.isArray(array_of_ranged_items)){
-            console.error("RangedItems must be passed an array");
+            console.error("RangedItems must be passed an array.  You passed: " + typeof array_of_ranged_items, array_of_ranged_items);
         }
         if (array_of_ranged_items.length > 0){
             array_of_ranged_items.forEach(function(item){
@@ -17,17 +17,18 @@ export class RangedItems extends DatRange {
             })
 
             let first = array_of_ranged_items.sort(function(a,b){ 
-                if (!(a.range instanceof DatRange)){
-                    console.error("RangedItems must all respond to a method called 'range' by providing an instance of DatRange, this 'event' range was:", a.range);
+                if (!(a.range || a.range.start)){
+                    console.error("RangedItems must all respond to a method called 'range' by providing an object with a property called 'start', this 'event' range was:", a.range);
                 }
                 return a.range.start.compare(b.range.start);
             })[0];
             let last = array_of_ranged_items.sort(function(a,b){ 
-                if ((!(a.range instanceof DatRange))){
-                    console.error("RangedItems must all respond to a method called 'range' by providing an instance of DatRange, this 'event' range was:", a.range);
+                if ((!(a.range && a.range.end))){
+                    console.error("RangedItems must all respond to a method called 'range' by providing an object with a property called 'end', this 'event' range was:", a.range);
+
                 }
-                return a.range.start.compare(b.range.start);
-            })[0];
+                return a.range.end.compare(b.range.end);
+            })[array_of_ranged_items.length-1];
 
             super({start: first.range.start,end: last.range.end });
         } else  {
@@ -49,6 +50,7 @@ export class RangedItems extends DatRange {
 
     get sorted_by_end(){
         return this.ranged_items.sort(function(a,b){
+
             return a.range.end.compare(b.range.end);
         });
     }
@@ -83,15 +85,18 @@ export class RangedItems extends DatRange {
         return this.starts_first.range.start;
     }
 
+    get count(){
+        return this.ranged_items.length;
+    }
     add_item(item){
-        console.log("im in ADD item")
-console.log('item',item);
+        // console.log("im in ADD item")
+        // console.log('item',item);
 
         if (typeof item.range === "undefined"){
-            console.error("All Items must have a method called 'range'");
+            console.error("All Items must have a method called 'range'.  This item doesn't: ", item);
         } 
-        if (!(item.range instanceof DatRange)){
-            console.error("All Items must respond to a method called 'range' by providing an instance of DatRange, this 'event' range was:", item.range);
+        if (!(item.range && item.range.start && item.range.end)){
+            console.error("All Items must respond to a method called 'range' by providing an object with a 'start' and an 'end', this 'event' range was:", item.range, item);
         }
         // console.log("here's the item:", item);
 
@@ -105,28 +110,24 @@ console.log('item',item);
         if (typeof ranged_items2 === "undefined" ){
             console.error("RangedItems.compare must be passed a Ranged Item, got:", ranged_items2);
         }  
-        if (!(ranged_items1 instanceof RangedItems)){
-            console.error("RangedItems.compare must be passed a Ranged Item, got:", ranged_items1);
-        }        
-        if (!(ranged_items2 instanceof RangedItems)){
-            console.error("RangedItems.compare must be passed a Ranged Item, got:", ranged_items2);
-        }
         if (ranged_items1.length != ranged_items2.length){
             return false;
         } else{
             const objectsEqual = (o1, o2) => Object.keys(o1).length === Object.keys(o2).length && Object.keys(o1).every(p => o1[p] === o2[p]);
             
-            console.log('ranged_items1',ranged_items1);
-            console.log('ranged_items2',ranged_items2);
-            window.yourmomsass = ranged_items1;
-            window.yourdsdsass = ranged_items2;
             // Sort them 
-            var r1 = ranged_items1.sorted_by_start;
-            var r2 = ranged_items2.sorted_by_start;
+            var r1 = ranged_items1.sort(function(a,b){                
+                return a.range.start.before(b.range.start);
+            });
+            var r2 = ranged_items2.sort(function(a,b){
+                return a.range.start.before(b.range.start);
+            });
 
 
             // returns false unless each item in ranged_items matches each item in the current object
             return r1.every(function(item, index){
+                // console.log('item, r2[index]',item, r2[index]);
+                
                 return objectsEqual(item, r2[index]);
             })
         }

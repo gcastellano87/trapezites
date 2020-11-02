@@ -26,21 +26,20 @@ export class RangedCoins extends RangedItems {
         // console.table(coins);
         // console.log('distinctperiod',distinct_periods.ranged_items)
         // console.log('distinctperiod.length',distinct_periods.ranged_items.length)
-        console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^');
-        console.log('this.periods',this.periods);
-        console.log('this.periods start',this.periods.start.abs);
-        console.log('this.periods end',this.periods.end.abs);
-        console.log('distinct_periods end',distinct_periods.range.end.abs);
-        console.log('starting coins',coins.length);
-        console.log('starting coins',coins);
-        console.log('distinct_periods.ranged_items.length === 0 && distinct_periods.range.end.before(this.periods.end)',distinct_periods.ranged_items.length , distinct_periods.range.end.abs,this.periods.end.abs);
-        console.log(' this.periods.ranged_items', this.periods.ranged_items);
+        // console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^');
+        // console.log('this.periods',this.periods);
+        // console.log('this.periods start',this.periods.start.abs);
+        // console.log('this.periods end',this.periods.end.abs);
+        // console.log('distinct_periods end',distinct_periods.range.end.abs);
+        // console.log('starting coins',coins);
+        // console.log('distinct_periods.ranged_items.length , distinct_periods.range.end.abs,this.periods.end.abs',distinct_periods.ranged_items.length , distinct_periods.range.end.abs,this.periods.end.abs);
+        // console.log(' this.periods.ranged_items', this.periods.ranged_items);
         
         let the_periods = this.periods.ranged_items;
         the_periods.forEach(function(period, index) {
 
             if (index === 0){
-                distinct_periods.add_item(period);
+                distinct_periods.add_item(period.range);
                 // if the period's ranged items are the same as the last period's ranged items, then 
             } else if ( (period.ranged_items.length > 0) && ( the_periods[index-1].ranged_items.length > 0 ) &&  parent_this.are_ranged_items_equal(period.ranged_items,the_periods[index-1].ranged_items)) {
                 distinct_periods.ends_last.range.end = period.range.end;
@@ -49,14 +48,10 @@ export class RangedCoins extends RangedItems {
             }
         });
         
-        console.log('distinct_periods',distinct_periods);
-        console.log('distinct_periods length',distinct_periods.ranged_items.length);
-        
 
-
-        console.log('distinct_periods',distinct_periods);
-        console.log('NUM distinct_periods',distinct_periods.ranged_items.length);
-        console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv');
+        // console.log('distinct_periods',distinct_periods);
+        // console.log('NUM distinct_periods',distinct_periods.ranged_items.length);
+        // console.log('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv');
 
         // console.table(distinct_periods);
         return distinct_periods;
@@ -65,7 +60,7 @@ export class RangedCoins extends RangedItems {
     initialize_periods(){
         
         // console.log('ranged_items',this.ranged_items);
-        console.log('this',this);
+        // console.log('this',this);
         let the_items       = this.ranged_items;
         var start           = this.starts_first.range.start.abs;
         var end             = this.ends_last.range.end.abs;
@@ -94,7 +89,7 @@ export class RangedCoins extends RangedItems {
             });
             let overlapping_ranged_items = the_items.filter(function(event){
                 return event.range.contains(range);
-            })
+            });
             return { 
                 range:          range,
                 ranged_items:   overlapping_ranged_items,
@@ -102,7 +97,7 @@ export class RangedCoins extends RangedItems {
         })
 
         let periods = new RangedItems(array_of_periods);
-        console.log("periods", periods)
+        // console.log("forking periods", periods)
     
         return periods;        
     }
