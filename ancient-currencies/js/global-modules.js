@@ -66,7 +66,11 @@ var App = {
          // DEBUGGIN ONLY
         // window.entries = data.entries;
         App.initialize_dropdowns(data.entries);
+        App.initialize_select2();
         App.add_listeners();
+    },
+    initialize_select2: function(){
+       $('.option-list').select2();
     },
     add_listeners: function(){
         $('.denomination-location .search-box').keyup(function(){
@@ -74,12 +78,14 @@ var App = {
             Coins.set_text_filter(text);
             Coins.build_dropdown(); 
         });
-
+        
         $('.denomination-location .option-list').change(function() {
             let id = $(this).children('.option-list :selected').val();
             Coins.selected_coin = Coins.list[id];
-            // TODO
+       //TODO
         });
+
+
         $('.period .option-list').change(function() {
             let id = $(this).children('.option-list :selected').val();
             Periods.selected_period = Periods.list[id];
@@ -111,6 +117,12 @@ var App = {
             let text = $(this).val();
             Standards.set_text_filter(text);
             Standards.build_dropdown(); 
+        });        
+        
+        $('.period .search-box').keyup(function(){
+            let text = $(this).val();
+            Periods.set_text_filter(text);
+            Periods.build_dropdown(); 
         });
 
     },
@@ -133,25 +145,8 @@ var App = {
             // DEBUGGIN ONLY
             window.regions = Regions;
 
-    },
-    process_entries: function(json){
-        alert("I THINK THIS CODE IS DEAD, BUT IF YOU SEE THIS MESSAGE, I GUESS IT ISN'T");
-        let initial_entries = json.entries;
-
-        //separates commodities from currencies
-        let processed_entries = [];
-        for (let i in initial_entries) {
-            let entry = initial_entries[i];
-            entry['start_date_year'] = parseInt(entry['start_date']);
-            entry['start_date_suf'] = entry['start_date'].slice(-2);
-            entry['end_date_year'] = parseInt(entry['end_date']);
-            entry['end_date_suf'] = entry['end_date'].slice(-2);
-            if (entry['commodity or service'] != 'x') {
-                processed_entries.push(entry);
-            }
-        }
-        return processed_entries;
     }
 }
-
-document.addEventListener("DOMContentLoaded", App.initialize());
+$(document).ready(function() {
+    App.initialize();
+});

@@ -62,12 +62,11 @@ export const Coins = {
         }
     },
     text_filter: function(coin){
-        let text = Coins.active_filters.text;
-        if (text){
-            return coin.denomination.includes(text);
-        } else {
+        let text = Coins.active_filters.text.toLowerCase();
+        if (!text){
             return true;
         }
+        return coin.denomination.toLowerCase().includes(text);
     },
     get_filtered_list: function(){
         return Coins.get_list()

@@ -2,9 +2,11 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="css/normalize.css">
+	<link rel="stylesheet" href="css/select2.css">
+	<link rel="stylesheet" href="css/style.css">
 	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> -->
-	<script src="./js/jquery.min.js"></script>
+	
 	
 </head>
 <body>
@@ -125,11 +127,13 @@
 		<tbody></tbody>
 	</table>
 </div> -->
+<script src="./js/jquery.min.js"></script>
 <?php
 	echo '<script id="data" type="application/json">';
 	echo file_get_contents('currency.json');
 	echo '</script>';
 ?>
+<script type="module" src="./js/select2.js"></script>
 <script type="module" src="./js/global-modules.js"></script>
 </body>
 </html>

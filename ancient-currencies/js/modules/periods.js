@@ -14,7 +14,9 @@ export const Period = {
 export const Periods = {
 	selected_period: {}, 
     list: [],
-    filters: [], // Not currently used
+    active_filters: {
+        text: '',
+    },    
     initialize: function(coins_json){
         console.log('initializing periods');
         Periods.initialize_list(coins_json);
@@ -26,27 +28,44 @@ export const Periods = {
 
         Periods.list = periods.ranged_items;
     },
+    set_text_filter: function(text){
+        console.log('text seartch periods',text);
+        
+        Periods.active_filters.text = text;
+    },
     set_list: function(new_list){
         Periods.list = new_list;
     },
     build_dropdown: function(){
         console.log('building periods dropdown');
         // console.log("Periods.get_filtered_list()", Periods.get_filtered_list())
-        $('<option value="" selected disabled hidden>Choose here or type in Search..</option>').appendTo('.period .option-list');
-        Periods.get_filtered_list().forEach(function(period, index){
-            // console.log('period',period);
-            
-            let tempHtml = $('<option value='+(index)+'>'+ period.range.string + " (" + period.ranged_items.length +  ")" + '</option>');
-            $(tempHtml).appendTo('.period .option-list');
-        });
-
+        $('.period .option-list').empty();
+        let list = Periods.get_filtered_list();
+        console.log('list',list);
+        
+        if(list.length === 0){
+            $('<option value="" selected disabled hidden>No periods match...</option>').appendTo('.period .option-list');
+        } else {
+            $('<option value="" selected disabled hidden>Select</option>').appendTo('.period .option-list');
+        
+            list.forEach(function(period, index){                
+                $('<option value='+(index)+'>'+ period.range.string + " (" + period.ranged_items.length +  ")" + '</option>').appendTo('.period .option-list');
+            });
+        }
+    },
+    text_filter: function(period){  
+        let text = Periods.active_filters.text.toLowerCase();
+        if (!text){
+            return true;
+        }         
+        return period.range.string.toLowerCase().includes(text);
+        
     },
     get_list: function(){
         return Periods.list;
     },
     get_filtered_list: function(){
-        let list = Periods.get_list();
-        // Do we need to filter Periods ever?
-        return list;
+        return Periods.get_list()
+        .filter(Periods.text_filter);
     }
 }

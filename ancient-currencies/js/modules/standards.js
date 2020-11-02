@@ -150,7 +150,11 @@ export const Standards = {
         Standards.active_filters.text = text;
     },
     period_filter: function(standard){
-        return Standards.active_filters.period.range.overlaps(standard.coins.range);
+        if (Standards.active_filters.period){
+            return Standards.active_filters.period.range.overlaps(standard.coins.range);
+        } else {
+            return true;
+        }
     },
     region_filter: function(standard){
         let region = Standards.active_filters.region;
@@ -162,9 +166,9 @@ export const Standards = {
         }
     },
     text_filter: function(standard){
-        let text = Standards.active_filters.text;
+        let text = Standards.active_filters.text.toLowerCase();
         if (text){
-            return standard.standard_version_name.includes(text);
+            return standard.standard_version_name.toLowerCase().includes(text);
         } else {
             return true;
         }
