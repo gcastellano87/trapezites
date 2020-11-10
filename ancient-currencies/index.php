@@ -12,23 +12,21 @@
 
 <div class="container">
 	<nav class="page-menu">
-		<ol>
+		<ul>
 			<li>
-				<a class="about">About</a>
+				<a class="about" href="#">About</a>
 			</li>
-		</ol>
+		</ul>
 	</nav>
-	<header class="main-header">
-		<div class="site-title">
-			<h1>Trapezites</h1>		
-		</div>
-	</header>
 
 	<div class="content">
+		<header class="main-header">
+			<h1 class="site-title">Trapezites</h1>		
+		</header>
 		<div class="convert">
 			<div class="currencies">
 				<header class="header">
-					<h2>Currencies</h2>
+					<h2 class="screen-reader-text">Currencies</h2>
 				</header>
 				<div class="convert-from">
 					
@@ -58,8 +56,8 @@
 			</div>
 
 			<div class="filters">
-				<header>
-					<h2>Filters</h2>
+				<header class="header">
+					<h2 class="screen-reader-text">Filters</h2>
 				</header>
 				<div class="selector region-selector-from" >
 					<label>Region <span>A</span>
@@ -125,7 +123,7 @@
 	</div> <!-- .content -->
 	<footer class="footer">
 		<nav class="external-menu">
-			<ol>
+			<ul>
 				<li>
 					<a class="laits">Laits</a>
 				</li>
@@ -141,7 +139,7 @@
 				<li>
 					<a class="other">other</a>
 				</li>
-			</ol>
+			</ul>
 		</nav>
 
 	</footer>
