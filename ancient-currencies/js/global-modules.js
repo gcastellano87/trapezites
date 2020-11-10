@@ -69,8 +69,26 @@ var App = {
         App.initialize_select2();
         App.add_listeners();
     },
+    format_state_for_select2: function(state){
+        console.log("format_state_for_select2");
+        // console.log(state);
+        if(state.text.includes('    ')){
+            let parts = state.text.split('    ');
+            return $('<span class="currency-option-item"><span class="denomination">' + parts[0] + '</span><span class="location">' + parts[1] + '</span></span>');
+        } else if ((state.text.includes('   '))){
+            let parts = state.text.split('   ');
+            return $('<span class="standard-option-item"><span class="standard">' + parts[0] + '</span><span class="location">' + parts[1] + '</span><span class="period">' + parts[2] + '</span></span>');
+        } else {
+            return state;
+        }
+        
+    },
     initialize_select2: function(){
-       $('.option-list').select2();
+        console.log("FORMAT");
+       $('.option-list').select2({
+           templateResult: App.format_state_for_select2,
+           theme: 'trapezites',
+        });
     },
     add_listeners: function(){
         // $('.location .search-box').keyup(function(){
@@ -99,14 +117,14 @@ var App = {
         $('.standard .option-list').change(function() {
 
         });
-        $('.currency-from .region-selector .option-list').change(function() {
+        $('.region-selector-from .option-list').change(function() {
             let id = $(this).children('.option-list :selected').val();
             Regions.selected_region = Regions.list[id];
             console.log("THE SELECTED Region", Regions.selected_region);
             Coins.set_region_filter(Regions.selected_region);
             Coins.build_dropdown();
         });
-        $('.currency-to .region-selector .option-list').change(function() {
+        $('.region-selector-to .option-list').change(function() {
             let id = $(this).children('.option-list :selected').val();
             Regions.selected_region = Regions.list[id];
             console.log("THE SELECTED Region 2", Regions.selected_region);

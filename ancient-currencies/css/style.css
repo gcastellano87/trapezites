@@ -1,0 +1,246 @@
+/* 
+    CSS Contents
+
+    Layout
+
+
+
+
+
+*/
+
+/* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Petrona&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Reem+Kufi&display=swap');
+
+html {
+    --orange: #ffb355;
+    --scrollbarBG: var(--orange);
+    --thumbBG: #fff;
+  }
+.container::-webkit-scrollbar {
+    width: 11px;
+}
+.container {
+    scrollbar-width: thin;
+    scrollbar-color: var(--thumbBG) var(--scrollbarBG);
+}
+.container::-webkit-scrollbar-track {
+    background: var(--scrollbarBG);
+}
+.container::-webkit-scrollbar-thumb {
+    background-color: var(--thumbBG) ;
+    /* border-radius: 6px; */
+    border: 3px solid var(--scrollbarBG);
+}
+
+
+
+body {
+    font-family: 'Reem Kufi', sans-serif;
+}
+
+.site-title {
+    color: var(--orange);
+    font-family: 'Petrona', serif;
+    text-transform: uppercase;
+}
+
+/* ------------- Layout ------------- */
+body {
+    background: #000;
+    color: #fff;
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+    width: 100vw;
+}
+
+.container {
+    border: 1px solid #fff;
+    margin: 40px;
+    /* position: fixed; */
+    overflow-x: hidden;
+    overflow-y: hidden;
+    height: calc(100vh - 82px);
+    width: calc(100vw - 82px);
+    max-width: 1920px;
+}
+
+.container >* {
+    margin: 0px 40px;
+}
+
+.content {
+    margin-top: 100px;
+    display: grid;
+    grid-template-columns: 1fr 55%;
+    grid-template-areas: 
+        "convert map"
+        "output output"
+}
+
+
+/* ------------- HEADER ------------- */
+.page-menu {
+    background-image: url(../img/key_line.png);
+    background-position: top left;
+    background-size: 24px;
+    background-repeat-y: no-repeat;
+    margin: 25px 40px 0px;
+    position: fixed;
+    width: calc(100vw - 162px);
+    height: 40px;
+    max-width: 1838px;
+}
+
+.main-header {
+    margin-top: 75px;
+}
+/* ------------- CONVERT ------------- */
+.convert {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-area: convert;
+}
+
+.currencies {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    grid-template-areas: 
+        "header header"
+        "from to";
+    margin-bottom: 30px;
+}
+
+.standard-option-item,
+.currency-option-item {
+    display: flex;
+    justify-content: space-between;
+}
+
+.currency-option-item .denomination {
+}
+.currency-option-item .location {
+}
+
+.standard-option-item {
+    color: yellow;
+}
+
+
+.convert-header {
+    grid-area: header;
+}
+
+.convert-from {
+    grid-area: from;
+}
+
+.convert-to {
+    grid-area: to;
+}
+
+.filters {
+    display: grid;
+    grid-template-columns: 33% 33% 33%;
+    grid-template-areas: 
+        "from period to";
+    position: relative;
+}
+
+.filters header {
+    background-color: #000;
+    position: absolute;
+    top: -30px;
+    left: calc(50% - 65px);
+    text-align: center;
+    width: 130px;
+    z-index: 5;
+}
+
+.region-selector-from {
+    grid-area: from;
+}
+
+.period-selector {
+    grid-area: period;
+}
+
+.region-selector-to {
+    grid-area: to;
+}
+
+
+/* ------------- DROPDOWNS ------------- */
+
+.select2-container--trapezites {
+    border: 1px solid #fff;
+    width: 90% !important
+}
+
+.select2-container--trapezites .select2-dropdown {
+    width: 500px !important;
+}
+
+.filters .select2-container--trapezites {
+    width: 100% !important;
+}
+
+.standard-to .standard-selector {
+    text-align: right;
+}
+
+.amount-selector-label {
+    width: 90% !important;
+    display: inline-block;
+}
+
+.standard-to {
+    margin-bottom: 5px;
+}
+
+.standard-to .amount-selector-label {
+    float: right;
+}
+
+.amount-selector-label .amount-selector {
+    background-color: #000;
+    border: 1px solid #fff;
+    color: #fff;
+    width: 100px;
+}
+
+/* ------------- FILTERS ------------- */
+.filters {
+    border: 1px solid var(--orange);
+    border-radius: 10px;
+    margin: -10px;
+    padding: 10px;
+}
+
+/* ------------- MAP ------------- */
+.map {
+    grid-area: map;
+}
+
+/* ------------- OUTPUT ------------- */
+.output {
+    grid-area: output;
+}
+
+
+/* ------------- FOOTER ------------- */
+.footer {
+
+}
+
+@media only screen and (min-width: 2082px) {
+    .container{
+        margin: 40px auto;
+    }
+}
+
+@media only screen and (max-width: 1280px) {
+
+}

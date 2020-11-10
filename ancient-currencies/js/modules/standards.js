@@ -10,15 +10,22 @@ import { RangedItems } from './utils/ranged_items.js';
 import { RangedCoins } from './utils/ranged_coins.js';
 
 export class StandardVersion {
-    constructor(coins, name ='', location = '', region = '') {
-        this._region     = region || this.initialize_region(coins);
-        this._location   = location || this.initialize_location(coins);
-        this._name       = name || this.initialize_name(coins);
-        this.coins      = new RangedItems(coins);
-        this.standard_version_name =  this.name + " " + this.coins.string;
+    constructor(coins, name ='', location = '', region = '', standard ='') {
+        this._region                            = region || this.initialize_region(coins);
+        this._location                          = location || this.initialize_location(coins);
+        this._standard                          = standard || this.initialize_standard(coins);
+        this._name                              = name || this.initialize_name(coins);
+        this.coins                              = new RangedItems(coins);
+        this.standard_version_name              = this.name + " " + this.coins.string;
+        this.standard_version_name_as_option    = this.standard + "   " + this.location + "   " + this.coins.string;
+        // this.standard_version_name_as_option    = "kljsadflkjl;kadsl;fjsldak;fjsdl;kfjdslk";
     }
     get name() {
         return this._name;
+    }
+    
+    get standard() {
+        return this._standard;
     }
     
     get region() {
@@ -29,6 +36,17 @@ export class StandardVersion {
         return this._location;
     }
 
+    initialize_standard(coins) {
+        let all_standards     = coins.map(coin => coin.standard);
+        let unique_standards  = [...new Set(all_standards)];
+
+        if (unique_standards.length != 1 ){
+            console.error("Data Error: Each Standard should have only one standard.  This one had " + unique_standards.length, unique_standards,this);
+        }
+        // console.log(unique_standards);
+        return unique_standards[0];  
+    }    
+    
     initialize_name(coins) {
         let all_standard_by_locations     = coins.map(coin => coin.standard_by_location);
         let unique_standard_by_locations  = [...new Set(all_standard_by_locations)];
@@ -191,11 +209,11 @@ export const Standards = {
             $('<option value="" selected disabled hidden>No standards match...</option>').appendTo('.standard-to .standard-selector .option-list');
         } else {
             // Add a placeholder element
-            $('<option value="" selected disabled hidden>Choose here or type in Search..</option>').appendTo('.standard-to .standard-selector .option-list');
+            $('<option value="" selected disabled hidden></option>').appendTo('.standard-to .standard-selector .option-list');
 
             standards.forEach(standard => {
                 // console.log("shortname:" + standard.short_name );
-                $('<option value='+standard.id+'>' + standard.standard_version_name + '</option>').appendTo('.standard-to .standard-selector .option-list');
+                $('<option value='+standard.id+'>' + standard.standard_version_name_as_option + '</option>').appendTo('.standard-to .standard-selector .option-list');
             });
         }
     }

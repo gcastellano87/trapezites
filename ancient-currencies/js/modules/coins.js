@@ -86,12 +86,10 @@ export const Coins = {
             $('<option value="" selected disabled hidden>No coins match...</option>').appendTo('.currency-from .coin-selector .option-list');
         } else {
             // Add a placeholder element
-            $('<option value="" selected disabled hidden>Choose here or type in Search..</option>').appendTo('.currency-from .coin-selector .option-list');
+            $('<option value="" selected disabled hidden></option>').appendTo('.currency-from .coin-selector .option-list');
             // Add an element for each of the filtered coins
             for (let item of coins) {
-                let metaTempHtml = item['denomination'].trim() + '; '+item['location'];
-                let tempHtml = $('<option value='+item['id']+'>' +metaTempHtml +'</option>');
-                $(tempHtml).appendTo('.currency-from .coin-selector .option-list');
+                $('<option value=' + item.id + '>' + item.denomination.trim() + '    ' + item.location.trim() + '</span></option>').appendTo('.currency-from .coin-selector .option-list');
             }
         }
     },
