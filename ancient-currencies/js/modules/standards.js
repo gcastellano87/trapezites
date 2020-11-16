@@ -10,16 +10,20 @@ import { RangedItems } from './utils/ranged_items.js';
 import { RangedCoins } from './utils/ranged_coins.js';
 
 export class StandardVersion {
-    constructor(coins, name ='', location = '', region = '', standard ='') {
-        this._region                            = region || this.initialize_region(coins);
-        this._location                          = location || this.initialize_location(coins);
-        this._standard                          = standard || this.initialize_standard(coins);
-        this._name                              = name || this.initialize_name(coins);
+    constructor(coins,id) {
+        this._region                            =  this.initialize_region(coins);
+        this._standard                          =  this.initialize_standard(coins);
+        this._name                              =  this.initialize_name(coins);
+        this._coords                            =  this.initialize_coords(coins);
+        this._location                          = this.initialize_location(coins);
+        this.version_id                         = id;
         this.coins                              = new RangedItems(coins);
+        this.number_of_coins                    = this.coins.ranged_items.length;
         this.standard_version_name              = this.name + " " + this.coins.string;
-        this.standard_version_name_as_option    = this.standard + "   " + this.location + "   " + this.coins.string;
+        this.standard_version_name_as_option    = this.standard + "(" + this.number_of_coins+ ")   " + this.location + "   " + this.coins.string;
         // this.standard_version_name_as_option    = "kljsadflkjl;kadsl;fjsldak;fjsdl;kfjdslk";
     }
+    
     get name() {
         return this._name;
     }
@@ -31,9 +35,55 @@ export class StandardVersion {
     get region() {
         return this._region;
     }
-    
+        
     get location() {
         return this._location;
+    }
+    get coords() {
+        return this._coords;
+    }
+    // returns an array of coins and the number of each coin
+    // it takes to make the total grams of silver
+    coin_conversion(grams_of_silver){
+        let output = [];
+        let coins_big_to_little = this.coins.ranged_items.sort((a,b) => {
+            return b.value_in_grams_of_silver - a.value_in_grams_of_silver;            
+        })
+        console.log('number_of_coins',coins_big_to_little.length);
+        
+
+        coins_big_to_little.forEach((coin,index) => {
+            let coin_val = coin.value_in_grams_of_silver;
+            // check to see if it's the last coin
+            // express the value in last coin
+            if(index == (coins_big_to_little.length-1)){
+                if(grams_of_silver > 0){
+                    output.push({
+                        coin: coin, 
+                        number: (grams_of_silver/coin_val)
+                    });
+                }
+            } else if (grams_of_silver >= coin_val){
+                output.push({
+                    coin: coin, 
+                    number: (Math.floor(grams_of_silver/coin_val))
+                });
+                grams_of_silver = grams_of_silver % coin_val;
+            }
+        });
+        return output;
+    }
+
+    initialize_coords(coins) {
+        let percent_of_image_x     = coins.map(coin => coin.percent_of_image_x);
+        let unique_percent_of_image_x  = [...new Set(percent_of_image_x)];        
+        let percent_of_image_y     = coins.map(coin => coin.percent_of_image_y);
+        let unique_percent_of_image_y  = [...new Set(percent_of_image_y)];
+
+        return {
+            percent_of_image_x: unique_percent_of_image_x[0],
+            percent_of_image_y: unique_percent_of_image_y[0]
+        };
     }
 
     initialize_standard(coins) {
@@ -83,7 +133,7 @@ export class StandardVersion {
 
 
 export const Standards = {
-    selected_standard: {},
+    selected_standard: '',
     list: [],
     active_filters: {
         region: '',
@@ -124,6 +174,7 @@ export const Standards = {
         // console.log("starting ---------------------")
         let total_periods = 0;
         let periods_with_coins = 0;
+        let version_id = 0;
         standards_by_locations_with_coins_slot.forEach(function(s){
             // console.log('standard name without version: ',s.name);
             
@@ -146,7 +197,7 @@ export const Standards = {
                 
                 if (coins_in_period.length > 0){
                     periods_with_coins++;
-                    versioned_standards.push(new StandardVersion(coins_in_period))
+                    versioned_standards.push(new StandardVersion(coins_in_period, version_id++))
                 }
             });
 
@@ -154,6 +205,9 @@ export const Standards = {
         
         // console.table(versioned_standards);
         return this.list = versioned_standards;
+    },
+    get_standard_by_id(id){
+        return Standards.get_list().filter(standard => {return standard.version_id == id;})[0];
     },
     get_list: function(){
         return Standards.list;
@@ -213,7 +267,7 @@ export const Standards = {
 
             standards.forEach(standard => {
                 // console.log("shortname:" + standard.short_name );
-                $('<option value='+standard.id+'>' + standard.standard_version_name_as_option + '</option>').appendTo('.standard-to .standard-selector .option-list');
+                $('<option value='+standard.version_id+'>' + standard.standard_version_name_as_option + '</option>').appendTo('.standard-to .standard-selector .option-list');
             });
         }
     }

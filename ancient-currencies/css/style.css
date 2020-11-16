@@ -50,10 +50,12 @@ html {
 body {
     background: #000;
     color: #fff;
+    display: flex;
+    align-content: center;
     font-family: 'Reem Kufi', sans-serif;
     height: 100vh;
     max-height: 100vh;
-    overflow: hidden;
+    /* overflow: hidden; */
     width: 100vw;
 }
 
@@ -193,9 +195,20 @@ body {
 }
 .currency-option-item .location {
 }
+.standard-to .select2-container .select2-selection--single,
+.currency-from .select2-container .select2-selection--single {
+    background-image: url('../img/from-marker.png');
+    background-repeat: no-repeat;
+    background-position: 162px 2px;
+    background-size: 18px;
+}
+
+.standard-to .select2-container .select2-selection--single {
+    background-image: url('../img/to-marker.png');
+}
 
 .standard-option-item {
-    color: yellow;
+    
 }
 
 
@@ -213,7 +226,8 @@ body {
 
 .filters {
     display: grid;
-    grid-template-columns: 33% 33% 33%;
+    grid-gap: 5%;
+    grid-template-columns: 30% 30% 30%;
     grid-template-areas: 
         "header header header"
         "from period to";
@@ -221,7 +235,7 @@ body {
     border: 1px solid var(--orange);
     border-radius: 10px;
     margin: 20px -10px 0px;
-    padding: 10px;
+    padding: 10px 10px 15px 10px;
 }
 
 .filters .header {
@@ -237,8 +251,27 @@ body {
     top: -32px;
 }
 
+.filters select {
+    color: #fff;
+}
+
+.filters .selector {
+    margin-top: -5px;
+}
+
 .filters label {
+    color: var(--orange);
     font-size: 12px;
+    line-height: 30px;
+}
+
+.filters label .selection {
+    color: #fff;
+}
+
+.filters label .letter {
+    color: #fff;
+    margin-left: 3px;
 }
 
 .region-selector-from {
@@ -247,26 +280,66 @@ body {
 
 .period-selector {
     grid-area: period;
+    text-align: center;
+}
+
+.period-selector label {
 }
 
 .region-selector-to {
     grid-area: to;
+    text-align: right;
 }
 
+.region-selector-to label {
+}
 
 /* ------------- DROPDOWNS ------------- */
 
-.select2-container--trapezites {
+.select2-container--currencies,
+.select2-container--filters {
     border: 1px solid #fff;
     height: 24px;
+}
+
+.select2-container--filters,
+.select2-container--currencies {
     width: 90% !important
 }
 
-.select2-container--trapezites .select2-dropdown {
+.select2-container--currencies .select2-dropdown {
     width: 500px !important;
 }
 
-.filters .select2-container--trapezites {
+.select2-container--filters .select2-dropdown {
+    width: 250px !important;
+}
+
+.select2-container--currencies .select2-dropdown,
+.select2-container--filters .select2-dropdown {
+    background-color: #000;
+}
+
+.select2-search--dropdown .select2-search__field {
+    background-color: #000;
+    color: #fff;
+}
+
+
+.select2-container.select2-container--currencies.select2-container--open {
+     width: 250px !important;
+}
+
+.select2-container.select2-container--currencies.select2-container--open {
+     width: 500px !important;
+}
+
+
+label .select2-container.select2-container--currencies.select2-container--open {
+    width: 90% !important;
+}
+
+.filters .select2-container--currencies {
     width: 90% !important;
 }
 
@@ -293,7 +366,7 @@ body {
 .standard-to .amount-selector-label {
     float: right;
 }
-
+.amount-selector-label .amount-output,
 .amount-selector-label .amount-selector {
     background-color: #000;
     border: 1px solid #fff;
@@ -301,12 +374,23 @@ body {
     width: 100px;
 }
 
+.select2-results__option--selectable:hover {
+   color: #000;
+   background-color: var(--orange);
+}
+
+.warning-empty{
+    border-color: yellow;
+    border-width: 2px;
+}
+
 /* ------------- MAP ------------- */
 .map {
     grid-area: map;
 }
 
-.map img {
+#map {
+    height: auto;
     width: 100%;
 }
 

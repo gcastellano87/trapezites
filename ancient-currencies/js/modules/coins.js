@@ -7,7 +7,7 @@ import { RangedCoins } from './utils/ranged_coins.js';
 
 
 export const Coins = {
-    selected_coin: {},
+    selected_coin: '',
     list: [],
     active_filters: {
         region: '',
@@ -26,12 +26,18 @@ export const Coins = {
         // console.log('building coins list');
         Coins.list = coins
             .map(function(coin, index){  
-                coin.id = index;
+                coin.coin_id = index;
                 coin.standard_by_location = coin.standard && coin.location ? coin.standard + " (" + coin.location + ")" : ""; 
                 coin.range = new DatRange(coin.start_date + " - " + coin.end_date);
-
+                coin.coords = {
+                    percent_of_image_x: coin.percent_of_image_x,
+                    percent_of_image_y: coin.percent_of_image_y
+                };
                 return coin;
             });
+    },
+    get_coin_by_id(id){
+        return Coins.get_list().filter(coin => {return coin.coin_id == id;})[0];
     },
     get_list: function(){
         return Coins.list.sort((a,b) => a.denomination.trim().localeCompare(b.denomination.trim()));
@@ -88,8 +94,8 @@ export const Coins = {
             // Add a placeholder element
             $('<option value="" selected disabled hidden></option>').appendTo('.currency-from .coin-selector .option-list');
             // Add an element for each of the filtered coins
-            for (let item of coins) {
-                $('<option value=' + item.id + '>' + item.denomination.trim() + '    ' + item.location.trim() + '</span></option>').appendTo('.currency-from .coin-selector .option-list');
+            for (let coin of coins) {
+                $('<option value=' + coin.coin_id + '>' + coin.denomination.trim() + '    ' + coin.location.trim() + '</span></option>').appendTo('.currency-from .coin-selector .option-list');
             }
         }
     },

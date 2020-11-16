@@ -53,8 +53,8 @@ fclose($bibliography_json_output);
  *  Build currency.json
  *
  */
-
-$currency_file = fopen("table.csv","r") or die("file does not exist");
+//  currency file
+$currency_file = fopen("table.csv","r") or die("table file does not exist");
 $currency_count = 0;
 $currency_json_array = array();
 $currency_response = array();
@@ -85,6 +85,8 @@ while(! feof($currency_file)){
 }
 
 fclose($currency_file);
+
+
 $total_entries = count($currency_json_array);
 $currency_response['entries'] = $currency_json_array;
 $currency_response['total_entries'] = $total_entries;

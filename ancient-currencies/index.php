@@ -49,7 +49,7 @@
 							</label>
 						</div>
 						<label class="amount-selector-label" for="amount-selector">AMOUNT:
-							<input type="text" placeholder="" name="amount-selector" class="amount-selector">
+							<input type="text" placeholder="__" name="amount-selector" class="amount-output">
 						</label>
 					</div>
 				</div>
@@ -60,7 +60,7 @@
 					<h2 class="screen-reader-text">Filters</h2>
 				</header>
 				<div class="selector region-selector-from" >
-					<label>Region <span>A</span>
+					<label>Region <span class="letter">A</span>
 						<select name="region" class="option-list"></select>
 					</label>
 				</div>
@@ -71,7 +71,7 @@
 					</label>
 				</div>
 				<div class="selector region-selector-to" >
-					<label>Region <span>B</span>
+					<label>Region <span class="letter">B</span>
 						<select name="region" class="option-list"></select>
 					</label>
 				</div>
@@ -79,7 +79,7 @@
 		</div>
 
 		<div class="map">
-			<img src="img/map.png" alt="Map of the Mediterranean">
+			<canvas id="map"></canvas>
 		</div>
 
 		<div class="output">
