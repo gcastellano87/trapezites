@@ -48,10 +48,11 @@
 								<select name="standard" class="option-list"></select>
 							</label>
 						</div>
-						<label class="amount-selector-label" for="amount-selector">AMOUNT:
+						<!-- <label class="amount-selector-label" for="amount-selector">AMOUNT:
 							<input type="text" placeholder="__" name="amount-selector" class="amount-output">
-						</label>
+						</label> -->
 					</div>
+					
 				</div>
 			</div>
 
@@ -83,9 +84,7 @@
 		</div>
 
 		<div class="output">
-			<header class="conversion">
-				<h3 class="title">________________</h3>
-			</header>
+			<div class="conversion-output"></div>
 			<div class="comparable-currencies">
 				<label><h3>Comparable Local Currencies</h3></label>
 				<table>

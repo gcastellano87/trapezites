@@ -3,8 +3,8 @@
 /*----------------- COINS -------------------*/
 /*-------------------------------------------*/
 import { DatRange } from './utils/dat_range.js';
-import { RangedCoins } from './utils/ranged_coins.js';
-
+// import { RangedCoins } from './utils/ranged_coins.js';
+import { StandardVersion, Standards }  from './standards.js';
 
 export const Coins = {
     selected_coin: '',
@@ -61,11 +61,10 @@ export const Coins = {
     region_filter: function(coin){
         let region = Coins.active_filters.region;
         // console.log('filter region:', region);
-        if ( region ){
-            return coin['region'] == region.name;
-        } else {
+        if ( !region ){
             return true;
-        }
+        } 
+        return coin['region'] == region.name;
     },
     text_filter: function(coin){
         let text = Coins.active_filters.text.toLowerCase();
@@ -74,11 +73,25 @@ export const Coins = {
         }
         return coin.denomination.toLowerCase().includes(text);
     },
+    selected_standard_filter(coin){
+        if(!Standards.selected_standard){
+            return true;
+        } 
+        return coin.range.overlaps(Standards.selected_standard.coins.range);
+    },
     get_filtered_list: function(){
         return Coins.get_list()
+            .filter(Coins.selected_standard_filter)
             .filter(Coins.period_filter)
             .filter(Coins.region_filter)
             .filter(Coins.text_filter);
+    },
+    is_coin_selected_coin(coin){
+        if (!Coins.selected_coin){
+            return '';
+        } else {
+            return Coins.selected_coin.coin_id === coin.coin_id ? 'selected' : '';
+        }
     },
     build_dropdown: function(){
         // console.log('building coins dropdown');
@@ -92,11 +105,15 @@ export const Coins = {
             $('<option value="" selected disabled hidden>No coins match...</option>').appendTo('.currency-from .coin-selector .option-list');
         } else {
             // Add a placeholder element
-            $('<option value="" selected disabled hidden></option>').appendTo('.currency-from .coin-selector .option-list');
-            // Add an element for each of the filtered coins
-            for (let coin of coins) {
-                $('<option value=' + coin.coin_id + '>' + coin.denomination.trim() + '    ' + coin.location.trim() + '</span></option>').appendTo('.currency-from .coin-selector .option-list');
+            if(Coins.selected_coin){
+                $('<option value="" >--Clear Selection--</option>').appendTo('.currency-from .coin-selector .option-list');
+            } else {
+                $('<option value="" selected disabled hidden></option>').appendTo('.currency-from .coin-selector .option-list');
             }
+            // Add an element for each of the filtered coins
+            coins.forEach(coin => {
+                $('<option ' + Coins.is_coin_selected_coin(coin) + ' value=' + coin.coin_id + '>' + coin.denomination.trim() + '    ' + coin.location.trim() + '</span></option>').appendTo('.currency-from .coin-selector .option-list');
+            });
         }
     },
     on_coin_selected: function(id){

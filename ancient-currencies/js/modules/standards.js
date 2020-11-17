@@ -42,6 +42,9 @@ export class StandardVersion {
     get coords() {
         return this._coords;
     }
+    is_selected_standard(){
+        return this.version_id === Standards.selected_standard.version_id ? 'selected' : '';
+    }
     // returns an array of coins and the number of each coin
     // it takes to make the total grams of silver
     coin_conversion(grams_of_silver){
@@ -62,6 +65,7 @@ export class StandardVersion {
                         coin: coin, 
                         number: (grams_of_silver/coin_val)
                     });
+                                        
                 }
             } else if (grams_of_silver >= coin_val){
                 output.push({
@@ -245,8 +249,16 @@ export const Standards = {
             return true;
         }
     },
+    selected_coin_filter: function(standard){
+        if(Coins.selected_coin){
+            return Coins.selected_coin.range.overlaps(standard.coins.range);
+        } else {
+            return true;
+        }
+    },
     get_filtered_list: function(){
         return Standards.get_list()
+            .filter(Standards.selected_coin_filter)
             .filter(Standards.period_filter)
             .filter(Standards.region_filter)
             .filter(Standards.text_filter);
@@ -256,18 +268,24 @@ export const Standards = {
         // Clear the dropdown
         $('.standard-to .standard-selector .option-list').empty();
         let standards = Standards.get_filtered_list();
+
+
         // console.table(standards)
         // console.table(Standards.get_list());
         // If there aren't any matches...
-        if (standards.length == 0){
+        if (standards.length === 0){
             $('<option value="" selected disabled hidden>No standards match...</option>').appendTo('.standard-to .standard-selector .option-list');
         } else {
             // Add a placeholder element
-            $('<option value="" selected disabled hidden></option>').appendTo('.standard-to .standard-selector .option-list');
+            if(Standards.selected_standard){
+                $('<option value="" >--Clear Selection--</option>').appendTo('.standard-to .standard-selector .option-list');
+            } else {
+                $('<option value="" selected disabled hidden></option>').appendTo('.standard-to .standard-selector .option-list');
+            }
 
             standards.forEach(standard => {
                 // console.log("shortname:" + standard.short_name );
-                $('<option value='+standard.version_id+'>' + standard.standard_version_name_as_option + '</option>').appendTo('.standard-to .standard-selector .option-list');
+                $('<option ' + standard.is_selected_standard() + ' value='+standard.version_id+'>' + standard.standard_version_name_as_option + '</option>').appendTo('.standard-to .standard-selector .option-list');
             });
         }
     }

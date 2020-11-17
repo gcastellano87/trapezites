@@ -96,6 +96,7 @@ var App = {
     draw_markers: function(){
         let from = Coins.selected_coin;
         let to = Standards.selected_standard;
+console.log('from,to',from,to);
 
         this.draw_map();
 
@@ -194,7 +195,6 @@ var App = {
         window.onresize = App.draw_map();
     },
     format_state_for_select2: function(state){
-        console.log("format_state_for_select2");
         // console.log(state);
         if(state.text.includes('    ')){
             let parts = state.text.split('    ');
@@ -223,11 +223,17 @@ var App = {
     },
     add_listeners: function(){
         
-        $('.currency-from .option-list').change(function() {
-           
+        $('.currency-from .option-list').change(function() {           
             let id = $(this).children('.option-list :selected').val();
-            App.check_for_empty_standards_and_currencies();
-            Coins.selected_coin = Coins.get_coin_by_id(id);
+
+            if (id > 0){
+                Coins.selected_coin = Coins.get_coin_by_id(id);
+            } else {
+                Coins.selected_coin = '';
+            }
+            Standards.build_dropdown();
+            Coins.build_dropdown();
+            App.convert_or_show_errors();
             App.draw_markers();
         });
 
@@ -235,9 +241,14 @@ var App = {
         $('.standard-to .option-list').change(function() {
             console.log('in standard optionlist listener');
             let id = $(this).children('.option-list :selected').val();
-            
-            App.check_for_empty_standards_and_currencies();
-            Standards.selected_standard = Standards.get_standard_by_id(id);
+            if (id > 0){
+                Standards.selected_standard = Standards.get_standard_by_id(id);
+            } else {
+                Standards.selected_standard = '';
+            }
+            Coins.build_dropdown();
+            Standards.build_dropdown();
+            App.convert_or_show_errors();
             App.draw_markers();
         });
 
@@ -268,55 +279,62 @@ var App = {
 
         $('.currency-from .amount-selector').keyup(function(){
             this.value = this.value.replace(/[^0-9\.]/g,'');
-
-            if(this.value){
-                App.check_for_empty_standards_and_currencies();
-                App.update_i_want_amount(this.value);
-            }
+            App.convert_or_show_errors();
         });                
     },
-    update_i_want_amount(amount){
-        let result = App.convert(amount);
-        if(result){
-            $('.currency-from .amount-output').text(result);
-        }
-    },
     convert(amount){
-        console.log('Coins.selected_coin',Coins.selected_coin);
-        console.log('Standards.selected',Standards.selected_standard);
         let coins_value = Coins.selected_coin.value_in_grams_of_silver;
-        console.log('coins_value',coins_value);
         let total_value_of_coins = amount*coins_value;
-        console.log('total_value_of_coins',total_value_of_coins);
         let conversion_results = Standards.selected_standard.coin_conversion(total_value_of_coins);
 
-        App.display_conversion_results(conversion_results);
-    },
-    display_conversion_results(results){
-        console.log('results',results);
-        results.forEach(result => {
-            console.log("Coin:", result.coin.denomination, "Value of one:", result.coin.value_in_grams_of_silver, "Number:", result.number, "Total in this coin:",result.coin.value_in_grams_of_silver*result.number);
+        $(' <h3 class="coin-title">'+ amount + ' ' + Coins.selected_coin.denomination+' in ' +Coins.selected_coin.location + ' between ' + Coins.selected_coin.range.as_string() + '</h3><h4 class="chosen-standard">Converted to coinage in the ' + Standards.selected_standard.standard_version_name + '</h4><ul class="coin-list"></ul>').appendTo('.conversion-output');
+
+        conversion_results.forEach(result => {
+            $('<li class="coin"><div class="main"><span class="number">'+Math.round(result.number * 100) / 100 + '</span> <span class="denomination">' + result.coin.denomination + '</span> <span class="region">'+result.coin.region+'</span> <span class="location">'+result.coin.location+'</span> <span class="date-range">'+result.coin.range.as_string()+'</span> <a href="#" class="expand-citations-and_links">+</a></div><div class="expansion"></div></li>').appendTo('.conversion-output .coin-list');
         });
     },
-    check_for_empty_standards_and_currencies(){
+    convert_or_show_errors(){
         let currency_from = $('.currency-from .option-list :selected').val();
         let currency_to = $('.standard-to .option-list :selected').val();
+        let amount = $('.currency-from .amount-selector').val();
+        let number_missing = 0;
+        $('.conversion-output').empty();
 
-        console.log('the currency from id',currency_from);
-        console.log('the currency to id',currency_to);
-        
+
+        if(currency_from && currency_to && amount){
+            App.convert(amount);
+        } 
+
         if (!currency_from ){
+            number_missing++;
             $('.currency-from .select2-container--currencies').addClass('warning-empty');
         } else {
             $('.currency-from .select2-container--currencies').removeClass('warning-empty');
         } 
         
         if (!currency_to ){
+            number_missing++;
             $('.standard-to .select2-container--currencies').addClass('warning-empty');
         } else {
             $('.standard-to .select2-container--currencies').removeClass('warning-empty');
-
         }
+
+        if (!amount ){
+            number_missing++;
+            $('.amount-selector').addClass('warning-empty');
+        } else {
+            $('.amount-selector').removeClass('warning-empty');
+        }
+
+        if(number_missing > 0){
+            $('.convert').addClass('missing-inputs');
+        } else {
+            $('.convert').removeClass('missing-inputs');
+        }
+
+        $('.convert').attr('data-missing',number_missing);
+        
+
     },
     initialize_data_and_dropdowns: function(entries){
         

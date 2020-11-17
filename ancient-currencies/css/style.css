@@ -46,6 +46,10 @@ html {
     border: 0;
 }
 
+h1,h2,h3,h4,h5,h6 {
+    font-weight: normal;
+}
+
 /* ------------- Layout ------------- */
 body {
     background: #000;
@@ -379,10 +383,20 @@ label .select2-container.select2-container--currencies.select2-container--open {
    background-color: var(--orange);
 }
 
-.warning-empty{
-    border-color: yellow;
+.missing-inputs .warning-empty {
     border-width: 2px;
 }
+
+.missing-inputs[data-missing="1"] .warning-empty {
+    border-color: rgb(0, 255, 0);
+}
+.missing-inputs[data-missing="2"] .warning-empty {
+    border-color: rgb(229, 255, 0);
+}
+.missing-inputs[data-missing="3"] .warning-empty {
+    border-color: rgb(255, 179, 0);
+}
+
 
 /* ------------- MAP ------------- */
 .map {
@@ -397,7 +411,15 @@ label .select2-container.select2-container--currencies.select2-container--open {
 /* ------------- OUTPUT ------------- */
 .output {
     grid-area: output;
+    /* display: none; */
+}
+
+.output .comp-comodities,
+.output .comparable-currencies {
     display: none;
+}
+.chosen-standard { 
+    color: var(--orange);
 }
 
 .content.modal {
