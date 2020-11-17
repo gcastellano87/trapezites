@@ -10,7 +10,7 @@ steps:
     username: sgv287
     password: 
       from_secret: sgv287_eid_password    
-    target: /mnt/home/sgv287/public_html/ancient-currencies
+    target: /mnt/dev/dev.laits.utexas.edu/dev_vlasits/ancient-currencies
     strip_components: 1
     source: 
       - ancient-currencies/**
