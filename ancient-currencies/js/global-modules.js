@@ -96,7 +96,7 @@ var App = {
     draw_markers: function(){
         let from = Coins.selected_coin;
         let to = Standards.selected_standard;
-console.log('from,to',from,to);
+
 
         this.draw_map();
 
@@ -123,7 +123,7 @@ console.log('from,to',from,to);
     draw_to_marker: function(coords){
         let to_marker = new Image();
         to_marker.src = 'img/to-marker.png';
-        console.log('to marker coords',coords);
+        // console.log('to marker coords',coords);
         
         to_marker.onload = function(){
             App.draw_marker(to_marker, coords);
@@ -226,7 +226,7 @@ console.log('from,to',from,to);
         $('.currency-from .option-list').change(function() {           
             let id = $(this).children('.option-list :selected').val();
 
-            if (id > 0){
+            if (id){
                 Coins.selected_coin = Coins.get_coin_by_id(id);
             } else {
                 Coins.selected_coin = '';
@@ -237,11 +237,10 @@ console.log('from,to',from,to);
             App.draw_markers();
         });
 
-
         $('.standard-to .option-list').change(function() {
             console.log('in standard optionlist listener');
             let id = $(this).children('.option-list :selected').val();
-            if (id > 0){
+            if (id){
                 Standards.selected_standard = Standards.get_standard_by_id(id);
             } else {
                 Standards.selected_standard = '';
@@ -253,11 +252,14 @@ console.log('from,to',from,to);
         });
 
         $('.region-selector-from .option-list').change(function() {
-            let id = $(this).children('.option-list :selected').val();
-            Regions.selected_region = Regions.list[id];
+            let region_id = $(this).children('.option-list :selected').val();
+            Regions.selected_region = Regions.get_region_by_id(region_id);
+
             console.log("THE SELECTED Region", Regions.selected_region);
             Coins.set_region_filter(Regions.selected_region);
             Coins.build_dropdown();
+            App.convert_or_show_errors();
+            App.draw_markers();
         });
 
         $('.period-selector .option-list').change(function() {
@@ -268,13 +270,17 @@ console.log('from,to',from,to);
             Coins.build_dropdown();
             Standards.set_period_filter(Periods.selected_period);
             Standards.build_dropdown();
+            App.convert_or_show_errors();
+            App.draw_markers();
         });        
         
         $('.region-selector-to .option-list').change(function() {
-            let id = $(this).children('.option-list :selected').val();
-            Regions.selected_region = Regions.list[id];
+            let region_id = $(this).children('.option-list :selected').val();
+            Regions.selected_region = Regions.get_region_by_id(region_id);
             Standards.set_region_filter(Regions.selected_region);
             Standards.build_dropdown();
+            App.convert_or_show_errors();
+            App.draw_markers();
         });
 
         $('.currency-from .amount-selector').keyup(function(){
@@ -287,10 +293,10 @@ console.log('from,to',from,to);
         let total_value_of_coins = amount*coins_value;
         let conversion_results = Standards.selected_standard.coin_conversion(total_value_of_coins);
 
-        $(' <h3 class="coin-title">'+ amount + ' ' + Coins.selected_coin.denomination+' in ' +Coins.selected_coin.location + ' between ' + Coins.selected_coin.range.as_string() + '</h3><h4 class="chosen-standard">Converted to coinage in the ' + Standards.selected_standard.standard_version_name + '</h4><ul class="coin-list"></ul>').appendTo('.conversion-output');
+        $(' <h3 class="coin-title">'+ amount + ' ' + Coins.selected_coin.denomination+' in ' +Coins.selected_coin.location + ' between ' + Coins.selected_coin.range.as_string() + '...</h3><h4 class="chosen-standard">Converted to coinage in the ' + Standards.selected_standard.standard_version_name + '</h4><ul class="coin-list"></ul>').appendTo('.conversion-output');
 
         conversion_results.forEach(result => {
-            $('<li class="coin"><div class="main"><span class="number">'+Math.round(result.number * 100) / 100 + '</span> <span class="denomination">' + result.coin.denomination + '</span> <span class="region">'+result.coin.region+'</span> <span class="location">'+result.coin.location+'</span> <span class="date-range">'+result.coin.range.as_string()+'</span> <a href="#" class="expand-citations-and_links">+</a></div><div class="expansion"></div></li>').appendTo('.conversion-output .coin-list');
+            $('<li class="coin"><div class="main"><span class="number">'+Math.round(result.number * 100) / 100 + '</span> <span class="denomination">' + result.coin.denomination + '(s)</span> <span class="region">'+result.coin.region+'</span> <span class="location">'+result.coin.location+'</span> <span class="date-range">'+result.coin.range.as_string()+'</span> <a href="#" class="expand-citations-and_links">+</a></div><div class="expansion"></div></li>').appendTo('.conversion-output .coin-list');
         });
     },
     convert_or_show_errors(){

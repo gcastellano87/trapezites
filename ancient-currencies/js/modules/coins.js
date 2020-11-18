@@ -46,6 +46,7 @@ export const Coins = {
         Coins.active_filters.period = period;
     },
     set_region_filter: function(region){
+        
         Coins.active_filters.region = region;
     },
     set_text_filter: function(text){
@@ -60,7 +61,6 @@ export const Coins = {
     },
     region_filter: function(coin){
         let region = Coins.active_filters.region;
-        // console.log('filter region:', region);
         if ( !region ){
             return true;
         } 

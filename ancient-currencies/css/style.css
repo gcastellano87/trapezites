@@ -85,11 +85,11 @@ body {
     background-repeat: no-repeat;
     display: grid;
     grid-template-columns: 450px 1fr;
-    grid-template-rows: min-content 1fr auto;
+    grid-template-rows: min-content min-content 1fr;
     grid-template-areas: 
         "header map"
         "convert map"
-        "output output";
+        "output map";
     margin-top: 90px;
 }
 
@@ -306,6 +306,7 @@ body {
     height: 24px;
 }
 
+.select2-container.select2-container--below.select2-container--filters.select2-container--open,
 .select2-container--filters,
 .select2-container--currencies {
     width: 90% !important
@@ -329,8 +330,7 @@ body {
     color: #fff;
 }
 
-
-.select2-container.select2-container--currencies.select2-container--open {
+.select2-container.select2-container--filters.select2-container--open {
      width: 250px !important;
 }
 
@@ -412,6 +412,7 @@ label .select2-container.select2-container--currencies.select2-container--open {
 .output {
     grid-area: output;
     /* display: none; */
+    padding: 20px;
 }
 
 .output .comp-comodities,
@@ -422,13 +423,18 @@ label .select2-container.select2-container--currencies.select2-container--open {
     color: var(--orange);
 }
 
+.coin-list {
+    list-style: none;
+    padding: 0;
+}
+
 .content.modal {
     display: none;
 }
 
 /* ------------- FOOTER ------------- */
 .footer {
-
+    display: none;
 }
 
 @media only screen and (min-width: 2082px) {
