@@ -296,8 +296,62 @@ var App = {
         $(' <h3 class="coin-title">'+ amount + ' ' + Coins.selected_coin.denomination+' in ' +Coins.selected_coin.location + ' between ' + Coins.selected_coin.range.as_string() + '...</h3><h4 class="chosen-standard">Converted to coinage in the ' + Standards.selected_standard.standard_version_name + '</h4><ul class="coin-list"></ul>').appendTo('.conversion-output');
 
         conversion_results.forEach(result => {
-            $('<li class="coin"><div class="main"><span class="number">'+Math.round(result.number * 100) / 100 + '</span> <span class="denomination">' + result.coin.denomination + '(s)</span> <span class="region">'+result.coin.region+'</span> <span class="location">'+result.coin.location+'</span> <span class="date-range">'+result.coin.range.as_string()+'</span> <a href="#" class="expand-citations-and_links">+</a></div><div class="expansion"></div></li>').appendTo('.conversion-output .coin-list');
+            var output = '';
+            output += '<li class="coin">';
+            output += '  <a href="#" class="expand-citations-and-links">';
+            output += '    <div class="main">';
+            output += '      <icon class"expand"></icon>';         
+            output += '      <span class="group">';
+            output += '      ';
+            output += '        <span class="number">'       + Math.round(result.number * 100) / 100 + '</span>';
+            output += '        <span class="denomination">' + result.coin.denomination              + '(s)</span>';
+            output += '      </span>';
+            output += '      <span class="group region">'       + result.coin.region                    + '</span>';
+            output += '      <span class="group">';
+            output += '        <span class="location">'     + result.coin.location                  + ',</span>';
+            output += '        <span class="date-range">'   + result.coin.range.as_string()         + '</span>';
+            output += '      </span>';            
+            output += '    </div>';
+            output += '  </a>';
+            output += '  <div class="citations-and-links expandable">';
+            output += '     <h4>Citations and Links</h4>';
+            output += '     <ul>';
+        
+        if(result.coin.pleiades_id){
+            output += '        <li class="citation-or-link">';
+            output += '             Pleiades: <a class="pleiades" href="' + result.coin.pleiades_id +'">' + result.coin.pleiades_id + '</a>';
+            output += '        </li>';            
+        }
+
+        if(result.coin['nomisma_(mint)']){
+            output += '        <li class="citation-or-link">';
+            output += '             Nomisma (mint): <a class="nomisma-mint" href="' + result.coin['nomisma_(mint)'] +'">' + result.coin['nomisma_(mint)'] + '</a>';
+            output += '        </li>';            
+        }
+        
+        if(result.coin['nomisma_(denomination)']){
+            output += '        <li class="citation-or-link">';
+            output += '             Nomisma (denomination): <a class="nomisma-denomination" href="' + result.coin['nomisma_(denomination)'] +'">' + result.coin['nomisma_(denomination)'] + '</a>';
+            output += '        </li>';            
+        }
+        
+        if(result.coin['nomisma_(material)']){
+            output += '        <li class="citation-or-link">';
+            output += '             Nomisma (material): <a class="nomisma-material" href="' + result.coin['nomisma_(material)'] +'">' + result.coin['nomisma_(material)'] + '</a>';
+            output += '        </li>';            
+        }
+        
+        if(result.coin['nomisma_(mint)']){
+        }
+            output += '        </li>';
+            output += '     </ul>';
+            output += '  </div>';
+            output += '</li>';
+            
+            $(output).appendTo('.conversion-output .coin-list');
         });
+
+        App.attach_output_listeners();
     },
     convert_or_show_errors(){
         let currency_from = $('.currency-from .option-list :selected').val();
@@ -341,6 +395,12 @@ var App = {
         $('.convert').attr('data-missing',number_missing);
         
 
+    },
+    attach_output_listeners(){
+        $('.expand-citations-and-links').on('click', function(event){
+            event.preventDefault();            
+            $(this).parents('.coin').find('.citations-and-links').toggleClass('open');
+        });
     },
     initialize_data_and_dropdowns: function(entries){
         

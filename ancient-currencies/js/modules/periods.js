@@ -49,7 +49,7 @@ export const Periods = {
             $('<option value="" selected disabled hidden></option>').appendTo('.period-selector .option-list');
         
             list.forEach(function(period, index){                
-                $('<option value='+(index)+'>'+ period.range.string + " (" + period.ranged_items.length +  ")" + '</option>').appendTo('.period-selector .option-list');
+                $('<option value='+(index)+'>'+ period.range.string + " (" + period.ranged_items.length +  " coins)" + '</option>').appendTo('.period-selector .option-list');
             });
         }
     },
