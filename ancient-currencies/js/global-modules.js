@@ -298,9 +298,9 @@ var App = {
         conversion_results.forEach(result => {
             var output = '';
             output += '<li class="coin">';
-            output += '  <a href="#" class="expand-citations-and-links">';
-            output += '    <div class="main">';
-            output += '      <icon class"expand"></icon>';         
+            // output += '  <a href="#" class="expand-citations-and-links">';
+            output += '    <div class="main expand-citations-and-links">';
+            output += '      <span class="expand">+</span>';         
             output += '      <span class="group">';
             output += '      ';
             output += '        <span class="number">'       + Math.round(result.number * 100) / 100 + '</span>';
@@ -310,11 +310,12 @@ var App = {
             output += '      <span class="group">';
             output += '        <span class="location">'     + result.coin.location                  + ',</span>';
             output += '        <span class="date-range">'   + result.coin.range.as_string()         + '</span>';
-            output += '      </span>';            
+            output += '      </span>';
+            output += '     <span class="group links">(citations and links)</span>';            
             output += '    </div>';
-            output += '  </a>';
+            // output += '  </a>';
             output += '  <div class="citations-and-links expandable">';
-            output += '     <h4>Citations and Links</h4>';
+
             output += '     <ul>';
         
         if(result.coin.pleiades_id){

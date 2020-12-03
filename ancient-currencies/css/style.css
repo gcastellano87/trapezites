@@ -428,10 +428,7 @@ label .select2-container.select2-container--currencies.select2-container--open {
     display: none;
 }
 
-.output .coin .main {
-    display: flex;
-    justify-content: space-between;
-}
+
 
 .chosen-standard { 
     color: var(--orange);
@@ -446,6 +443,31 @@ label .select2-container.select2-container--currencies.select2-container--open {
     display: none;
 }
 
+.output .coin .main {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* .output .expand-citations-and-links {
+    color: #fff;
+    text-decoration: none;
+} */
+
+.output .coin .main {
+    display: grid;
+    grid-gap: 5px;
+    grid-template-columns: 30px 1fr 1fr 1fr 1fr;
+}
+
+.output .group.links {
+    color: var(--orange);
+}
+
+.expand {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 20px;
+    line-height: 16px;
+}
 /* ------------- FOOTER ------------- */
 .footer {
     display: none;
@@ -504,10 +526,14 @@ label .select2-container.select2-container--currencies.select2-container--open {
 
 }
 
-@media only screen and (max-width: 1024px) {
+@media only screen and (max-width: 960px) {
     .content {
         grid-template-columns: 1fr;
-        /* grid-template-areas: */
+        grid-template-areas: 
+            "header"
+            "convert"
+            "output"
+            "map";
         margin: 70px 20px 0px 20px;
     }
 }
