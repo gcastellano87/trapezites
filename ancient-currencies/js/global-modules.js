@@ -131,8 +131,8 @@ var App = {
     },
     draw_marker: function(marker, coords){
         let ctx = this.get_ctx();
-        let marker_width = marker.width*App.scale;
-        let marker_height = marker.height*App.scale;
+        let marker_width = marker.width*App.scale*0.6;
+        let marker_height = marker.height*App.scale*0.6;
         
         let marker_width_offset = marker_width/2;
         let marker_height_offset = marker_height/2;
@@ -155,7 +155,7 @@ var App = {
         ctx.beginPath();
         ctx.moveTo(from_x,from_y);
         ctx.strokeStyle = "#e41651";
-        ctx.lineWidth=15*App.scale;
+        ctx.lineWidth=5*App.scale;
         ctx.lineTo(to_x,to_y);
         ctx.stroke();
         ctx.closePath();
@@ -317,18 +317,13 @@ var App = {
             output += '  <div class="citations-and-links expandable">';
 
             output += '     <ul>';
+            
+            output += App.link_output('Pleiades', result.coin.pleiades_id);
+            output += App.link_output('Nomisma (mint)',result.coin['nomisma_(mint)']);
+            output += App.link_output('Pleiades', result.coin.pleiades_id);
+            output += App.link_output('Pleiades', result.coin.pleiades_id);
+            output += App.link_output('Pleiades', result.coin.pleiades_id);
         
-        if(result.coin.pleiades_id){
-            output += '        <li class="citation-or-link">';
-            output += '             Pleiades: <a class="pleiades" href="' + result.coin.pleiades_id +'">' + result.coin.pleiades_id + '</a>';
-            output += '        </li>';            
-        }
-
-        if(result.coin['nomisma_(mint)']){
-            output += '        <li class="citation-or-link">';
-            output += '             Nomisma (mint): <a class="nomisma-mint" href="' + result.coin['nomisma_(mint)'] +'">' + result.coin['nomisma_(mint)'] + '</a>';
-            output += '        </li>';            
-        }
         
         if(result.coin['nomisma_(denomination)']){
             output += '        <li class="citation-or-link">';
@@ -353,6 +348,15 @@ var App = {
         });
 
         App.attach_output_listeners();
+    },
+    link_output(title,href){
+        let html = '';
+        if(href){
+            html += '<li class="citation-or-link">';
+            html += title + ': <a href="' + href +'">' + href + '</a>';
+            html += '</li>'; 
+        }
+        return html;
     },
     convert_or_show_errors(){
         let currency_from = $('.currency-from .option-list :selected').val();

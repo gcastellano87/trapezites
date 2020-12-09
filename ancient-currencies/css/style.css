@@ -443,6 +443,10 @@ label .select2-container.select2-container--currencies.select2-container--open {
     display: none;
 }
 
+.output .coin {
+    margin-bottom: 15px;
+}
+
 .output .coin .main {
     display: flex;
     justify-content: space-between;
