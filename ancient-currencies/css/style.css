@@ -428,13 +428,15 @@ label .select2-container.select2-container--currencies.select2-container--open {
     display: none;
 }
 
+.conversion-title {
 
+}
 
-.chosen-standard { 
+.output-title { 
     color: var(--orange);
 }
 
-.coin-list {
+.output ul {
     list-style: none;
     padding: 0;
 }

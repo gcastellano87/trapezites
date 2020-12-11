@@ -78,7 +78,7 @@ export const Regions = {
         for (let item of Regions.list) {
             let str = item['name'];
             if(str){
-                count = ' (' + item['coins'].length + ' coins)';
+                count = ' (' + item['coins'].length + ' currencies)';
             } else {
                 count = '';
             }

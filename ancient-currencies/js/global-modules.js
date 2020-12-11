@@ -1,44 +1,10 @@
-
-/*
-standard
-	has many coins
-	has a location
-	has a region
-	
-	start_date
-	end_date
-
-coin
-	has a location
-	has a region
-	has a standard
-
-	start_date
-	end_date
-
-period
-	start_date
-	end_date
-
-region
-	has many locations
-	has many coins
-	has many standards
-	
-location
-	has many coins
-	has many standards
-	has a region
-
-commodity
-*/
 import{ Tests } from './modules/tests.js';
 
 var test = new Tests('quiet');
 
-import { StandardVersion, Standards }  from './modules/standards.js';
-import { Region, Regions }  from './modules/regions.js';
-import { Period, Periods }  from './modules/periods.js';
+import { Standards }  from './modules/standards.js';
+import { Regions }  from './modules/regions.js';
+import { Periods }  from './modules/periods.js';
 import { Coins } from './modules/coins.js';
 
 /*-------------------------------------------*/
@@ -288,15 +254,10 @@ var App = {
             App.convert_or_show_errors();
         });                
     },
-    convert(amount){
-        let coins_value = Coins.selected_coin.value_in_grams_of_silver;
-        let total_value_of_coins = amount*coins_value;
-        let conversion_results = Standards.selected_standard.coin_conversion(total_value_of_coins);
-
-        $(' <h3 class="coin-title">'+ amount + ' ' + Coins.selected_coin.denomination+' in ' +Coins.selected_coin.location + ' between ' + Coins.selected_coin.range.as_string() + '...</h3><h4 class="chosen-standard">Converted to coinage in the ' + Standards.selected_standard.standard_version_name + '</h4><ul class="coin-list"></ul>').appendTo('.conversion-output');
-
-        conversion_results.forEach(result => {
-            var output = '';
+    display_selected_standard(results,display_denomination = true){
+        var output = '';
+        results.forEach(result => {
+            
             output += '<li class="coin">';
             // output += '  <a href="#" class="expand-citations-and-links">';
             output += '    <div class="main expand-citations-and-links">';
@@ -304,8 +265,11 @@ var App = {
             output += '      <span class="group">';
             output += '      ';
             output += '        <span class="number">'       + Math.round(result.number * 100) / 100 + '</span>';
+        
+        if (display_denomination){
             output += '        <span class="denomination">' + result.coin.denomination              + '(s)</span>';
             output += '      </span>';
+        }
             output += '      <span class="group region">'       + result.coin.region                    + '</span>';
             output += '      <span class="group">';
             output += '        <span class="location">'     + result.coin.location                  + ',</span>';
@@ -342,11 +306,59 @@ var App = {
             output += '        </li>';
             output += '     </ul>';
             output += '  </div>';
-            output += '</li>';
-            
-            $(output).appendTo('.conversion-output .coin-list');
+            output += '</li>';            
         });
 
+        return output;
+    },
+    convert(amount){
+        let coins_value             = Coins.selected_coin.value_in_grams_of_silver;
+        let total_value_of_coins    = amount*coins_value;
+        let conversion_results      = Standards.selected_standard.coin_conversion(total_value_of_coins);
+        let contemporary_standards = Standards.get_standards_by_range(Coins.selected_coin.range);
+        let contemporary_commodities = Coins.get_commodities_by_range(Coins.selected_coin.range);
+
+        let html = '<h2 class="conversion-title">'+ amount + ' ' + Coins.selected_coin.denomination+' in ' + Coins.selected_coin.location + ' between ' + Coins.selected_coin.range.as_string() + '...</h2>';
+        html += '   <ul class="list-of-conversion-types">';
+        html += '     <li class="conversion-type">';
+        html += '       <h3 class="output-title">Converted to the Selected Standard</h3>';
+        html += '       <ul class="list-of-conversions selected-standard">';
+        html += '         <li class="conversion">';
+        html += '           <h4 class="selected-standard-title">' + Standards.selected_standard.standard_version_name + '</h4>';
+        html += '           <ul class="list-of-coins ">' + App.display_selected_standard(conversion_results) + '</ul>';
+        html += '         </li>';
+        html += '       </ul>';
+        html += '     </li>';
+        html += '     <li class="conversion-type">';
+        html += '       <h3 class="output-title">Converted to '+contemporary_standards.length +' Other Contemporary Standards (' + Coins.selected_coin.range.as_string() + ')</h3>';
+        html += '       <ul class="list-of-conversions">';
+
+    contemporary_standards.forEach(standard => {
+        html += '         <li class="conversion">';
+        html += '           <h4 class="selected-standard-title">' + standard.standard_version_name + '</h4>';
+        html += '           <ul class="list-of-coins ">' + App.display_selected_standard(standard.coin_conversion(total_value_of_coins)) + '</ul>';
+        html += '         </li>';
+    });
+
+        html += '       </ul>';
+        html += '     </li>';
+        html += '     <li class="conversion-type">';
+        html += '       <h3 class="output-title">Converted to '+ contemporary_commodities.length + ' Commodities</h3>';
+        html += '       <ul class="list-of-conversions">';
+
+    contemporary_commodities.forEach(commodity => {
+        html += '         <li class="conversion">';
+        html += '           <h4 class="selected-standard-title">' + commodity.denomination + '</h4>';
+        html += '           <ul class="list-of-coins ">' + App.display_selected_standard(Coins.currency_conversion(commodity,total_value_of_coins),false) + '</ul>';
+        html += '         </li>';
+    });
+
+        html += '       </ul>';
+        html += '     </li>';
+
+        $(html).appendTo('.conversion-output');
+
+       
         App.attach_output_listeners();
     },
     link_output(title,href){

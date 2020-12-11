@@ -61,18 +61,18 @@
 					<h2 class="screen-reader-text">Filters</h2>
 				</header>
 				<div class="selector region-selector-from" >
-					<label>Region <span class="letter">A</span>
+					<label>Region <span class="letter">I HAVE</span>
 						<select name="region" class="option-list"></select>
 					</label>
 				</div>
 				<div class="selector period-selector">
-					<label>Select date range
+					<label>Date range
 						<select name="period" class="option-list">
 					</select>
 					</label>
 				</div>
 				<div class="selector region-selector-to" >
-					<label>Region <span class="letter">B</span>
+					<label>Region <span class="letter">I WANT</span>
 						<select name="region" class="option-list"></select>
 					</label>
 				</div>
@@ -85,39 +85,6 @@
 
 		<div class="output">
 			<div class="conversion-output"></div>
-			<div class="comparable-currencies">
-				<label><h3>Comparable Local Currencies</h3></label>
-				<table>
-					<thead>
-						<tr>
-							<th>+</th>
-							<th>Quantity</th>
-							<th>Name</th>
-							<th>Region</th>
-							<th>Location</th>
-							<th>Period</th>
-						</tr>
-					</thead>
-					<tbody></tbody>
-				</table>
-			</div>
-
-			<div class="comp-comodities">
-				<label><h3>Comparable Commodities</h3></label>
-				<table>
-					<thead>
-						<tr>
-							<th>+</th>
-							<th>Quantity</th>
-							<th>Name</th>
-							<th>Region</th>
-							<th>Location</th>
-							<th>Period</th>
-						</tr>
-					</thead>
-					<tbody></tbody>
-				</table>
-			</div>
 		</div> <!--  -->
 	</div> <!-- .content -->
 	<footer class="footer">

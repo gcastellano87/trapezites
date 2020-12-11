@@ -2,7 +2,6 @@
 /*---------------- PERIODS ------------------*/
 /*-------------------------------------------*/
 
-
 import { RangedCoins } from './utils/ranged_coins.js';
 
 export const Period = {
@@ -49,7 +48,7 @@ export const Periods = {
             $('<option value="" selected disabled hidden></option>').appendTo('.period-selector .option-list');
         
             list.forEach(function(period, index){                
-                $('<option value='+(index)+'>'+ period.range.string + " (" + period.ranged_items.length +  " coins)" + '</option>').appendTo('.period-selector .option-list');
+                $('<option value='+(index)+'>'+ period.range.string + " (" + period.ranged_items.length +  " currencies)" + '</option>').appendTo('.period-selector .option-list');
             });
         }
     },

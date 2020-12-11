@@ -3,8 +3,7 @@
 /*----------------- COINS -------------------*/
 /*-------------------------------------------*/
 import { DatRange } from './utils/dat_range.js';
-// import { RangedCoins } from './utils/ranged_coins.js';
-import { StandardVersion, Standards }  from './standards.js';
+import { Standards }  from './standards.js';
 
 export const Coins = {
     selected_coin: '',
@@ -35,6 +34,21 @@ export const Coins = {
                 };
                 return coin;
             });
+    },
+    currency_conversion(currency,grams_of_silver){
+        let output = [];
+        let coin_val = currency.value_in_grams_of_silver;
+       
+        output.push({
+            coin: currency, 
+            number: (grams_of_silver/coin_val)
+        });
+        
+        return output;
+    },
+    get_commodities_by_range(range){
+        return Coins.list.filter(coin => {return coin.commodity_or_service === "x";})
+            .filter(coin => {return coin.range.overlaps(range)});
     },
     get_coin_by_id(id){
         return Coins.get_list().filter(coin => {return coin.coin_id == id;})[0];

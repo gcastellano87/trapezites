@@ -1,10 +1,9 @@
-import { Coins } from './coins.js';
 /*-------------------------------------------*/
 /*--------------- STANDARDS -----------------*/
 /*-------------------------------------------*/
 // TODO:  Change the way "version of standard" is created
 
-
+import { Coins } from './coins.js';
 import { DatRange } from './utils/dat_range.js';
 import { RangedItems } from './utils/ranged_items.js';
 import { RangedCoins } from './utils/ranged_coins.js';
@@ -255,6 +254,12 @@ export const Standards = {
         } else {
             return true;
         }
+    },
+    get_standards_by_range: function(range){
+        return Standards.list.filter(function(standard){
+            console.log(range);
+            return range.overlaps(standard.coins.range);
+        })
     },
     get_filtered_list: function(){
         return Standards.get_list()
