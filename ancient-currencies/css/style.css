@@ -99,7 +99,7 @@ body {
     background-image: url(../img/key_line.png);
     background-position: top left;
     background-size: 24px;
-    background-repeat-y: no-repeat;
+    background-repeat: repeat-x;
     margin: 30px 40px 0px;
     padding-top: 20px;
     position: fixed;
