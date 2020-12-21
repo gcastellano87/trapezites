@@ -266,9 +266,8 @@ var App = {
         results.forEach(result => {
             
             output += '<li class="coin">';
-            // output += '  <a href="#" class="expand-citations-and-links">';
             output += '    <div class="main expand-citations-and-links">';
-            output += '      <span class="expand">+</span>';
+            output += '      <span class="expand"  aria-label="Expand or Collapse"></span>';
          
             output += '      <span class="group">';
             output += '        <span class="number">'       + Math.round(result.number * 100) / 100 + '</span>';
@@ -292,27 +291,12 @@ var App = {
 
             output += '     <ul>';
             
-            output += App.link_output('Pleiades', result.coin.pleiades_id);
-            output += App.link_output('Nomisma (mint)',result.coin['nomisma_(mint)']);
-            output += App.link_output('Pleiades', result.coin.pleiades_id);
-            output += App.link_output('Pleiades', result.coin.pleiades_id);
-            output += App.link_output('Pleiades', result.coin.pleiades_id);
-        
-        
-        if(result.coin['nomisma_(denomination)']){
-            output += '        <li class="citation-or-link">';
-            output += '             Nomisma (denomination): <a class="nomisma-denomination" href="' + result.coin['nomisma_(denomination)'] +'">' + result.coin['nomisma_(denomination)'] + '</a>';
-            output += '        </li>';            
-        }
-        
-        if(result.coin['nomisma_(material)']){
-            output += '        <li class="citation-or-link">';
-            output += '             Nomisma (material): <a class="nomisma-material" href="' + result.coin['nomisma_(material)'] +'">' + result.coin['nomisma_(material)'] + '</a>';
-            output += '        </li>';            
-        }
-        
-        if(result.coin['nomisma_(mint)']){
-        }
+            output += App.link_output('Pleiades', result.coin.pleiades_id,true);
+            output += App.link_output('Nomisma (mint)',result.coin['nomisma_(mint)'],true);
+            output += App.link_output('Nomisma (denomination)',result.coin['nomisma_(denomination)'],true);
+            output += App.link_output('Nomisma (material)',result.coin['nomisma_(material)'],true);
+            output += App.link_output('Notes',result.coin.notes, false);
+
             output += '        </li>';
             output += '     </ul>';
             output += '  </div>';
@@ -379,12 +363,20 @@ if (contemporary_commodities.length > 0){
        
         App.attach_output_listeners();
     },
-    link_output(title,href){
+    link_output(title,content,content_is_url=false){
         let html = '';
-        if(href){
-            html += '<li class="citation-or-link">';
-            html += title + ': <a href="' + href +'">' + href + '</a>';
-            html += '</li>'; 
+        if(content){
+                html += '<li class="citation-or-link">';
+                html += '<span class="citation-title">' + title + ': </span><span class="citation-content">';
+            if (content_is_url){
+                html += '    <a href="' + content +'">';
+            }
+                html +=         content;
+            if (content_is_url){
+                    html += '    </a>';
+            }
+                html += '  </span>';
+                html += '</li>'; 
         }
         return html;
     },
@@ -434,7 +426,7 @@ if (contemporary_commodities.length > 0){
     attach_output_listeners(){
         $('.expand-citations-and-links').on('click', function(event){
             event.preventDefault();            
-            $(this).parents('.coin').find('.citations-and-links').toggleClass('open');
+            $(this).parents('.coin').toggleClass('open');
         });
 
         $('.output-title').on('click', function(event){

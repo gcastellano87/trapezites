@@ -18,21 +18,7 @@ html {
     --scrollbarBG: var(--orange);
     --thumbBG: #fff;
   }
-.container::-webkit-scrollbar {
-    width: 11px;
-}
-.container {
-    scrollbar-width: thin;
-    scrollbar-color: var(--thumbBG) var(--scrollbarBG);
-}
-.container::-webkit-scrollbar-track {
-    background: var(--scrollbarBG);
-}
-.container::-webkit-scrollbar-thumb {
-    background-color: var(--thumbBG) ;
-    /* border-radius: 6px; */
-    border: 3px solid var(--scrollbarBG);
-}
+
 
 .screen-reader-text {
     position: absolute;
@@ -91,8 +77,27 @@ body {
         "convert map"
         "output output";
     margin-top: 90px;
+    max-height: calc(100vh - 83px);
+    overflow-y: auto;
+    padding-right: 5px;
+    padding-bottom: 5px;
 }
 
+.content::-webkit-scrollbar {
+    width: 11px;
+}
+.content {
+    scrollbar-width: thin;
+    scrollbar-color: var(--thumbBG) var(--scrollbarBG);
+}
+.content::-webkit-scrollbar-track {
+    background: var(--scrollbarBG);
+}
+.content::-webkit-scrollbar-thumb {
+    background-color: var(--thumbBG) ;
+    /* border-radius: 6px; */
+    border: 3px solid var(--scrollbarBG);
+}
 
 /* ------------- HEADER ------------- */
 .page-menu {
@@ -420,7 +425,7 @@ label .select2-container.select2-container--currencies.select2-container--open {
     display: none;
 }
 
-.output .expandable.open{
+.output .coin.open .expandable{
     display: flex;
 }
 
@@ -485,10 +490,27 @@ label .select2-container.select2-container--currencies.select2-container--open {
     justify-content: space-between;
 }
 
-/* .output .expand-citations-and-links {
+.output .citations-and-links {
+    border: solid 1px var(--orange);
     color: #fff;
+    margin-top: 10px;
+    padding: 2px;
+    position: relative;
     text-decoration: none;
-} */
+}
+
+.output .citations-and-links::before {
+    background-image: url(../img/key_line_vert.png);
+    content: "";
+    width: 5px;
+    height: calc(100% - 4px);
+    position: absolute;
+    background-size: contain;
+}
+
+.output .citations-and-links ul {
+    padding: 15px 20px;
+}
 
 .output .coin .main {
     cursor: pointer;
@@ -501,13 +523,19 @@ label .select2-container.select2-container--currencies.select2-container--open {
     color: var(--orange);
 }
 
-.expand {
+
+.expand::before{
+    content: '+';
     font-family: 'Courier New', Courier, monospace;
     font-size: 20px;
     line-height: 16px;
 }
 
+.coin.open .expand::before{
+        content: '-';
+}
 .output-title {
+    cursor: pointer;
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
