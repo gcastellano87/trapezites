@@ -188,7 +188,14 @@ var App = {
 
     },
     add_listeners: function(){
+        $('.about').click(function(){
+            $('body').toggleClass('modal-open');
+        });        
         
+        $('.close-modal').click(function(){
+            $('body').removeClass('modal-open');
+        });
+
         $('.currency-from .option-list').change(function() {           
             let id = $(this).children('.option-list :selected').val();
 
@@ -261,15 +268,18 @@ var App = {
             output += '<li class="coin">';
             // output += '  <a href="#" class="expand-citations-and-links">';
             output += '    <div class="main expand-citations-and-links">';
-            output += '      <span class="expand">+</span>';         
+            output += '      <span class="expand">+</span>';
+         
             output += '      <span class="group">';
-            output += '      ';
             output += '        <span class="number">'       + Math.round(result.number * 100) / 100 + '</span>';
-        
         if (display_denomination){
             output += '        <span class="denomination">' + result.coin.denomination              + '(s)</span>';
-            output += '      </span>';
+        } else {
+            output += '        <span> units</span>';
+
         }
+            output += '      </span> <!-- group -->';
+         
             output += '      <span class="group region">'       + result.coin.region                    + '</span>';
             output += '      <span class="group">';
             output += '        <span class="location">'     + result.coin.location                  + ',</span>';
@@ -318,43 +328,51 @@ var App = {
         let contemporary_standards = Standards.get_standards_by_range(Coins.selected_coin.range);
         let contemporary_commodities = Coins.get_commodities_by_range(Coins.selected_coin.range);
 
-        let html = '<h2 class="conversion-title">'+ amount + ' ' + Coins.selected_coin.denomination+' in ' + Coins.selected_coin.location + ' between ' + Coins.selected_coin.range.as_string() + '...</h2>';
+        let html = '<h2 class="conversion-title">'+ amount + ' ' + Coins.selected_coin.denomination+' in ' + Coins.selected_coin.location + ' between ' + Coins.selected_coin.range.as_string() + ' converted to...</h2>';
         html += '   <ul class="list-of-conversion-types">';
-        html += '     <li class="conversion-type">';
-        html += '       <h3 class="output-title">Converted to the Selected Standard</h3>';
+
+        html += '     <li class="conversion-type open">';
+        html += '       <h3 class="output-title">the selected standard:<span class="expand-list-of-conversions" aria-label="Expand or Collapse"></span></h3>';
         html += '       <ul class="list-of-conversions selected-standard">';
         html += '         <li class="conversion">';
         html += '           <h4 class="selected-standard-title">' + Standards.selected_standard.standard_version_name + '</h4>';
-        html += '           <ul class="list-of-coins ">' + App.display_selected_standard(conversion_results) + '</ul>';
+        html += '           <ul class="list-of-coins">' + App.display_selected_standard(conversion_results) + '</ul>';
         html += '         </li>';
         html += '       </ul>';
         html += '     </li>';
-        html += '     <li class="conversion-type">';
-        html += '       <h3 class="output-title">Converted to '+contemporary_standards.length +' Other Contemporary Standards (' + Coins.selected_coin.range.as_string() + ')</h3>';
-        html += '       <ul class="list-of-conversions">';
 
-    contemporary_standards.forEach(standard => {
-        html += '         <li class="conversion">';
-        html += '           <h4 class="selected-standard-title">' + standard.standard_version_name + '</h4>';
-        html += '           <ul class="list-of-coins ">' + App.display_selected_standard(standard.coin_conversion(total_value_of_coins)) + '</ul>';
-        html += '         </li>';
-    });
-
-        html += '       </ul>';
-        html += '     </li>';
+if (contemporary_commodities.length > 0){   
         html += '     <li class="conversion-type">';
-        html += '       <h3 class="output-title">Converted to '+ contemporary_commodities.length + ' Commodities</h3>';
+        html += '       <h3 class="output-title">commodities (' + contemporary_commodities.length + '):<span class="expand-list-of-conversions" aria-label="Expand or Collapse"></span></h3>';
         html += '       <ul class="list-of-conversions">';
 
     contemporary_commodities.forEach(commodity => {
         html += '         <li class="conversion">';
         html += '           <h4 class="selected-standard-title">' + commodity.denomination + '</h4>';
-        html += '           <ul class="list-of-coins ">' + App.display_selected_standard(Coins.currency_conversion(commodity,total_value_of_coins),false) + '</ul>';
+        html += '           <ul class="list-of-coins">' + App.display_selected_standard(Coins.currency_conversion(commodity,total_value_of_coins),false) + '</ul>';
         html += '         </li>';
     });
 
         html += '       </ul>';
         html += '     </li>';
+       
+}
+
+    if(contemporary_standards.length > 0){
+        html += '     <li class="conversion-type">';
+        html += '       <h3 class="output-title">other contemporary standards from ' + Coins.selected_coin.range.as_string() + '('+contemporary_standards.length +'):<span class="expand-list-of-conversions" aria-label="Expand or Collapse"></span></h3>';
+        html += '       <ul class="list-of-conversions">';
+
+    contemporary_standards.forEach(standard => {
+        html += '         <li class="conversion">';
+        html += '           <h4 class="selected-standard-title">' + standard.standard_version_name + '</h4>';
+        html += '           <ul class="list-of-coins">' + App.display_selected_standard(standard.coin_conversion(total_value_of_coins)) + '</ul>';
+        html += '         </li>';
+    });
+
+        html += '       </ul>';
+        html += '     </li>';
+    }   
 
         $(html).appendTo('.conversion-output');
 
@@ -417,6 +435,10 @@ var App = {
         $('.expand-citations-and-links').on('click', function(event){
             event.preventDefault();            
             $(this).parents('.coin').find('.citations-and-links').toggleClass('open');
+        });
+
+        $('.output-title').on('click', function(event){
+            $(this).parents('.conversion-type').toggleClass('open');
         });
     },
     initialize_data_and_dropdowns: function(entries){

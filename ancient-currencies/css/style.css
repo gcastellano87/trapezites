@@ -66,7 +66,7 @@ body {
 .container {
     border: 1px solid #fff;
     margin: 40px;
-    /* position: fixed; */
+    
     overflow-x: hidden;
     overflow-y: hidden;
     height: calc(100vh - 82px);
@@ -273,9 +273,10 @@ body {
     color: #fff;
 }
 
-.filters label .letter {
+.filters label .label-modifier {
     color: #fff;
     margin-left: 3px;
+    text-transform: uppercase;
 }
 
 .region-selector-from {
@@ -441,9 +442,39 @@ label .select2-container.select2-container--currencies.select2-container--open {
     padding: 0;
 }
 
-.content.modal {
+/* Modal content */
+
+.modal {
     display: none;
 }
+
+.modal-open .content {
+    grid-template-columns: 1fr;
+}
+
+.modal-open .content > * {
+    display: none;
+}
+
+.modal-open .modal {
+    display: block;
+}
+
+.modal .modal-content{
+    font-size: 18px;
+    line-height: 22px;
+    margin: 0 auto;
+    max-width: 1380px;
+    width: 80%;
+}
+.modal-content p {
+    text-indent: 20px;
+}
+.close-modal {
+    cursor: pointer;
+}
+
+/* Output */
 
 .output .coin {
     margin-bottom: 15px;
@@ -460,6 +491,7 @@ label .select2-container.select2-container--currencies.select2-container--open {
 } */
 
 .output .coin .main {
+    cursor: pointer;
     display: grid;
     grid-gap: 5px;
     grid-template-columns: 30px 1fr 1fr 1fr 1fr;
@@ -474,6 +506,37 @@ label .select2-container.select2-container--currencies.select2-container--open {
     font-size: 20px;
     line-height: 16px;
 }
+
+.output-title {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    font-size: 20px;
+    text-transform: uppercase;
+}
+
+.list-of-conversions {
+    display: none;
+}
+
+
+.expand-list-of-conversions::before {
+    content: '+';
+    cursor: pointer;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 16px;
+}
+
+.open.conversion-type .expand-list-of-conversions::before {
+    content: '-';
+}
+
+.open.conversion-type .list-of-conversions {
+    display: block;
+}
+
 /* ------------- FOOTER ------------- */
 .footer {
     display: none;
