@@ -286,7 +286,7 @@ var App = {
             output += '      </span>';
             output += '     <span class="group links">(citations and links)</span>';            
             output += '    </div>';
-            // output += '  </a>';
+
             output += '  <div class="citations-and-links expandable">';
 
             output += '     <ul>';
@@ -296,7 +296,7 @@ var App = {
             output += App.link_output('Nomisma (denomination)',result.coin['nomisma_(denomination)'],true);
             output += App.link_output('Nomisma (material)',result.coin['nomisma_(material)'],true);
             output += App.link_output('Notes',result.coin.notes, false);
-
+            output += App.citations_and_sources(result.coin.citations, result.coin.sources);
             output += '        </li>';
             output += '     </ul>';
             output += '  </div>';
@@ -304,6 +304,9 @@ var App = {
         });
 
         return output;
+    },
+    citations_and_sources(citations, sources){
+        return "";
     },
     convert(amount){
         let coins_value             = Coins.selected_coin.value_in_grams_of_silver;
