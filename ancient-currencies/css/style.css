@@ -69,17 +69,16 @@ body {
 }
 
 .content {
-
     display: grid;
     grid-template-columns: 450px 1fr;
-    grid-template-rows: min-content 1fr 1fr;
+    grid-template-rows: min-content 1fr min-content;
     grid-template-areas: 
         "header map"
         "convert map"
         "output output";
     margin-top: 90px;
     max-height: calc(100vh - 83px);
-    overflow-y: scroll;
+    overflow-y: auto;
     padding-right: 5px;
     padding-bottom: 5px;
 }
@@ -411,6 +410,7 @@ label .select2-container.select2-container--currencies.select2-container--open {
 }
 
 #map {
+    display: block;
     height: auto;
     width: 100%;
 }
