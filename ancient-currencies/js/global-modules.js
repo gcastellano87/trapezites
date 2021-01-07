@@ -292,13 +292,17 @@ var App = {
             output +=       "<p>Weight: " + (result.coin.weight_in_grams ? (result.coin.weight_in_grams + " g" ) : "N/A") + "</p>";
             output +=       "<p>Value: " + result.coin.value_in_grams_of_silver + " g of silver</p>";
             output += '     <div class="links">';
-        if (result.coin.pleiades_id || result.coin['nomisma_(mint)'] || result.coin['nomisma_(denomination)'] ||result.coin['nomisma_(material)'] || result.coin.notes){
+        if (result.coin.pleiades_id || result.coin['nomisma_(mint)'] || result.coin.coin_examples || result.coin.perseus_uri_1|| result.coin['nomisma_(denomination)'] ||result.coin['nomisma_(material)'] || result.coin.notes){
             output += '     <h4 class="source-title">Links</h4>';
             output += '       <ul>';
+            output +=             App.link_output('Coin Example', result.coin.coin_examples,true);
             output +=             App.link_output('Pleiades', result.coin.pleiades_id,true);
             output +=             App.link_output('Nomisma (mint)',result.coin['nomisma_(mint)'],true);
             output +=             App.link_output('Nomisma (denomination)',result.coin['nomisma_(denomination)'],true);
             output +=             App.link_output('Nomisma (material)',result.coin['nomisma_(material)'],true);
+            output +=             App.link_output('Perseus Digital Library', result.coin.perseus_uri_1,true,result.coin.perseus_citation_1);
+            output +=             App.link_output('Perseus Digital Library', result.coin.perseus_uri_2,true,result.coin.perseus_citation_2);
+            output +=             App.link_output('Perseus Digital Library', result.coin.perseus_uri_3,true,result.coin.perseus_citation_3);
             output +=             App.link_output('Notes',result.coin.notes, false);
             output +=        '</ul>';
         }
@@ -368,7 +372,7 @@ var App = {
         let html = "";
         if (source){
             html += '<li class="source">';
-            html += source;
+            html +=   source.replaceAll('\[\[','<span class="book-title">').replaceAll('\]\]','</span>');
             html += '</li>';
         }
         return html;
@@ -431,7 +435,7 @@ if (contemporary_commodities.length > 0){
        
         App.attach_output_listeners();
     },
-    link_output(title,content,content_is_url=false){
+    link_output(title,content,content_is_url=false,link_text =''){
         let html = '';
         if(content){
                 html += '<li class="citation-or-link">';
@@ -439,7 +443,11 @@ if (contemporary_commodities.length > 0){
             if (content_is_url){
                 html += '    <a href="' + content +'">';
             }
+            if (link_text){
+                html += link_text;
+            } else {
                 html +=         content;
+            }
             if (content_is_url){
                     html += '    </a>';
             }

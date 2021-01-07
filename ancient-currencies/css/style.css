@@ -82,7 +82,7 @@ a {
         "convert map"
         "output output";
     margin-top: 90px;
-    max-height: calc(100vh - 83px);
+    max-height: calc(100vh - 183px);
     overflow-y: auto;
     padding-right: 5px;
     padding-bottom: 5px;
@@ -468,6 +468,9 @@ label .select2-container.select2-container--currencies.select2-container--open {
     padding: 0;
 }
 
+.output .book-title {
+    font-style: italic;
+}
 /* Modal content */
 
 .modal {
@@ -704,6 +707,7 @@ label .select2-container.select2-container--currencies.select2-container--open {
     .content {
         grid-template-columns: 400px 1fr;
         margin: 70px 20px 0px 20px;
+        max-height: calc(100vh - 89px);
     }
 
     .currencies {
@@ -729,7 +733,7 @@ label .select2-container.select2-container--currencies.select2-container--open {
 
 @media only screen and (max-width: 960px) {
     .content {
-        grid-template-columns: 1fr;
+        grid-template-columns: 100%;
         grid-template-areas: 
             "header"
             "convert"
