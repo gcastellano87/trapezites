@@ -17,7 +17,7 @@ export const Periods = {
         text: '',
     },    
     initialize: function(coins_json){
-        console.log('initializing periods');
+        // console.log('initializing periods');
         Periods.initialize_list(coins_json);
         Periods.build_dropdown();
     },
@@ -28,7 +28,7 @@ export const Periods = {
         Periods.list = periods.ranged_items;
     },
     set_text_filter: function(text){
-        console.log('text seartch periods',text);
+        // console.log('text seartch periods',text);
         
         Periods.active_filters.text = text;
     },
@@ -36,11 +36,11 @@ export const Periods = {
         Periods.list = new_list;
     },
     build_dropdown: function(){
-        console.log('building periods dropdown');
+        // console.log('building periods dropdown');
         // console.log("Periods.get_filtered_list()", Periods.get_filtered_list())
         $('.period-selector .option-list').empty();
         let list = Periods.get_filtered_list();
-        console.log('list',list);
+        // console.log('list',list);
         
         if(list.length === 0){
             $('<option value="" selected disabled hidden>No periods match...</option>').appendTo('.period-selector .option-list');

@@ -51,7 +51,7 @@ export class StandardVersion {
         let coins_big_to_little = this.coins.ranged_items.sort((a,b) => {
             return b.value_in_grams_of_silver - a.value_in_grams_of_silver;            
         })
-        console.log('number_of_coins',coins_big_to_little.length);
+        // console.log('number_of_coins',coins_big_to_little.length);
         
 
         coins_big_to_little.forEach((coin,index) => {
@@ -257,7 +257,7 @@ export const Standards = {
     },
     get_standards_by_range: function(range){
         return Standards.list.filter(function(standard){
-            console.log(range);
+            // console.log(range);
             return range.overlaps(standard.coins.range);
         })
     },

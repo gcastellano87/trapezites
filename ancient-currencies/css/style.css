@@ -49,6 +49,11 @@ body {
     width: 100vw;
 }
 
+a {
+    color: var(--orange);
+    text-decoration: none;
+}
+
 .container {
     background-image: url(../img/background.png);
     background-size: cover;
@@ -71,7 +76,7 @@ body {
 .content {
     display: grid;
     grid-template-columns: 450px 1fr;
-    grid-template-rows: min-content 1fr min-content;
+    grid-template-rows: min-content min-content min-content;
     grid-template-areas: 
         "header map"
         "convert map"
@@ -83,16 +88,23 @@ body {
     padding-bottom: 5px;
 }
 
+.modal .modal-content section::-webkit-scrollbar,
 .content::-webkit-scrollbar {
     width: 11px;
 }
+
+.modal .modal-content section ,
 .content {
     scrollbar-width: thin;
     scrollbar-color: var(--thumbBG) var(--scrollbarBG);
 }
+
+.modal .modal-content section::-webkit-scrollbar-track,
 .content::-webkit-scrollbar-track {
     background: var(--scrollbarBG);
 }
+
+.modal .modal-content section::-webkit-scrollbar-thumb,
 .content::-webkit-scrollbar-thumb {
     background-color: var(--thumbBG) ;
     /* border-radius: 6px; */
@@ -141,7 +153,6 @@ body {
     background-repeat: no-repeat;
     background-position: top center;
     grid-area: header;
-    margin-top: -32px;
     padding-top: 35px;
     background-size: 20px;
     text-align: center;
@@ -179,7 +190,7 @@ body {
 }
 
 .currencies .header {
-    background-image: url('../img/currencies.png');
+    background-image: url('../img/currencies1.png');
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;
@@ -248,7 +259,7 @@ body {
 }
 
 .filters .header {
-    background-image: url(../img/filters.png);
+    background-image: url(../img/filters1.png);
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;
@@ -306,6 +317,11 @@ body {
 
 /* ------------- DROPDOWNS ------------- */
 
+.select2-dropdown {
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
 .select2-container--currencies,
 .select2-container--filters {
     border: 1px solid #fff;
@@ -315,15 +331,18 @@ body {
 .select2-container.select2-container--below.select2-container--filters.select2-container--open,
 .select2-container--filters,
 .select2-container--currencies {
-    width: 90% !important
+    width: 90% !important;
+    max-width: 95vw;
 }
 
 .select2-container--currencies .select2-dropdown {
     width: 500px !important;
+    max-width: 95vw;
 }
 
 .select2-container--filters .select2-dropdown {
     width: 250px !important;
+    max-width: 95vw;
 }
 
 .select2-container--currencies .select2-dropdown,
@@ -428,6 +447,7 @@ label .select2-container.select2-container--currencies.select2-container--open {
 
 .output .coin.open .expandable{
     display: flex;
+    flex-direction: column;
 }
 
 .output .comp-comodities,
@@ -456,6 +476,7 @@ label .select2-container.select2-container--currencies.select2-container--open {
 
 .modal-open .content {
     grid-template-columns: 1fr;
+    overflow-y: hidden;
 }
 
 .modal-open .content > * {
@@ -464,6 +485,10 @@ label .select2-container.select2-container--currencies.select2-container--open {
 
 .modal-open .modal {
     display: block;
+}
+
+.modal-open .page-menu ul {
+    display: none;
 }
 
 .modal .modal-content{
@@ -476,8 +501,47 @@ label .select2-container.select2-container--currencies.select2-container--open {
 .modal-content p {
     text-indent: 20px;
 }
+
+.modal .modal-content section {
+    height: calc(100vh - 240px);
+    padding-right: 10px;
+    overflow-y: scroll;
+}
+
+
+.title {
+    display: flex;
+    height: 120px;
+    padding: 0px 30px;
+}
+
+.about-title {
+    background-image: url('../img/about_header_1.png');
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    height: 120px;
+    margin: -15px 0px 0px 0px;
+    width: 100%;
+}
+
 .close-modal {
     cursor: pointer;
+    position: relative;
+    width: 30px;
+}
+
+.close-modal::before{
+    content: "\00D7";
+
+    background: #ffb355;
+    color: #000;
+    font-size: 50px;
+    height: 30px;
+    padding-left: 4px;
+    position: absolute;
+    top: 40px;
+    width: 26px;
 }
 
 /* Output */
@@ -509,8 +573,41 @@ label .select2-container.select2-container--currencies.select2-container--open {
     background-size: contain;
 }
 
+.citations-and-links > * {
+    margin: 0px;
+    padding: 5px 20px 0px;
+}
+
+.coin-example,
+.source-title {
+    font-weight: bold;
+    padding-bottom: 5px;
+}
+
+.coin-example {
+    padding-top: 5px;
+}
+
+.citations-and-links > *:first-child {
+    padding-top: 15px;
+}
+
+.source-title {
+    margin: 0px;
+}
+
+.sources .source {
+    margin-bottom: 5px;
+    margin-left: 20px;
+    text-indent: -20px;
+}
+
 .output .citations-and-links ul {
     padding: 15px 20px;
+}
+
+.output .citations-and-links ul:empty{
+    padding: 0;
 }
 
 .citation-title {
@@ -532,7 +629,6 @@ label .select2-container.select2-container--currencies.select2-container--open {
     color: var(--orange);
 }
 
-
 .expand::before{
     content: '+';
     font-family: 'Courier New', Courier, monospace;
@@ -540,9 +636,10 @@ label .select2-container.select2-container--currencies.select2-container--open {
     line-height: 16px;
 }
 
-.coin.open .expand::before{
-        content: '-';
+.coin.open .expand::before{        
+    content: '-';
 }
+
 .output-title {
     cursor: pointer;
     display: flex;
@@ -555,7 +652,6 @@ label .select2-container.select2-container--currencies.select2-container--open {
 .list-of-conversions {
     display: none;
 }
-
 
 .expand-list-of-conversions::before {
     content: '+';
@@ -578,6 +674,8 @@ label .select2-container.select2-container--currencies.select2-container--open {
 .footer {
     display: none;
 }
+
+
 
 @media only screen and (min-width: 2082px) {
     .container{
@@ -641,5 +739,26 @@ label .select2-container.select2-container--currencies.select2-container--open {
             "output"
             "map";
         margin: 70px 20px 0px 20px;
+    }
+    
+    .standard-to .select2-container .select2-selection--single,
+    .currency-from .select2-container .select2-selection--single {
+        background-position-x: 98%;
+    }
+
+    .modal .modal-content {
+        padding: 0px 20px;
+        width: auto;
+    }
+}
+
+@media only screen and (max-width: 680px) {
+    .close-modal {
+        margin-right: -30px;
+        padding-left: 10px;
+    }
+
+    .about-title {
+        margin: 0px;
     }
 }

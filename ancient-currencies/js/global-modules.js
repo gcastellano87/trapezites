@@ -173,7 +173,7 @@ var App = {
         }
     },
     initialize_select2: function(){
-        console.log("FORMAT");
+        // console.log("FORMAT");
        $('.currencies .option-list').select2({
            templateResult: App.format_state_for_select2,
            theme: 'currencies',
@@ -211,7 +211,7 @@ var App = {
         });
 
         $('.standard-to .option-list').change(function() {
-            console.log('in standard optionlist listener');
+            // console.log('in standard optionlist listener');
             let id = $(this).children('.option-list :selected').val();
             if (id){
                 Standards.selected_standard = Standards.get_standard_by_id(id);
@@ -228,7 +228,7 @@ var App = {
             let region_id = $(this).children('.option-list :selected').val();
             Regions.selected_region = Regions.get_region_by_id(region_id);
 
-            console.log("THE SELECTED Region", Regions.selected_region);
+            // console.log("THE SELECTED Region", Regions.selected_region);
             Coins.set_region_filter(Regions.selected_region);
             Coins.build_dropdown();
             App.convert_or_show_errors();
@@ -270,7 +270,7 @@ var App = {
             output += '      <span class="expand"  aria-label="Expand or Collapse"></span>';
          
             output += '      <span class="group">';
-            output += '        <span class="number">'       + Math.round(result.number * 100) / 100 + '</span>';
+            output += '        <span class="number">'       + ( result.number > 1 ? Math.round(result.number * 100) / 100 :  result.number.toPrecision(2) ) + '</span>';
         if (display_denomination){
             output += '        <span class="denomination">' + result.coin.denomination              + '(s)</span>';
         } else {
@@ -288,24 +288,87 @@ var App = {
             output += '    </div>';
 
             output += '  <div class="citations-and-links expandable">';
-
-            output += '     <ul>';
+            output +=       App.generate_image_html(result.coin.coin_examples);
+            output +=       "<p>Weight: " + (result.coin.weight_in_grams ? (result.coin.weight_in_grams + " g" ) : "N/A") + "</p>";
+            output +=       "<p>Value: " + result.coin.value_in_grams_of_silver + " g of silver</p>";
+            output += '     <div class="links">';
+            output += '       <ul>';
+            output +=             App.link_output('Pleiades', result.coin.pleiades_id,true);
+            output +=             App.link_output('Nomisma (mint)',result.coin['nomisma_(mint)'],true);
+            output +=             App.link_output('Nomisma (denomination)',result.coin['nomisma_(denomination)'],true);
+            output +=             App.link_output('Nomisma (material)',result.coin['nomisma_(material)'],true);
+            output +=             App.link_output('Notes',result.coin.notes, false);
+            output +=        '</ul>';
+            output += '    </div>';            
             
-            output +=           App.link_output('Pleiades', result.coin.pleiades_id,true);
-            output +=           App.link_output('Nomisma (mint)',result.coin['nomisma_(mint)'],true);
-            output +=           App.link_output('Nomisma (denomination)',result.coin['nomisma_(denomination)'],true);
-            output +=           App.link_output('Nomisma (material)',result.coin['nomisma_(material)'],true);
-            output +=           App.link_output('Notes',result.coin.notes, false);
-            output +=           App.citations_and_sources(result.coin.citations, result.coin.sources);
-            output += '     </ul>';
+        if (result.coin.source_1){
+            output += '    <div class="sources">';
+            output += '    <h4 class="source-title">Bibliography</h4>';
+            output += '       <ul>';
+            output +=          App.source_output(result.coin.source_1);
+            output +=          App.source_output(result.coin.source_2);
+            output +=          App.source_output(result.coin.source_3);
+            output +=          App.source_output(result.coin.source_4);
+            output += '       </ul>';
+            output += '    </div>';
+        }
+
             output += '  </div>';
             output += '</li>';            
         });
 
         return output;
     },
-    citations_and_sources(citations, sources){
-        return "";
+    generate_image_html(coin_url){
+        let html = '';
+
+        if (coin_url.length > 0){
+            if (coin_url.includes("numismatics.org")){
+                //these links can be converted into an image
+                let url_parts = coin_url.split('/');
+                let last_part = url_parts[url_parts.length - 1];
+                let coin_id = last_part.replace('.', '_');
+                // let json_ld = App.get_json_ld(coin_url, coin_id);
+
+                html += '<div class="coin-example">';
+                html +=     '<a class="link-to-coin" href="' + coin_url + '"><span class="screen-reader-text-MAYBE">Coin example (external link)</span><img id="'+coin_id+'" src=""></a>';
+                html += '</div>';
+            } else {
+                html += '<div class="coin-example">';
+                html +=     '<a class="link-to-coin" href="' + coin_url + '">Coin example</a>';
+                html += '</div>';
+            }
+        }
+        return html;
+    },
+    get_json_ld(coin_url, coin_id){
+        let json = {};
+        const headz = new Headers();
+        // console.log(coin_url + '.jsonld');
+        fetch(coin_url + '.jsonld', {
+                method: 'GET',
+                headers: headz,
+                mode: 'no-cors',
+                cache: 'default',
+            })
+            .then(response => {
+                if (response.status !== 200){
+                    // console.log('Error: ' + response.status);
+                    return;
+                }
+                response.json().then(data => {
+                    // console.log(data);
+                });
+            });
+    },
+    source_output(source){
+        let html = "";
+        if (source){
+            html += '<li class="source">';
+            html += source;
+            html += '</li>';
+        }
+        return html;
     },
     convert(amount){
         let coins_value             = Coins.selected_coin.value_in_grams_of_silver;
@@ -314,7 +377,7 @@ var App = {
         let contemporary_standards = Standards.get_standards_by_range(Coins.selected_coin.range);
         let contemporary_commodities = Coins.get_commodities_by_range(Coins.selected_coin.range);
 
-        let html = '<h2 class="conversion-title">'+ amount + ' ' + Coins.selected_coin.denomination+' in ' + Coins.selected_coin.location + ' between ' + Coins.selected_coin.range.as_string() + ' converted to...</h2>';
+        let html = '<h2 class="conversion-title">'+ amount + ' ' + Coins.selected_coin.denomination + ' (' + ( Math.round(total_value_of_coins * 100) / 100 ) + ' g of silver) in ' + Coins.selected_coin.location + ' between ' + Coins.selected_coin.range.as_string() + ' converted to...</h2>';
         html += '   <ul class="list-of-conversion-types">';
 
         html += '     <li class="conversion-type open">';
@@ -329,7 +392,7 @@ var App = {
 
 if (contemporary_commodities.length > 0){   
         html += '     <li class="conversion-type">';
-        html += '       <h3 class="output-title">commodities (' + contemporary_commodities.length + '):<span class="expand-list-of-conversions" aria-label="Expand or Collapse"></span></h3>';
+        html += '       <h3 class="output-title">Contemporary Commodities (' + contemporary_commodities.length + '):<span class="expand-list-of-conversions" aria-label="Expand or Collapse"></span></h3>';
         html += '       <ul class="list-of-conversions">';
 
     contemporary_commodities.forEach(commodity => {
@@ -441,18 +504,18 @@ if (contemporary_commodities.length > 0){
         //calling initialize functions for objects
         Coins.initialize(entries);
         // DEBUGGIN ONLY
-        window.coins = Coins;
+        // window.coins = Coins;
         var coins_list = Coins.get_filtered_list();
         
         Standards.initialize(coins_list);
         //         // DEBUGGIN ONLY
-                window.standards = Standards;
+                // window.standards = Standards;
         Periods.initialize(coins_list);
             // DEBUGGIN ONLY
-            window.periods = Periods;
+            // window.periods = Periods;
         Regions.initialize(coins_list);
             // DEBUGGIN ONLY
-            window.regions = Regions;
+            // window.regions = Regions;
 
     }
 }
