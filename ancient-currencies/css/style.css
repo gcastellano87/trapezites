@@ -606,9 +606,6 @@ label .select2-container.select2-container--currencies.select2-container--open {
     padding: 15px 20px;
 }
 
-.output .citations-and-links ul:empty{
-    padding: 0;
-}
 
 .citation-title {
     color: var(--orange);

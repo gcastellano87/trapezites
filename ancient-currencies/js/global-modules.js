@@ -292,6 +292,8 @@ var App = {
             output +=       "<p>Weight: " + (result.coin.weight_in_grams ? (result.coin.weight_in_grams + " g" ) : "N/A") + "</p>";
             output +=       "<p>Value: " + result.coin.value_in_grams_of_silver + " g of silver</p>";
             output += '     <div class="links">';
+        if (result.coin.pleiades_id || result.coin['nomisma_(mint)'] || result.coin['nomisma_(denomination)'] ||result.coin['nomisma_(material)'] || result.coin.notes){
+            output += '     <h4 class="source-title">Links</h4>';
             output += '       <ul>';
             output +=             App.link_output('Pleiades', result.coin.pleiades_id,true);
             output +=             App.link_output('Nomisma (mint)',result.coin['nomisma_(mint)'],true);
@@ -299,6 +301,7 @@ var App = {
             output +=             App.link_output('Nomisma (material)',result.coin['nomisma_(material)'],true);
             output +=             App.link_output('Notes',result.coin.notes, false);
             output +=        '</ul>';
+        }
             output += '    </div>';            
             
         if (result.coin.source_1){
