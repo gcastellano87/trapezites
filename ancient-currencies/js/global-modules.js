@@ -289,6 +289,7 @@ var App = {
 
             output += '  <div class="citations-and-links expandable">';
             output +=       App.generate_image_html(result.coin);
+            output +=       "<p>Material: " + result.coin.material + "</p>";
             output +=       "<p>Weight: " + (result.coin.weight_in_grams ? (result.coin.weight_in_grams + " g" ) : "N/A") + "</p>";
             output +=       "<p>Value: " + result.coin.value_in_grams_of_silver + " g of silver</p>";
             output += '     <div class="links">';

@@ -795,3 +795,14 @@ label .select2-container.select2-container--currencies.select2-container--open {
         margin: 0px;
     }
 }
+
+@media only screen and (max-width: 500px) {
+    .coin-images {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .coin-images figure {
+      margin-bottom: 10px;
+    }
+}
