@@ -609,6 +609,36 @@ label .select2-container.select2-container--currencies.select2-container--open {
     padding: 15px 20px;
 }
 
+.citation-or-link span {
+    word-break: break-all;
+}
+
+.coin-images {
+    display: flex;
+    justify-content: space-between;
+    width: 350px;
+}
+
+.coin-images figure {
+    display: flex;
+    flex-direction: column;
+    flex: 0 1 150px;
+    justify-content: space-between;
+    margin: 0;
+    padding: 0;
+
+    width: 150px;
+    min-height: 175px;
+}
+
+.coin-images figure img {
+    width: 100%;
+}
+
+.coin-images figcaption {
+    padding-top: 5px;
+    text-align: center;
+}
 
 .citation-title {
     color: var(--orange);
@@ -669,6 +699,8 @@ label .select2-container.select2-container--currencies.select2-container--open {
 .open.conversion-type .list-of-conversions {
     display: block;
 }
+
+
 
 /* ------------- FOOTER ------------- */
 .footer {

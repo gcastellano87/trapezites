@@ -1,5 +1,10 @@
 <?php
-
+function download_image_and_change_url($url,$name){
+	$img = file_get_contents($url);
+	$img_file = fopen('ancient-currencies/img/coins/'.$name, 'w');
+	fwrite($img_file, $img);
+	fclose($img_file);
+}
 /*
  *  Build Bibliography.json
  *
@@ -49,6 +54,10 @@ $bibliography_json_output = fopen('ancient-currencies/bibliography.json', 'w');
 fwrite($bibliography_json_output, json_encode($bibliography_response));
 fclose($bibliography_json_output);
 
+// Remove all files image directory
+
+array_map('unlink', glob("ancient-currencies/img/coins/*"));
+
 /*
  *  Build currency.json
  *
@@ -76,7 +85,18 @@ while(! feof($currency_file)){
 		$newRow = array();
      
       	for($i = 0; $i<count($currency_row); $i++){
-	        $newRow[$currency_header[$i]] = $currency_row[$i];
+			echo 'Does ' . $currency_header[$i] . " have coin_image in it?\n\r";
+			if((strpos($currency_header[$i],'coin_image') !== false) && $currency_row[$i] ){
+				echo "Yes.  Yes it does..................................\n\r";
+				$ext = pathinfo( $currency_row[$i], PATHINFO_EXTENSION);
+				$file_name = $currency_header[$i] . str_replace('.','_',microtime(true)) . '.' . $ext;
+				download_image_and_change_url($currency_row[$i],$file_name);
+
+				$newRow[$currency_header[$i]] = $file_name;
+			} else {
+				// Save it as it is
+				$newRow[$currency_header[$i]] = $currency_row[$i];
+			}
 	    }
 	  	array_push($currency_json_array, $newRow);
 	}

@@ -288,7 +288,7 @@ var App = {
             output += '    </div>';
 
             output += '  <div class="citations-and-links expandable">';
-            output +=       App.generate_image_html(result.coin.coin_examples);
+            output +=       App.generate_image_html(result.coin);
             output +=       "<p>Weight: " + (result.coin.weight_in_grams ? (result.coin.weight_in_grams + " g" ) : "N/A") + "</p>";
             output +=       "<p>Value: " + result.coin.value_in_grams_of_silver + " g of silver</p>";
             output += '     <div class="links">';
@@ -326,25 +326,28 @@ var App = {
 
         return output;
     },
-    generate_image_html(coin_url){
+    generate_image_html(coin){
+        let obverse = coin.coin_image_obverse;
+        let reverse = coin.coin_image_reverse;
         let html = '';
 
-        if (coin_url.length > 0){
-            if (coin_url.includes("numismatics.org")){
-                //these links can be converted into an image
-                let url_parts = coin_url.split('/');
-                let last_part = url_parts[url_parts.length - 1];
-                let coin_id = last_part.replace('.', '_');
-                // let json_ld = App.get_json_ld(coin_url, coin_id);
+        if (obverse || reverse){
+            html += '<div class="coin-images">';
+            if (obverse){
 
-                html += '<div class="coin-example">';
-                html +=     '<a class="link-to-coin" href="' + coin_url + '"><span class="screen-reader-text-MAYBE">Coin example (external link)</span><img id="'+coin_id+'" src=""></a>';
-                html += '</div>';
-            } else {
-                html += '<div class="coin-example">';
-                html +=     '<a class="link-to-coin" href="' + coin_url + '">Coin example</a>';
-                html += '</div>';
+
+                html += '<figure>';
+                html += '  <img src="img/coins/'+ obverse +'" alt="Obverse image of coin">';
+                html += '  <figcaption>Obverse</figcaption>';
+                html += '</figure>';
+            } 
+            if (reverse){
+                html += '<figure>';
+                html += '  <img src="img/coins/'+ reverse +'" alt="reverse image of coin">';
+                html += '  <figcaption>Reverse</figcaption>';
+                html += '</figure>';
             }
+            html += '</div>';
         }
         return html;
     },
