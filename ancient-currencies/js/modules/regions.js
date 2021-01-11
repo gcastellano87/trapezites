@@ -31,13 +31,13 @@ export const Regions = {
         Regions.build_dropdowns();
     },
     initialize_list: function (coins) {
-        console.log('building regions list');
+        // console.log('building regions list');
         let regions_list = new Set();
         let regionArray = [];
         for (let i in coins) {
             regions_list.add(coins[i]['region'])
         }
-        console.log(regions_list);
+        // console.log(regions_list);
         let id = 0;
         for (let i of regions_list) {
             let regCoinTemp =[];
@@ -63,7 +63,7 @@ export const Regions = {
             id++;
         }
         regionArray.sort((a, b) => (a.name > b.name) ? 1 : -1)
-        console.log("Regions:" , regionArray);
+        // console.log("Regions:" , regionArray);
         Regions.list = regionArray;
     },
     get_region_by_id: function(region_id){
@@ -74,23 +74,30 @@ export const Regions = {
         console.log('Regions.list',Regions.list);
         
         let count = '';
+        $('<option value="" selected disabled hidden></option>').appendTo('.region-selector-from .option-list');
+        $('<option value="" selected disabled hidden></option>').appendTo('.region-selector-to .option-list');        
         
+        $('<option value="9999">-- Clear Selection --</option>').appendTo('.region-selector-from .option-list');
+        $('<option value="9999">-- Clear Selection --</option>').appendTo('.region-selector-to .option-list');
+
         for (let item of Regions.list) {
             let str = item['name'];
+
             if(str){
                 count = ' (' + item['coins'].length + ' currencies)';
-            } else {
-                count = '';
+
+                let tempHtml = $('<option value='+item['region_id']+'>'+ str+ count+ '</option>');
+            
+                $(tempHtml).appendTo('.region-selector-from .option-list');
             }
-            let tempHtml = $('<option value='+item['region_id']+'>'+ str+ count+ '</option>');
-            $(tempHtml).appendTo('.region-selector-from .option-list');
+
+
             if(str) {
                 count = ' (' + item['standards'].length +' standards)';
-            } else {
-                count ='';
+                let tempHtml2 = $('<option value='+item['region_id']+'>'+ str + count+'</option>');
+                $(tempHtml2).appendTo('.region-selector-to .option-list');
             }
-            let tempHtml2 = $('<option value='+item['region_id']+'>'+ str + count+'</option>');
-            $(tempHtml2).appendTo('.region-selector-to .option-list');
+
         }
     },
     

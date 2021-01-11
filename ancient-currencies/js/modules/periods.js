@@ -46,6 +46,7 @@ export const Periods = {
             $('<option value="" selected disabled hidden>No periods match...</option>').appendTo('.period-selector .option-list');
         } else {
             $('<option value="" selected disabled hidden></option>').appendTo('.period-selector .option-list');
+            $('<option value="9999">-- Clear Selection --</option>').appendTo('.period-selector .option-list');
         
             list.forEach(function(period, index){                
                 $('<option value='+(index)+'>'+ period.range.string + " (" + period.ranged_items.length +  " currencies)" + '</option>').appendTo('.period-selector .option-list');

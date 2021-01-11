@@ -147,6 +147,23 @@ a {
     text-transform: uppercase;
 }
 
+.external-menu ul {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    font-size: 12px;
+    justify-content: space-between;
+}
+
+.external-menu ul li {
+    flex: 0 0 15%;
+    min-width: 100px;
+    min-height: 75px;
+    padding-top: 10px;
+}
+
+.external-menu ul li a {
+    text-transform: none;
+}
 
 .main-header {
     background-image: url(../img/handle.png);
@@ -704,7 +721,12 @@ label .select2-container.select2-container--currencies.select2-container--open {
 
 /* ------------- FOOTER ------------- */
 .footer {
-    display: none;
+    /* display: none; */
+}
+.footer .decoration {
+    background-image: url('../img/repeat-sm.png');
+    height: 10px;
+    margin-top: 20px;
 }
 
 
