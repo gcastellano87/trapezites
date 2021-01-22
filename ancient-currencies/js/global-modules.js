@@ -177,6 +177,7 @@ var App = {
        $('.currencies .option-list').select2({
            templateResult: App.format_state_for_select2,
            theme: 'currencies',
+           sorter: App.sort_currency_for_select2,
         //    width: 'width: 500px'
         });       
         
@@ -186,6 +187,34 @@ var App = {
         //    width: 'width: 200px'
         });
 
+    },
+    sort_currency_for_select2: function(data){
+        return data.sort(function(a,b){
+            // console.log('1');        
+            if(a.text && b.text){
+                if(a.text.includes('    ')){
+                    let a_parts = a.text.split('    ');
+                    let b_parts = b.text.split('    ');
+                    // console.log('three')        
+
+                    return a_parts[1] < b_parts[1] ? -1 : a_parts[1] > b_parts[1] ? 1 : 0;
+                } else if (a.text.includes('   ')){ 
+                    let a_parts = a.text.split('   ');
+                    let b_parts = b.text.split('   ');
+                    // console.log('four')        
+
+                    return a_parts[1] < b_parts[1] ? -1 : a_parts[1] > b_parts[1] ? 1 : 0;
+                } else {
+                    // console.log('five')        
+
+                    return 0;
+                }
+            } else {
+                // console.log('six')        
+
+                return 0;
+            }
+        });
     },
     add_listeners: function(){
         $('.about').click(function(){

@@ -76,11 +76,12 @@ a {
 .content {
     display: grid;
     grid-template-columns: 450px 1fr;
-    grid-template-rows: min-content min-content min-content;
+    grid-template-rows: min-content min-content min-content min-content;
     grid-template-areas: 
         "header map"
         "convert map"
-        "output output";
+        "output output"
+        "footer footer";
     margin-top: 90px;
     max-height: calc(100vh - 183px);
     overflow-y: auto;
@@ -455,8 +456,18 @@ label .select2-container.select2-container--currencies.select2-container--open {
 .output {
     grid-area: output;
     /* display: none; */
+   
+}
+
+.conversion-output {
     padding: 20px;
 }
+
+.conversion-output:empty {
+    padding: 0px;
+}
+
+
 
 .output .expandable{
     display: none;
@@ -722,6 +733,7 @@ label .select2-container.select2-container--currencies.select2-container--open {
 /* ------------- FOOTER ------------- */
 .footer {
     /* display: none; */
+    grid-area: footer;
 }
 .footer .decoration {
     background-image: url('../img/repeat-sm.png');
@@ -739,11 +751,12 @@ label .select2-container.select2-container--currencies.select2-container--open {
 
 @media only screen and (min-width: 1400px) {
     .content {
-        grid-template-rows: min-content min-content 1fr;
+        grid-template-rows: min-content min-content 1fr min-content;
         grid-template-areas: 
         "header map"
         "convert map"
-        "output map";
+        "output map"
+        "footer footer";
     }
 }
 
@@ -792,7 +805,8 @@ label .select2-container.select2-container--currencies.select2-container--open {
             "header"
             "convert"
             "output"
-            "map";
+            "map"
+            "footer";
         margin: 70px 20px 0px 20px;
     }
     
