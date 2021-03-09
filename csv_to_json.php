@@ -5,54 +5,7 @@ function download_image_and_change_url($url,$name){
 	fwrite($img_file, $img);
 	fclose($img_file);
 }
-/*
- *  Build Bibliography.json
- *
- */
 
-
-$bibliography_file = fopen("bibliography.csv","r") or die("file does not exist");
-$bibliography_count = 0;
-$bibliography_json_array = array();
-$bibliography_response = array();
-$bibliography_header = array();
-
-while(! feof($bibliography_file)){
-
-  	$bibliography_row = fgetcsv($bibliography_file);
-	  
-	if($bibliography_count==0) {
-		print_r($bibliography_row);
-	
-		for($i = 0; $i<count($bibliography_row); $i++){
-			$bibliography_row[$i] = strtolower($bibliography_row[$i]);
-        }
-	
-		$bibliography_header = $bibliography_row;
-	  
-	} else {
-		
-		$newRow = array();
-		
-		for($i = 0; $i<count($bibliography_row); $i++){
-	        $newRow[$bibliography_header[$i]] = $bibliography_row[$i];
-		}
-	 
-		array_push($bibliography_json_array, $newRow);
-  	}
-	$bibliography_count++;
-}
-
-fclose($bibliography_file);
-
-$total_entries = count($bibliography_json_array);
-
-$bibliography_response['entries'] = $bibliography_json_array;
-$bibliography_response['total_entries'] = $total_entries;
-
-$bibliography_json_output = fopen('ancient-currencies/bibliography.json', 'w');
-fwrite($bibliography_json_output, json_encode($bibliography_response));
-fclose($bibliography_json_output);
 
 // Remove all files image directory
 
@@ -87,10 +40,10 @@ while(! feof($currency_file)){
       	for($i = 0; $i<count($currency_row); $i++){
 			echo 'Does ' . $currency_header[$i] . " have coin_image in it?\n\r";
 			if((strpos($currency_header[$i],'coin_image') !== false) && $currency_row[$i] ){
-				echo "Yes.  Yes it does..................................\n\r";
+				// echo "Yes.  Yes it does..................................\n\r";
 				$ext = pathinfo( $currency_row[$i], PATHINFO_EXTENSION);
 				$file_name = $currency_header[$i] . str_replace('.','_',microtime(true)) . '.' . $ext;
-				download_image_and_change_url($currency_row[$i],$file_name);
+				 download_image_and_change_url($currency_row[$i],$file_name);
 
 				$newRow[$currency_header[$i]] = $file_name;
 			} else {
@@ -110,8 +63,18 @@ fclose($currency_file);
 $total_entries = count($currency_json_array);
 $currency_response['entries'] = $currency_json_array;
 $currency_response['total_entries'] = $total_entries;
-$fp = fopen('ancient-currencies/currency.json', 'w');
-fwrite($fp, json_encode($currency_response));
+$filename = 'ancient-currencies/index.html';
+$original_content = file_get_contents($filename);
+$fp = fopen($filename, 'w');
+
+echo $original_content;
+$new_json_prefix = "\n\r" .'<script id="data" type="application/json">' . "\n\r";
+$new_json_data = json_encode($currency_response);
+$new_json_suffix = "\n\r" . '</script>'. "\n\r";
+$new_json = $new_json_prefix . $new_json_data . $new_json_suffix;
+
+$new_contents = preg_replace('/(<!--BDATA--\>).*?(\<!--EDATA--\>)/s', '$1' . $new_json .'$2', $original_content);
+fwrite($fp, $new_contents);
 fclose($fp);
 
 exit(0);
