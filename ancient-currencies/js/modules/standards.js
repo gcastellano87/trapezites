@@ -19,7 +19,7 @@ export class StandardVersion {
         this.coins                              = new RangedItems(coins);
         this.number_of_coins                    = this.coins.ranged_items.length;
         this.standard_version_name              = this.name + " " + this.coins.string;
-        this.standard_version_name_as_option    = this.standard + " (" + this.number_of_coins+ " denoms)   " + this.location + "   " + this.coins.string;
+        this.standard_version_name_as_option    = this.standard + " (" + this.number_of_coins+ ")   " + this.location + "   " + this.coins.string;
         // this.standard_version_name_as_option    = "kljsadflkjl;kadsl;fjsldak;fjsdl;kfjdslk";
     }
     
